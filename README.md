@@ -117,4 +117,9 @@ Finally, let's add the new user to the `shiny` group:
 sudo usermod -a -G shiny USERNAME
 ```
 
+Make sure that the shiny app directory has the correct permissions:
 
+```bash
+sudo chgrp -hR shiny /srv/shiny-server/APP_NAME
+sudo chmod -R g+w /srv/shiny-server/APP_NAME
+```
