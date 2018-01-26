@@ -40,17 +40,7 @@ Get ssh access to our web server
 2. Create a private/public key pair on your laptop.
 3. Share the public key with Kamil.
 
-On your laptop, please add this to your `~/.ssh/config` file:
-
-```
-Host ig
-    PubkeyAuthentication yes
-    User YOUR_USERNAME
-    IdentityFile ~/.ssh/YOUR_PUBLIC_KEY.pub
-    HostName 34.196.99.74
-```
-
-Create a new public key like this:
+Create a new private/public key pair like this:
 
 ```
 ssh-keygen -t rsa
@@ -62,7 +52,11 @@ You will see the output shown below. Please follow these instructions:
 
 2. You can use an empty passphrase if you wish (just press <kbd>Enter</kbd>).
 
-3. This creates a **private** key (never share with anyone) and a **public** key (you can share freely with the world).
+3. This creates 2 files:
+
+    - a **private** key (never share with anyone) `~/.ssh/immunogenomics_id_rsa`
+    
+    - a **public** key (you can share freely with the world) `~/.ssh/immunogenomics_id_rsa.pub`
 
 4. Please share the public key with Kamil so he can give you access to the immunogenomics.io server.
 
@@ -87,4 +81,14 @@ The key's randomart image is:
 | +.B.o=          |
 |+*=.=.Eo         |
 +----[SHA256]-----+
+```
+
+On your laptop, please add this to your `~/.ssh/config` file:
+
+```
+Host ig
+    PubkeyAuthentication yes
+    User YOUR_USERNAME
+    IdentityFile ~/.ssh/immunogenomics_id_rsa
+    HostName 34.196.99.74
 ```
