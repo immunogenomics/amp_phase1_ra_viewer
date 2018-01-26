@@ -25,12 +25,14 @@ When you're ready to launch the app on the public website, copy it to our Amazon
 src="/PATH/TO/ampviewer/"
 des="ig:/srv/shiny-server/ampviewer/"
 
-rsync -avh \
-    --exclude=*.sh \
-    --exclude=*.Rproj \
-    --exclude=data/*.rds \
-    --exclude=.* \
-    "$src" "$des"
+rsync -rlzuvh \
+   --exclude=*.png \
+   --exclude=make_tar.sh \
+   --exclude=launch.sh \
+   --exclude=*.Rproj \
+   --exclude=data/*.rds \
+   --exclude=.* \
+   "$src" "$des"
 ```
 
 Get ssh access to our web server
