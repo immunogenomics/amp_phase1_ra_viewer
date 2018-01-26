@@ -111,4 +111,10 @@ sudo chmod 0600 .ssh/authorized_keys
 echo 'ssh-rsa AAAAB3NzaC1yc2EA...' >> ~/.ssh/authorized_keys
 ```
 
+Finally, let's add the new user to the `shiny` group:
+
+```bash
+sudo usermod -a -G shiny USERNAME
+```
+
 
