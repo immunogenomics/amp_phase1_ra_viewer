@@ -1,0 +1,7 @@
+.shiny-bound-input, .twitter-typeahead, .tt-hint, .tt-input, .tt-input-group, .tt-menu {
+  width: 100%;
+}
+/*input typeahead tt-query shiny-bound-input*/
+.tt-dropdown-menu{
+    width: 100%;
+}
