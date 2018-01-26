@@ -88,7 +88,27 @@ On your laptop, please add this to your `~/.ssh/config` file:
 ```
 Host ig
     PubkeyAuthentication yes
-    User YOUR_USERNAME
+    User USERNAME
     IdentityFile ~/.ssh/immunogenomics_id_rsa
     HostName 34.196.99.74
 ```
+
+On the immunogenomics.io server, let's add you as a new user and give you ssh access:
+
+```bash
+# Add a user
+sudo adduser USERNAME
+
+# Change to that user
+sudo su USERNAME
+
+# Setup ssh
+cd
+mkdir .ssh
+touch .ssh/authorized_keys
+sudo chmod 0700 .ssh
+sudo chmod 0600 .ssh/authorized_keys
+echo 'ssh-rsa AAAAB3NzaC1yc2EA...' >> ~/.ssh/authorized_keys
+```
+
+
