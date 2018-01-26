@@ -123,3 +123,25 @@ Make sure that the shiny app directory has the correct permissions:
 sudo chgrp -hR shiny /srv/shiny-server/APP_NAME
 sudo chmod -R g+w /srv/shiny-server/APP_NAME
 ```
+
+If you encounter an error, please check the logs on the server:
+
+```bash
+ls -t1 /var/log/shiny-server | head
+ampviewer-shiny-20180126-201322-33622.log
+ampviewer-shiny-20180126-025317-36208.log
+ampviewer-shiny-20180126-025058-39052.log
+ampviewer-shiny-20180126-024215-42394.log
+impact-shiny-20180125-224649-41700.log
+AMP-shiny-20180125-220814-38804.log
+impact-shiny-20180125-212808-44824.log
+fibrotime-shiny-20180125-022935-39973.log
+impact-shiny-20180125-022935-45753.log
+AMP-shiny-20180125-020531-39837.log
+```
+
+Your error is probably in the newest file:
+
+```bash
+less ampviewer-shiny-20180126-201322-33622.log
+```
