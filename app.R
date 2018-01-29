@@ -2,8 +2,13 @@
 # Kamil Slowikowski
 # 2018-01-26
 #
+# Fan Zhang Updated (added more visualization fuctions)
+# 2018-01-29
+# 
 # This is a minimal app for viewing single-cell RNA-seq data from AMP.
 # Fan Zhang produced the input data (tSNE, clusters).
+
+# devtools::install_github("AnalytixWare/ShinySky")
 
 # Libraries -------------------------------------------------------------------
 
@@ -21,8 +26,8 @@ library(parallel)
 
 #library(pheatmap)
 library(d3heatmap)
+# source("../2017_02_28_Phase1_cellseq_RA_single_cell_data/meta_colors.R")
 
-#
 
 # Prepare data ----------------------------------------------------------------
 
@@ -86,7 +91,7 @@ if (!file.exists(data_file)) {
   load(data_file)
 }
 
-one_gene_symbol_default <- "CD19"
+one_gene_symbol_default <- "HLA-DRA"
 
 #
 
@@ -110,7 +115,8 @@ plot_tsne <- function(log2cpm, dat, marker) {
     axis.text       = element_blank(),
     axis.ticks      = element_blank(),
     panel.grid      = element_blank(),
-    panel.border    = element_rect(size = 0.5)
+    panel.border    = element_rect(size = 0.5),
+    plot.title = element_text(size = 25,  face="bold")
   )
   # Put the name of the marker gene in the upper left corner
   dat_text <- data.frame(
@@ -126,13 +132,13 @@ plot_tsne <- function(log2cpm, dat, marker) {
       shape   = 21,
       stroke  = 0.15
     ) +
-    geom_text(
-      data    = dat_text,
-      mapping = aes(x, y, label = label),
-      size    = 9,
-      hjust   = -0.05,
-      vjust   = 1.25
-    ) +
+    # geom_text(
+    #   data    = dat_text,
+    #   mapping = aes(x, y, label = label),
+    #   size    = 9,
+    #   hjust   = -0.05,
+    #   vjust   = 1.25
+    # ) +
     scale_fill_gradientn(
       # Linear scale
       # colours = fill_palette,
@@ -147,6 +153,7 @@ plot_tsne <- function(log2cpm, dat, marker) {
       alpha = "none"
     ) +
     labs(x = NULL, y = NULL) +
+    ggtitle(marker) +
     theme_tsne
   # Make a plot showing the clustering results.
   dat$cluster <- factor(dat$cluster)
@@ -160,20 +167,85 @@ plot_tsne <- function(log2cpm, dat, marker) {
     ) +
     scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
     labs(x = NULL, y = NULL) +
+    ggtitle("Identified clusters") +
     theme_tsne
   bottom_text <- sprintf(
-    "%s cells, %s (%s%%) nonzero",
+    "%s cells, %s (%s%%) nonzero cells",
     nrow(dat),
     n_nonzero,
     signif(100 * n_nonzero / nrow(dat), 3)
   )
   egg::ggarrange(
     bottom = textGrob(
-      label = bottom_text, gp = gpar(fontsize = 24)
+      label = bottom_text, gp = gpar(fontsize = 20)
     ),
     plots = list(p1, p2), ncol = 2
   )
 }
+
+plot_box <- function(log2cpm, dat, marker) {
+  dat$marker <- as.numeric(log2cpm[marker,])
+  theme_box <- theme_bw(base_size = 24) + theme(
+    legend.position = "bottom",
+    # axis.text       = element_blank(),
+    # axis.ticks      = element_blank(),
+    # panel.grid      = element_blank(),
+    panel.border    = element_rect(size = 0.5),
+    plot.title = element_text(size = 25,  face="bold")
+  )
+  dat$cluster <- factor(dat$cluster)
+  p1 <- ggplot(
+    data=dat, 
+    aes(x=cluster, 
+        y=marker, 
+        fill=cluster)) +
+    # geom_boxplot() +
+    geom_violin() +
+    geom_jitter(height = 0, width = 0.2, color = "dimgrey", size = 0.7) + 
+    labs(
+      x = NULL,
+      y = bquote("Log"[2]~"(CPM)"),
+      title = marker
+      # subtitle = tsne_subtitle
+    ) +
+    # scale_fill_manual(values = meta_colors$cluster) +
+    scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
+    theme_box
+  
+  proportion <- rep(0, length(table(dat$cluster)))
+  for (i in 1:length(table(dat$cluster))){
+    proportion[i] <-   sum(dat$marker[which(dat$cluster == i & dat$marker > 0)])/ (table(dat$cluster)[i])
+  }
+  dat_pro <- data.frame(
+    cluster = as.character(seq(1, length(table(dat$cluster)))),
+    nonzero = proportion
+  )
+  p2 <- ggplot(
+    data=dat_pro, 
+    aes(x=cluster, y= nonzero, fill = cluster)
+    ) +
+    geom_bar(stat="identity", position = "stack") +
+    labs(
+      x = NULL,
+      y = "# nonzeros cells/# cells from one cluster",
+      title = marker
+    ) +
+    scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
+    theme_box
+  bottom_text <- sprintf(
+    # "%s is a potential marker gene for cluster %s.",
+    "%s is expressing the highest proportion of nonzero cells in cluster %s.",
+    marker,
+    as.integer( dat_pro$cluster[which(dat_pro$nonzero == max(dat_pro$nonzero))])
+  )
+  egg::ggarrange(
+    bottom = textGrob(
+      label = bottom_text, gp = gpar(fontsize = 25, fontface="bold")
+    ),
+    plots = list(p1, p2), ncol = 2, widths = 2.5:1, height = 2.5:1
+  )
+}
+
 # For testing, it's nice to have a little snippet here.
 # plot_tsne(
 #   log2cpm = log2cpm_mono,
@@ -197,15 +269,21 @@ ui <- fluidPage(
   
   # Application title
   navbarPage(
-    "AMP Phase 1",
+    "AMP Phase I",
     
     tabPanel(
       "Rheumatoid Arthritis",
       
+      # h3("Integration of Single-cell Transcriptomic and Proteomic 
+      #    Immune Profiling Identifies Pathogenic Pathways in Rheumatoid Arthritis"),
+      
+      h3("This site is used to explore the AMP RA single-cell RNA-seq clustering analysis and  results."),
+      br(),
+      
       tabsetPanel(
         
         tabPanel(
-          "tSNE",
+          "Search genes",
         
           # Sidebar with a slider input for number of bins
           sidebarLayout(
@@ -216,7 +294,7 @@ ui <- fluidPage(
                 inputId  = "cell_type",
                 label    = "Cell type:",
                 choices  = cell_types,
-                selected = "bcell"
+                selected = "fibro"
               ),
               
               strong("Gene:"),
@@ -232,24 +310,54 @@ ui <- fluidPage(
               ),
               
               # Sidebar is fluid and 3/12 units wide.
-              width = 3
+              width = 3,
+              
+              hr(),
+              h5("Contact"),
+              p(
+                "This site is made by", 
+                a("Kamil Slowikowski", href = "mailto:kslowikowski@fas.harvard.edu"),
+                "and",
+                a("Fan Zhang.", href = "mailto:fanzhang@broadinstitute.org"),
+                "Please contact",
+                a("Fan", href = "mailto:fanzhang@broadinstitute.org"),
+                "if you have any questions, requests, or comments on the analysis and results."
+              )
             ),
             
             # Show a plot of the generated distribution
             mainPanel(
               fluidRow(
-                plotOutput("tnse_marker_plot", height = "800px"),
+                h4("The tSNE plot shows the expression of selected gene in the cells from the selected cell type."),
+                plotOutput("tnse_marker_plot", height = "700px"),
+                br(),
+                # hr(),
+                # h2("Wilcox -Log10 P for 1 vs all"),
+                # p("Top 100 genes for each cluster. May be high or low in a",
+                #  " cluster."),
+                # d3heatmapOutput("marker_heatmap", height = "1600px")
                 hr(),
-                h2("Wilcox -Log10 P for 1 vs all"),
-                p("Top 100 genes for each cluster. May be high or low in a",
-                  " cluster."),
-                d3heatmapOutput("marker_heatmap", height = "1600px")
+                h4("The violin plot reveals the expression of selected gene in different subsets."),
+                plotOutput("box_marker_plot", height = "500px"),
+                br(),
+                hr(),
+                br()
               )
             )
             
           ) # sidebarLayout
-        
+          
         ) # tabPanel
+        
+        # tabPanel(
+        #   "Boxplot",
+        #   mainPanel(
+        #     fluidRow(
+        #       plotOutput("box_marker_plot", height = "800px")
+        #     )
+        #   )
+        # ) # tabPanel
+        
         
       ) # tabsetPanel
       
@@ -295,9 +403,13 @@ ui <- fluidPage(
         ),
         h2("Contact"),
         p(
-          "Please ",
-          a("contact us", href = "mailto:kslowikowski@fas.harvard.edu"),
-          " us with any questions, requests, or comments."
+          "This site is made by", 
+                    a("Kamil Slowikowski", href = "mailto:kslowikowski@fas.harvard.edu"),
+          "and",
+                    a("Fan Zhang.", href = "mailto:fanzhang@broadinstitute.org"),
+          "Please contact",
+                    a("Fan", href = "mailto:fanzhang@broadinstitute.org"),
+          "if you have any questions, requests, or comments on the analysis and results."
         )
         
       ) # mainPanel
@@ -339,6 +451,25 @@ server <- function(input, output) {
       x               = -log10(markers),
       colors          = "Greys",
       yaxis_font_size = "14px"
+    )
+  })
+  
+  output$box_marker_plot <- renderPlot({
+    log2cpm <- get(sprintf("log2cpm_%s", input$cell_type))
+    dat     <- get(sprintf("meta_%s", input$cell_type))
+    marker  <- ifelse(
+      input$one_gene_symbol != "",
+      input$one_gene_symbol,
+      one_gene_symbol_default
+    )
+    # Don't allow selecting genes that are not present in the data.
+    if (! marker %in% rownames(log2cpm)) {
+      marker <- rownames(log2cpm)[1]
+    }
+    plot_box(
+      log2cpm = log2cpm,
+      dat     = dat,
+      marker  = marker
     )
   })
   
