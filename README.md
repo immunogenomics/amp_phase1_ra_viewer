@@ -3,9 +3,9 @@ ampviewer
 
 Check it out here: https://amp.quickgene.net
 
-Contact [Kamil] for the username and password.
+Username: `amp`
 
-[Kamil]: mailto:kslowikowski@gmail.com?subject=ampviewer
+Password: `viewampdata`
 
 Overview
 --------
