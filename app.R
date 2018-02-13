@@ -341,10 +341,16 @@ ui <- fluidPage(
             
             sidebarPanel(
               
-              selectInput(
-                inputId  = "cell_type",
-                label    = "Cell type:",
-                choices  = cell_types,
+              # selectInput(
+              #   inputId  = "cell_type",
+              #   label    = "Cell type:",
+              #   choices  = cell_types,
+              #   selected = "fibro"
+              # ),
+              radioButtons(
+                inputId = "cell_type",
+                label   = "Cell type:",
+                choices = cell_types,
                 selected = "fibro"
               ),
               
