@@ -25,10 +25,11 @@ library(egg)
 
 library(Matrix)
 library(parallel)
+library(pryr)
 # library(formattable)
 
 #library(pheatmap)
-library(d3heatmap)
+#library(d3heatmap)
 
 meta_colors <- list(
 fine_cluster = c(
@@ -58,7 +59,7 @@ fine_cluster = c(
 
 get_markers <- function(log2cpm, clusters) {
   # Get a Wilcox p-value for each gene and each cluster. 
-  retval <- mclapply(X = unique(clusters), FUN = function(cluster) {
+  retval <- parallel::mclapply(X = unique(clusters), FUN = function(cluster) {
      ix_x <- which(clusters == cluster)
      ix_y <- which(clusters != cluster)
      pvals <- apply(log2cpm, 1, function(row) {
@@ -88,11 +89,13 @@ cell_types <- c(
 # Read 4 datasets: bcell, tcell, mono, fibro
 # Preprocess into a file for quick loading.
 data_file <- "data/shiny.rda"
-if (!file.exists(data_file)) {
+if (file.exists(data_file)) {
+  load(data_file)
+}else{
   e <- environment()
   for (cell_type in cell_types) {
     log2cpm <- readRDS(sprintf("data/%s_exp.rds", cell_type))
-    # log2cpm <- Matrix(log2cpm)
+    log2cpm <- Matrix(log2cpm)
     meta    <- readRDS(sprintf("data/%s_sc_label.rds", cell_type))
     nonzero <- rownames(log2cpm)[
        which(rowSums(log2cpm > 0) > 10)
@@ -106,6 +109,7 @@ if (!file.exists(data_file)) {
   }
   #all_cell_types <- cbind.data.frame(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
   all_meta <- rbind.data.frame(meta_fibro, meta_bcell, meta_tcell, meta_mono)
+  cluster_markers <- readRDS("data/table_cluster_markers.rds")
   rm(log2cpm)
   rm(meta)
   rm(nonzero)
@@ -114,9 +118,7 @@ if (!file.exists(data_file)) {
     nonzero_bcell, nonzero_fibro, nonzero_mono, nonzero_tcell
   ))
   save.image(data_file)
-} else {
-  load(data_file)
-}
+} 
 
 # all_cell_types <- cbind.data.frame(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
 # all_meta <- rbind.data.frame(meta_fibro, meta_bcell, meta_tcell, meta_mono)
@@ -214,7 +216,8 @@ plot_tsne <- function(log2cpm, dat, marker) {
     plots = list(p1, p2), ncol = 2
   )
 }
-
+# plot_tsne(log2cpm_fibro, meta_fibro, "CD3D")
+  
 plot_box <- function(log2cpm_marker, dat, marker) {
   #dat$marker <- as.numeric(log2cpm[marker,])
   dat$marker <- as.numeric(log2cpm_marker)
@@ -297,6 +300,16 @@ plot_box <- function(log2cpm_marker, dat, marker) {
 
 # User interface --------------------------------------------------------------
 
+# Call this function with all the regular navbarPage() parameters, plus a text parameter,
+# if you want to add text to the navbar
+navbarPageWithText <- function(..., text) {
+      navbar <- navbarPage(...)
+      textEl <- tags$div(class = "navbar-text pull-right", text)
+      navbar[[3]][[1]]$children[[1]] <- htmltools::tagAppendChild(
+          navbar[[3]][[1]]$children[[1]], textEl)
+      navbar
+    }
+  
 ui <- fluidPage(
   
   tags$head(
@@ -308,7 +321,7 @@ ui <- fluidPage(
   ),
   
   # Application title
-  navbarPage(
+  navbarPageWithText(
     "AMP Phase I",
     
     tabPanel(
@@ -317,7 +330,7 @@ ui <- fluidPage(
       # h3("Integration of Single-cell Transcriptomic and Proteomic 
       #    Immune Profiling Identifies Pathogenic Pathways in Rheumatoid Arthritis"),
       
-      h3("This site is used to explore the AMP RA single-cell RNA-seq clustering analysis and  results."),
+      p("Explore gene expresson in single-cell RNA-seq clusters."),
       br(),
       
       tabsetPanel(
@@ -470,9 +483,10 @@ ui <- fluidPage(
         
       ) # mainPanel
       
-    ) # tabPanel
+    ), # tabPanel
     
-  ) # navbarPage
+    text = textOutput("mem_used")
+  ) # navbarPage		   
   
 ) # fluidPage
 
@@ -501,14 +515,14 @@ server <- function(input, output) {
     )
   })
   
-  output$marker_heatmap <- renderD3heatmap({
-    markers <- get(sprintf("markers_%s", input$cell_type))
-    d3heatmap(
-      x               = -log10(markers),
-      colors          = "Greys",
-      yaxis_font_size = "14px"
-    )
-  })
+  # output$marker_heatmap <- renderD3heatmap({
+  #   markers <- get(sprintf("markers_%s", input$cell_type))
+  #   d3heatmap(
+  #     x               = -log10(markers),
+  #     colors          = "Greys",
+  #     yaxis_font_size = "14px"
+  #   )
+  # })
   
   output$box_marker_plot_single <- renderPlot({
     log2cpm <- get(sprintf("log2cpm_%s", input$cell_type))
@@ -555,7 +569,12 @@ server <- function(input, output) {
     )
   })
   
+  output$mem_used <- renderText({
+       gdata::humanReadable(pryr::mem_used(), standard = "SI")
+    })
+  
   output$table <- renderDataTable(cluster_markers)
+  
   # cluster_markers <- data.frame(
   #   Subsets = c("CB1 (Naive B cells)", "CB2 (Activate B cells)", "CB3 (ABCs)", "CB4 (Plasma cells)",
   #               "CT1 (Naive CD4+ T cells)",
