@@ -17,17 +17,17 @@
 library(shiny)
 library(shinysky)
 
-library(grid)
 library(ggplot2)
 library(scales)
-library(viridis)
 library(egg)
+library(loomR) # devtools::install_github("mojaveazure/loomR")
 
-library(Matrix)
+# library(viridis)
+# library(grid)
+# library(Matrix)
 # library(parallel)
 # library(formattable)
-
-#library(pheatmap)
+# library(pheatmap)
 # library(d3heatmap)
 
 meta_colors <- list(
@@ -88,39 +88,81 @@ cell_types <- c(
 # Read 4 datasets: bcell, tcell, mono, fibro
 # Preprocess into a file for quick loading.
 data_file <- "data/shiny.rda"
-if (file.exists(data_file)) {
-  load(data_file)
+# if (file.exists(data_file)) {
+#   load(data_file)
+# } else {
+#   e <- environment()
+#   for (cell_type in cell_types) {
+#     log2cpm <- readRDS(sprintf("data/%s_exp.rds", cell_type))
+#     log2cpm <- Matrix(log2cpm)
+#     meta    <- readRDS(sprintf("data/%s_sc_label.rds", cell_type))
+#     nonzero <- rownames(log2cpm)[
+#        which(rowSums(log2cpm > 0) > 10)
+#     ]
+#     # log2cpm_filter <- log2cpm[nonzero,]
+#     # markers <- get_markers(log2cpm_filter, meta$cluster)
+#     assign(sprintf("log2cpm_%s", cell_type), log2cpm, envir = e)
+#     assign(sprintf("meta_%s", cell_type), meta, envir = e)
+#     assign(sprintf("nonzero_%s", cell_type), nonzero, envir = e)
+#     # assign(sprintf("markers_%s", cell_type), markers, envir = e)
+#   }
+#   #all_cell_types <- cbind.data.frame(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
+#   all_meta <- rbind.data.frame(meta_fibro, meta_bcell, meta_tcell, meta_mono)
+#   rm(log2cpm)
+#   rm(meta)
+#   rm(nonzero)
+#   # rm(markers)
+#   gene_symbols <- unique(c(
+#     nonzero_bcell, nonzero_fibro, nonzero_mono, nonzero_tcell
+#   ))
+#   save.image(data_file)
+# }
+
+loom_file <- "data/amp-phase1-ra-single-cells.loom"
+if (file.exists(loom_file)) {
+  lf <- loomR::connect(filename = loom_file, mode = "r", skip.validate = FALSE)
+  meta <- lf$col.attrs
+  col_names <- names(meta)
+  meta <- as.data.frame(lapply(col_names, function(col_name) {
+    meta[[col_name]][]
+  }))
+  colnames(meta) <- col_names
 } else {
-  e <- environment()
-  for (cell_type in cell_types) {
-    log2cpm <- readRDS(sprintf("data/%s_exp.rds", cell_type))
-    log2cpm <- Matrix(log2cpm)
-    meta    <- readRDS(sprintf("data/%s_sc_label.rds", cell_type))
-    nonzero <- rownames(log2cpm)[
-       which(rowSums(log2cpm > 0) > 10)
-    ]
-    # log2cpm_filter <- log2cpm[nonzero,]
-    # markers <- get_markers(log2cpm_filter, meta$cluster)
-    assign(sprintf("log2cpm_%s", cell_type), log2cpm, envir = e)
-    assign(sprintf("meta_%s", cell_type), meta, envir = e)
-    assign(sprintf("nonzero_%s", cell_type), nonzero, envir = e)
-    # assign(sprintf("markers_%s", cell_type), markers, envir = e)
-  }
-  #all_cell_types <- cbind.data.frame(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
-  all_meta <- rbind.data.frame(meta_fibro, meta_bcell, meta_tcell, meta_mono)
-  rm(log2cpm)
-  rm(meta)
-  rm(nonzero)
-  # rm(markers)
-  gene_symbols <- unique(c(
-    nonzero_bcell, nonzero_fibro, nonzero_mono, nonzero_tcell
-  ))
-  save.image(data_file)
+  load(data_file)
+  log2cpm <- cbind(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
+  n_cells <- ncol(log2cpm)
+  n_genes <- nrow(log2cpm)
+  meta    <- rbind.data.frame(meta_fibro, meta_bcell, meta_tcell, meta_mono)
+  stopifnot(all(colnames(log2cpm) == rownames(meta)))
+  meta$cell_type <- c(
+    rep("fibro", nrow(meta_fibro)),
+    rep("bcell", nrow(meta_bcell)),
+    rep("tcell", nrow(meta_tcell)),
+    rep("mono", nrow(meta_mono))
+  )
+  meta$cell_name <- as.character(meta$cell_name)
+  meta$cluster <- as.character(meta$cluster)
+  lf <- loomR::create(
+    filename   = loom_file,
+    data       = t(log2cpm), # rows are cells, columns are genes
+    cell.attrs = meta
+  )
 }
 
-# all_cell_types <- cbind.data.frame(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
-# all_meta <- rbind.data.frame(meta_fibro, meta_bcell, meta_tcell, meta_mono)
-# all(colnames(all_cell_types) == rownames(all_meta))
+gene_symbols <- lf$row.attrs$gene_names[]
+cell_types   <- lf$col.attrs$cell_type[]
+
+possible_cell_types <- c("fibro", "bcell", "tcell", "mono")
+
+# get_gene <- function(gene, cell_type = NULL) {
+#   gene_ix <- which(gene_symbols == gene)
+#   if (!is.null(cell_type) && cell_type %in% possible_cell_types) {
+#     cell_ix <- which(cell_types == cell_type)
+#   } else {
+#     cell_ix <- seq(lf$shape[1])
+#   }
+#   lf$matrix[cell_ix,gene_ix]
+# }
 
 one_gene_symbol_default <- "HLA-DRA"
 
@@ -133,8 +175,11 @@ quantile_breaks <- function(x, n = 10) {
   breaks[!duplicated(breaks)]
 }
 
-plot_tsne <- function(log2cpm, dat, marker) {
-  dat$marker <- as.numeric(log2cpm[marker,])
+#' Create 2 tSNE plots side by side.
+#' The left plot is colored by marker.
+#' The right plot is colored by cluster.
+#' @param dat A dataframe with columns T1, T2, marker, cluster
+plot_tsne <- function(dat) {
   n_nonzero  <- sum(dat$marker > 0)
   # tsne_title <- bquote("tSNE of PCA on Log"[2]~"(CPM + 1)")
   point_size <- 3.5
@@ -214,11 +259,8 @@ plot_tsne <- function(log2cpm, dat, marker) {
     plots = list(p1, p2), ncol = 2
   )
 }
-# plot_tsne(log2cpm_fibro, meta_fibro, "CD3D")
 
-plot_box <- function(log2cpm_marker, dat, marker) {
-  #dat$marker <- as.numeric(log2cpm[marker,])
-  dat$marker <- as.numeric(log2cpm_marker)
+plot_box <- function(dat) {
   theme_box <- theme_bw(base_size = 22) + theme(
     legend.position = "bottom",
     # axis.text       = element_blank(),
@@ -245,7 +287,6 @@ plot_box <- function(log2cpm_marker, dat, marker) {
     # scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
     scale_fill_manual(values = meta_colors$fine_cluster, name = "Cluster") +
     theme_box
-  
   # proportion <- rep(0, length(table(dat$cluster)))
   # for (i in 1:length(table(dat$cluster))){
   #   proportion[i] <- sum(dat$cluster == i & dat$marker > 0)/ (table(dat$cluster)[i])
@@ -341,16 +382,10 @@ ui <- fluidPage(
             
             sidebarPanel(
               
-              # selectInput(
-              #   inputId  = "cell_type",
-              #   label    = "Cell type:",
-              #   choices  = cell_types,
-              #   selected = "fibro"
-              # ),
               radioButtons(
-                inputId = "cell_type",
-                label   = "Cell type:",
-                choices = cell_types,
+                inputId  = "cell_type",
+                label    = "Cell type:",
+                choices  = possible_cell_types,
                 selected = "fibro"
               ),
               
@@ -488,22 +523,15 @@ ui <- fluidPage(
 server <- function(input, output) {
   
   output$tnse_marker_plot <- renderPlot({
-    log2cpm <- get(sprintf("log2cpm_%s", input$cell_type))
-    dat     <- get(sprintf("meta_%s", input$cell_type))
-    marker  <- ifelse(
-      input$one_gene_symbol != "",
+    marker <- ifelse(
+      input$one_gene_symbol != "" && input$one_gene_symbol %in% gene_symbols,
       input$one_gene_symbol,
       one_gene_symbol_default
     )
-    # Don't allow selecting genes that are not present in the data.
-    if (! marker %in% rownames(log2cpm)) {
-      marker <- rownames(log2cpm)[1]
-    }
-    plot_tsne(
-      log2cpm = log2cpm,
-      dat     = dat,
-      marker  = marker
-    )
+    gene_ix <- which(gene_symbols == marker)
+    meta$marker <- lf$matrix[,gene_ix]
+    cell_ix <- which(cell_types == input$cell_type)
+    plot_tsne(meta[cell_ix,])
   })
   
   # output$marker_heatmap <- renderD3heatmap({
@@ -516,48 +544,26 @@ server <- function(input, output) {
   # })
   
   output$box_marker_plot_single <- renderPlot({
-    log2cpm <- get(sprintf("log2cpm_%s", input$cell_type))
-    dat     <- get(sprintf("meta_%s", input$cell_type))
-    marker  <- ifelse(
-      input$one_gene_symbol != "",
+    marker <- ifelse(
+      input$one_gene_symbol != "" && input$one_gene_symbol %in% gene_symbols,
       input$one_gene_symbol,
       one_gene_symbol_default
     )
-    # Don't allow selecting genes that are not present in the data.
-    if (! marker %in% rownames(log2cpm)) {
-      marker <- rownames(log2cpm)[1]
-    }
-    plot_box(
-      log2cpm_marker = as.numeric(log2cpm[marker,]),
-      dat     = dat,
-      marker  = marker
-    )
+    gene_ix <- which(gene_symbols == marker)
+    meta$marker <- lf$matrix[,gene_ix]
+    cell_ix <- which(cell_types == input$cell_type)
+    plot_box(meta[cell_ix,])
   })
   
   output$box_marker_plot_all <- renderPlot({
-    marker  <- ifelse(
-      input$one_gene_symbol != "",
+    marker <- ifelse(
+      input$one_gene_symbol != "" && input$one_gene_symbol %in% gene_symbols,
       input$one_gene_symbol,
       one_gene_symbol_default
     )
-    # Don't allow selecting genes that are not present in the data.
-    if (! marker %in% rownames(log2cpm_fibro)) {
-      marker <- rownames(log2cpm_fibro)[1]
-    }
-    log2cpm_marker <- c(
-      as.numeric(log2cpm_fibro[marker,]),
-      as.numeric(log2cpm_bcell[marker,]),
-      as.numeric(log2cpm_tcell[marker,]),
-      as.numeric(log2cpm_mono[marker,])
-    )
-    #log2cpm <- get(sprintf("all_cell_types"))
-    dat <- get(sprintf("all_meta"))
-    plot_box(
-      log2cpm_marker = log2cpm_marker,
-      #log2cpm = log2cpm,
-      dat     = dat,
-      marker  = marker
-    )
+    gene_ix <- which(gene_symbols == marker)
+    meta$marker <- lf$matrix[,gene_ix]
+    plot_box(meta)
   })
   
   output$mem_used <- renderText({
@@ -571,4 +577,3 @@ server <- function(input, output) {
 # Launch the app --------------------------------------------------------------
 
 shinyApp(ui = ui, server = server)
-
