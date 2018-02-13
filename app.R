@@ -24,41 +24,41 @@ library(viridis)
 library(egg)
 
 library(Matrix)
-# library(parallel)
+library(parallel)
 # library(formattable)
 
 #library(pheatmap)
-# library(d3heatmap)
+library(d3heatmap)
 
 meta_colors <- list(
-  "fine_cluster" = c(
-    "CF1" = "#6BAED6",
-    "CF2" = "#08306B",
-    "CF3" = "#DEEBF7",
-    "CF4" = "grey",
-    "CT1" = "#FEB24C",
-    "CT2" = "#8C510A",
-    "CT3" = "brown",
-    "CT4" = "#FFFF33",
-    "CT5" = "#C7EAE5",
-    "CT6" = "#003C30",
-    "CT7" = "#35978F",
-    "CB1" = "#FCBBA1",
-    "CB2" = "#CB181D", #FB6A4A #A50F15
-    "CB3" = "#67000D",
-    "CB4" = "#FB9A99",
-    "CM1" = "#AE017E",
-    "CM2" = "#F768A1",
-    "CM3" = "#FDE0EF", #FCC5C0
-    "CM4" = "#49006A"
-  )
+fine_cluster = c(
+  "CF1" = "#6BAED6",
+  "CF2" = "#08306B",
+  "CF3" = "#DEEBF7",
+  "CF4" = "grey",
+  "CT1" = "#FEB24C",
+  "CT2" = "#8C510A",
+  "CT3" = "brown",
+  "CT4" = "#FFFF33",
+  "CT5" = "#C7EAE5",
+  "CT6" = "#003C30",
+  "CT7" = "#35978F",
+  "CB1" = "#FCBBA1",
+  "CB2" = "#CB181D", #FB6A4A #A50F15
+  "CB3" = "#67000D",
+  "CB4" = "#FB9A99",
+  "CM1" = "#AE017E",
+  "CM2" = "#F768A1",
+  "CM3" = "#FDE0EF", #FCC5C0
+  "CM4" = "#49006A"
+ )
 )
 
 # Prepare data ----------------------------------------------------------------
 
 get_markers <- function(log2cpm, clusters) {
   # Get a Wilcox p-value for each gene and each cluster. 
-  retval <- parallel::mclapply(X = unique(clusters), FUN = function(cluster) {
+  retval <- mclapply(X = unique(clusters), FUN = function(cluster) {
      ix_x <- which(clusters == cluster)
      ix_y <- which(clusters != cluster)
      pvals <- apply(log2cpm, 1, function(row) {
@@ -88,13 +88,11 @@ cell_types <- c(
 # Read 4 datasets: bcell, tcell, mono, fibro
 # Preprocess into a file for quick loading.
 data_file <- "data/shiny.rda"
-if (file.exists(data_file)) {
-  load(data_file)
-} else {
+if (!file.exists(data_file)) {
   e <- environment()
   for (cell_type in cell_types) {
     log2cpm <- readRDS(sprintf("data/%s_exp.rds", cell_type))
-    log2cpm <- Matrix(log2cpm)
+    # log2cpm <- Matrix(log2cpm)
     meta    <- readRDS(sprintf("data/%s_sc_label.rds", cell_type))
     nonzero <- rownames(log2cpm)[
        which(rowSums(log2cpm > 0) > 10)
@@ -116,6 +114,8 @@ if (file.exists(data_file)) {
     nonzero_bcell, nonzero_fibro, nonzero_mono, nonzero_tcell
   ))
   save.image(data_file)
+} else {
+  load(data_file)
 }
 
 # all_cell_types <- cbind.data.frame(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
@@ -214,7 +214,6 @@ plot_tsne <- function(log2cpm, dat, marker) {
     plots = list(p1, p2), ncol = 2
   )
 }
-# plot_tsne(log2cpm_fibro, meta_fibro, "CD3D")
 
 plot_box <- function(log2cpm_marker, dat, marker) {
   #dat$marker <- as.numeric(log2cpm[marker,])
@@ -235,7 +234,7 @@ plot_box <- function(log2cpm_marker, dat, marker) {
         fill=cluster)) +
     # geom_boxplot() +
     geom_violin() +
-    geom_jitter(height = 0, width = 0.25, color = "dimgrey", size = 0.5) + 
+    geom_jitter(height = 0, width = 0.25, color = "dimgrey", size = 0.3) + 
     labs(
       x = NULL,
       y    = bquote("Log"[2]~"(CPM+1)  "),
@@ -298,16 +297,6 @@ plot_box <- function(log2cpm_marker, dat, marker) {
 
 # User interface --------------------------------------------------------------
 
-# Call this function with all the regular navbarPage() parameters, plus a text parameter,
-# if you want to add text to the navbar
-navbarPageWithText <- function(..., text) {
-  navbar <- navbarPage(...)
-  textEl <- tags$div(class = "navbar-text pull-right", text)
-  navbar[[3]][[1]]$children[[1]] <- htmltools::tagAppendChild(
-    navbar[[3]][[1]]$children[[1]], textEl)
-  navbar
-}
-
 ui <- fluidPage(
   
   tags$head(
@@ -319,7 +308,7 @@ ui <- fluidPage(
   ),
   
   # Application title
-  navbarPageWithText(
+  navbarPage(
     "AMP Phase I",
     
     tabPanel(
@@ -328,29 +317,23 @@ ui <- fluidPage(
       # h3("Integration of Single-cell Transcriptomic and Proteomic 
       #    Immune Profiling Identifies Pathogenic Pathways in Rheumatoid Arthritis"),
       
-      p("Explore gene expression in single-cell RNA-seq clusters."),
+      h3("This site is used to explore the AMP RA single-cell RNA-seq clustering analysis and  results."),
       br(),
       
       tabsetPanel(
         
         tabPanel(
-          "Search genes",
+          h4("Search genes"),
         
           # Sidebar with a slider input for number of bins
           sidebarLayout(
             
             sidebarPanel(
               
-              # selectInput(
-              #   inputId  = "cell_type",
-              #   label    = "Cell type:",
-              #   choices  = cell_types,
-              #   selected = "fibro"
-              # ),
-              radioButtons(
-                inputId = "cell_type",
-                label   = "Cell type:",
-                choices = cell_types,
+              selectInput(
+                inputId  = "cell_type",
+                label    = "Cell type:",
+                choices  = cell_types,
                 selected = "fibro"
               ),
               
@@ -407,8 +390,21 @@ ui <- fluidPage(
             
           ) # sidebarLayout
           
-        ) # tabPanel
+        ), # tabPanel
         
+        tabPanel(
+          h4("Marker genes"),
+          mainPanel(
+          br(),
+          h4("Table of identified subsets marker genes (19 subsets in all)"),
+          br(),
+          fluidRow(
+            column(12,
+                   dataTableOutput('table')
+            )
+          )
+          )
+        )
         # tabPanel(
         #   "Boxplot",
         #   mainPanel(
@@ -474,9 +470,8 @@ ui <- fluidPage(
         
       ) # mainPanel
       
-    ), # tabPanel
+    ) # tabPanel
     
-    text = textOutput("mem_used")
   ) # navbarPage
   
 ) # fluidPage
@@ -506,14 +501,14 @@ server <- function(input, output) {
     )
   })
   
-  # output$marker_heatmap <- renderD3heatmap({
-  #   markers <- get(sprintf("markers_%s", input$cell_type))
-  #   d3heatmap(
-  #     x               = -log10(markers),
-  #     colors          = "Greys",
-  #     yaxis_font_size = "14px"
-  #   )
-  # })
+  output$marker_heatmap <- renderD3heatmap({
+    markers <- get(sprintf("markers_%s", input$cell_type))
+    d3heatmap(
+      x               = -log10(markers),
+      colors          = "Greys",
+      yaxis_font_size = "14px"
+    )
+  })
   
   output$box_marker_plot_single <- renderPlot({
     log2cpm <- get(sprintf("log2cpm_%s", input$cell_type))
@@ -560,9 +555,23 @@ server <- function(input, output) {
     )
   })
   
-  output$mem_used <- renderText({
-    gdata::humanReadable(pryr::mem_used(), standard = "SI")
-  })
+  output$table <- renderDataTable(cluster_markers)
+  # cluster_markers <- data.frame(
+  #   Subsets = c("CB1 (Naive B cells)", "CB2 (Activate B cells)", "CB3 (ABCs)", "CB4 (Plasma cells)",
+  #               "CT1 (Naive CD4+ T cells)",
+  #               "CT2 (Central memory CD4+ T cells)",
+  #               "CT3 (Treg CD4+ T cells)",
+  #               "CT4 (TpH/TfH CD4+ T cells)",
+  #               "CT5 (GZMK CD8+ T cells)",
+  #               "CT6 (CTL CD8+ T cells)",
+  #               "CT7 (HLA CD8+ T cells)",
+  #               "CM1 (PLAUR+)", "CM2 (NUPR1+)", "CM3 (C1AQ+)", "CM4 (IFN+)",
+  #               "CF1 (THY1+ C3+)", "CF2 (THY1+ HLA+)", "CF3 (THY1+ DKK3+)", "CF4 (THY1-)"),
+  #   Markers = c("IGHD, CXCR4, IGHM", "HLA-DPB1, HLA-DRA, MS4A1", "ITGAX, ACTB, TBX21, AICDA", "XBP1, MZB1, FKBP11, SSR4, DERL3",
+  #               "PTPRC", "CCR7, LEF1", "FOXP3, IKZF2, LAYN, CTLA4", "PDCD1, CXCL13", "GZMA, CCL5, NKG7, CD8A", "GNLY, CX3CR1, GZMB", "HLA-DQA1, HLA-DRA",
+  #               "NR4A2, PLAUR, HBEGF", "GPNMB, HTRA1, NUPR1", "C1QA, MARCO", "SPP1, IFITM3, IFI6",
+  #               "C3, PTGFR", "HLA-DRA, IL6", "DKK3, COL8A2", "CLIC5, PRG4")
+  # )
   
 }
 
