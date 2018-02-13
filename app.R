@@ -57,28 +57,6 @@ fine_cluster = c(
 
 # Prepare data ----------------------------------------------------------------
 
-get_markers <- function(log2cpm, clusters) {
-  # Get a Wilcox p-value for each gene and each cluster. 
-  retval <- parallel::mclapply(X = unique(clusters), FUN = function(cluster) {
-     ix_x <- which(clusters == cluster)
-     ix_y <- which(clusters != cluster)
-     pvals <- apply(log2cpm, 1, function(row) {
-      wilcox.test(
-        x = row[ix_x],
-        y = row[ix_y],
-        alternative = "two.sided"
-      )$p.value
-    })
-  }, mc.cores = 4)
-  retval <- do.call(cbind, retval)
-  # Take the top 100 genes for each cluster.
-  x <- apply(retval, 2, function(x) x < sort(x)[100])
-  # Choose the genes that are specific to 1 cluster.
-  best_markers <- retval[which(rowSums(x) == 1),]
-  colnames(best_markers) <- unique(clusters)
-  best_markers
-}
-
 cell_types <- c(
   "B cell"     = "bcell",
   "T cell"     = "tcell",
