@@ -19,6 +19,7 @@ library(shinysky)
 
 library(ggplot2)
 library(scales)
+library(pryr)
 library(egg)
 library(loomR) # devtools::install_github("mojaveazure/loomR")
 
@@ -31,27 +32,27 @@ library(loomR) # devtools::install_github("mojaveazure/loomR")
 # library(d3heatmap)
 
 meta_colors <- list(
-  "fine_cluster" = c(
-    "CF1" = "#6BAED6",
-    "CF2" = "#08306B",
-    "CF3" = "#DEEBF7",
-    "CF4" = "grey",
-    "CT1" = "#FEB24C",
-    "CT2" = "#8C510A",
-    "CT3" = "brown",
-    "CT4" = "#FFFF33",
-    "CT5" = "#C7EAE5",
-    "CT6" = "#003C30",
-    "CT7" = "#35978F",
-    "CB1" = "#FCBBA1",
-    "CB2" = "#CB181D", #FB6A4A #A50F15
-    "CB3" = "#67000D",
-    "CB4" = "#FB9A99",
-    "CM1" = "#AE017E",
-    "CM2" = "#F768A1",
-    "CM3" = "#FDE0EF", #FCC5C0
-    "CM4" = "#49006A"
-  )
+fine_cluster = c(
+  "CF1" = "#6BAED6",
+  "CF2" = "#08306B",
+  "CF3" = "#DEEBF7",
+  "CF4" = "grey",
+  "CT1" = "#FEB24C",
+  "CT2" = "#8C510A",
+  "CT3" = "brown",
+  "CT4" = "#FFFF33",
+  "CT5" = "#C7EAE5",
+  "CT6" = "#003C30",
+  "CT7" = "#35978F",
+  "CB1" = "#FCBBA1",
+  "CB2" = "#CB181D", #FB6A4A #A50F15
+  "CB3" = "#67000D",
+  "CB4" = "#FB9A99",
+  "CM1" = "#AE017E",
+  "CM2" = "#F768A1",
+  "CM3" = "#FDE0EF", #FCC5C0
+  "CM4" = "#49006A"
+ )
 )
 
 # Prepare data ----------------------------------------------------------------
@@ -277,7 +278,7 @@ plot_box <- function(dat) {
         fill=cluster)) +
     # geom_boxplot() +
     geom_violin() +
-    geom_jitter(height = 0, width = 0.25, color = "dimgrey", size = 0.5) + 
+    geom_jitter(height = 0, width = 0.25, color = "dimgrey", size = 0.3) + 
     labs(
       x = NULL,
       y    = bquote("Log"[2]~"(CPM+1)  "),
@@ -342,13 +343,13 @@ plot_box <- function(dat) {
 # Call this function with all the regular navbarPage() parameters, plus a text parameter,
 # if you want to add text to the navbar
 navbarPageWithText <- function(..., text) {
-  navbar <- navbarPage(...)
-  textEl <- tags$div(class = "navbar-text pull-right", text)
-  navbar[[3]][[1]]$children[[1]] <- htmltools::tagAppendChild(
-    navbar[[3]][[1]]$children[[1]], textEl)
-  navbar
-}
-
+      navbar <- navbarPage(...)
+      textEl <- tags$div(class = "navbar-text pull-right", text)
+      navbar[[3]][[1]]$children[[1]] <- htmltools::tagAppendChild(
+          navbar[[3]][[1]]$children[[1]], textEl)
+      navbar
+    }
+  
 ui <- fluidPage(
   
   tags$head(
@@ -369,13 +370,13 @@ ui <- fluidPage(
       # h3("Integration of Single-cell Transcriptomic and Proteomic 
       #    Immune Profiling Identifies Pathogenic Pathways in Rheumatoid Arthritis"),
       
-      p("Explore gene expression in single-cell RNA-seq clusters."),
+      p("Explore gene expresson in single-cell RNA-seq clusters."),
       br(),
       
       tabsetPanel(
         
         tabPanel(
-          "Search genes",
+          h4("Search genes"),
         
           # Sidebar with a slider input for number of bins
           sidebarLayout(
@@ -442,8 +443,21 @@ ui <- fluidPage(
             
           ) # sidebarLayout
           
-        ) # tabPanel
+        ), # tabPanel
         
+        tabPanel(
+          h4("Marker genes"),
+          mainPanel(
+          br(),
+          h4("Table of identified subsets marker genes (19 subsets in all)"),
+          br(),
+          fluidRow(
+            column(12,
+                   dataTableOutput('table')
+            )
+          )
+          )
+        )
         # tabPanel(
         #   "Boxplot",
         #   mainPanel(
@@ -512,7 +526,7 @@ ui <- fluidPage(
     ), # tabPanel
     
     text = textOutput("mem_used")
-  ) # navbarPage
+  ) # navbarPage		   
   
 ) # fluidPage
 
@@ -567,8 +581,27 @@ server <- function(input, output) {
   })
   
   output$mem_used <- renderText({
-    gdata::humanReadable(pryr::mem_used(), standard = "SI")
-  })
+       gdata::humanReadable(pryr::mem_used(), standard = "SI")
+    })
+  
+  output$table <- renderDataTable(cluster_markers)
+  
+  # cluster_markers <- data.frame(
+  #   Subsets = c("CB1 (Naive B cells)", "CB2 (Activate B cells)", "CB3 (ABCs)", "CB4 (Plasma cells)",
+  #               "CT1 (Naive CD4+ T cells)",
+  #               "CT2 (Central memory CD4+ T cells)",
+  #               "CT3 (Treg CD4+ T cells)",
+  #               "CT4 (TpH/TfH CD4+ T cells)",
+  #               "CT5 (GZMK CD8+ T cells)",
+  #               "CT6 (CTL CD8+ T cells)",
+  #               "CT7 (HLA CD8+ T cells)",
+  #               "CM1 (PLAUR+)", "CM2 (NUPR1+)", "CM3 (C1AQ+)", "CM4 (IFN+)",
+  #               "CF1 (THY1+ C3+)", "CF2 (THY1+ HLA+)", "CF3 (THY1+ DKK3+)", "CF4 (THY1-)"),
+  #   Markers = c("IGHD, CXCR4, IGHM", "HLA-DPB1, HLA-DRA, MS4A1", "ITGAX, ACTB, TBX21, AICDA", "XBP1, MZB1, FKBP11, SSR4, DERL3",
+  #               "PTPRC", "CCR7, LEF1", "FOXP3, IKZF2, LAYN, CTLA4", "PDCD1, CXCL13", "GZMA, CCL5, NKG7, CD8A", "GNLY, CX3CR1, GZMB", "HLA-DQA1, HLA-DRA",
+  #               "NR4A2, PLAUR, HBEGF", "GPNMB, HTRA1, NUPR1", "C1QA, MARCO", "SPP1, IFITM3, IFI6",
+  #               "C3, PTGFR", "HLA-DRA, IL6", "DKK3, COL8A2", "CLIC5, PRG4")
+  # )
   
 }
 
