@@ -43,6 +43,7 @@ if (file.exists(loom_file)) {
 } else {
   load(data_file)
   log2cpm <- cbind(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
+  log2cpm <- log2cpm[rowSums(log2cpm > 0 ) > 10,]
   n_cells <- ncol(log2cpm)
   n_genes <- nrow(log2cpm)
   meta    <- rbind.data.frame(meta_fibro, meta_bcell, meta_tcell, meta_mono)

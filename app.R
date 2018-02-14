@@ -75,6 +75,9 @@ ui <- fluidPage(
 
 # Server ----------------------------------------------------------------------
 
+# Debug
+# input <- list(cell_type = "fibro", one_gene_symbol = "IFNB1")
+
 server <- function(input, output) {
   
   output$tnse_marker_plot <- renderPlot({
