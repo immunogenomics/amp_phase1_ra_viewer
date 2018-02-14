@@ -11,7 +11,7 @@ quantile_breaks <- function(x, n = 10) {
 #' The left plot is colored by marker.
 #' The right plot is colored by cluster.
 #' @param dat A dataframe with columns T1, T2, marker, cluster
-plot_tsne <- function(dat) {
+plot_tsne <- function(dat, title = NULL) {
   n_nonzero  <- sum(dat$marker > 0)
   # tsne_title <- bquote("tSNE of PCA on Log"[2]~"(CPM + 1)")
   point_size <- 3.5
@@ -26,12 +26,6 @@ plot_tsne <- function(dat) {
     panel.border    = element_rect(size = 0.5),
     plot.title = element_text(size = 25,  face="bold")
   )
-  # Put the name of the marker gene in the upper left corner
-  dat_text <- data.frame(
-    x     = -Inf,
-    y     = Inf,
-    label = marker
-  )
   p1 <- ggplot() +
     geom_point(
       data    = dat[order(dat$marker),],
@@ -40,13 +34,6 @@ plot_tsne <- function(dat) {
       shape   = 21,
       stroke  = 0.15
     ) +
-    # geom_text(
-    #   data    = dat_text,
-    #   mapping = aes(x, y, label = label),
-    #   size    = 9,
-    #   hjust   = -0.05,
-    #   vjust   = 1.25
-    # ) +
     scale_fill_gradientn(
       # Linear scale
       # colours = fill_palette,
@@ -60,8 +47,7 @@ plot_tsne <- function(dat) {
       fill  = guide_colorbar(barwidth = 10, barheight = 1),
       alpha = "none"
     ) +
-    labs(x = NULL, y = NULL) +
-    ggtitle(marker) +
+    labs(x = NULL, y = NULL, title = title) +
     theme_tsne
   # Make a plot showing the clustering results.
   dat$cluster <- factor(dat$cluster)
@@ -85,8 +71,8 @@ plot_tsne <- function(dat) {
     signif(100 * n_nonzero / nrow(dat), 3)
   )
   egg::ggarrange(
-    bottom = textGrob(
-      label = bottom_text, gp = gpar(fontsize = 20)
+    bottom = grid::textGrob(
+      label = bottom_text, gp = grid::gpar(fontsize = 20)
     ),
     plots = list(p1, p2), ncol = 2
   )

@@ -17,11 +17,11 @@ library(shiny)
 library(shinysky) # devtools::install_github("AnalytixWare/ShinySky")
 
 library(ggplot2)
-library(scales)
-library(RColorBrewer)
-library(pryr)
-library(egg)
-library(loomR) # devtools::install_github("mojaveazure/loomR")
+# library(scales)
+# library(RColorBrewer)
+# library(pryr)
+# library(egg)
+# library(loomR) # devtools::install_github("mojaveazure/loomR")
 
 # library(viridis)
 # library(grid)
@@ -83,7 +83,7 @@ server <- function(input, output) {
     gene_ix <- which(gene_symbols == marker)
     meta$marker <- lf$matrix[,gene_ix]
     cell_ix <- which(cell_types == input$cell_type)
-    plot_tsne(meta[cell_ix,])
+    plot_tsne(meta[cell_ix,], marker)
   })
   
   # output$marker_heatmap <- renderD3heatmap({
@@ -104,7 +104,7 @@ server <- function(input, output) {
     gene_ix <- which(gene_symbols == marker)
     meta$marker <- lf$matrix[,gene_ix]
     cell_ix <- which(cell_types == input$cell_type)
-    plot_box(meta[cell_ix,])
+    plot_box(meta[cell_ix,], marker)
   })
   
   output$box_marker_plot_all <- renderPlot({
@@ -115,7 +115,7 @@ server <- function(input, output) {
     )
     gene_ix <- which(gene_symbols == marker)
     meta$marker <- lf$matrix[,gene_ix]
-    plot_box(meta)
+    plot_box(meta, marker)
   })
   
   output$mem_used <- renderText({

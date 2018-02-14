@@ -1,4 +1,4 @@
-plot_box <- function(dat) {
+plot_box <- function(dat, title = "") {
   theme_box <- theme_bw(base_size = 22) + theme(
     legend.position = "bottom",
     # axis.text       = element_blank(),
@@ -19,7 +19,7 @@ plot_box <- function(dat) {
     labs(
       x = NULL,
       y    = bquote("Log"[2]~"(CPM+1)  "),
-      title = marker
+      title = title
       # subtitle = tsne_subtitle
     ) +
     # scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
@@ -44,7 +44,7 @@ plot_box <- function(dat) {
   #   labs(
   #     x = NULL,
   #     y = "Percent nonzero",
-  #     title = marker
+  #     title = title
   #   ) +
   #   scale_y_continuous(labels = percent) +
   #   # scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
@@ -53,7 +53,7 @@ plot_box <- function(dat) {
   # p3 <- ggplot()
   # bottom_text <- sprintf(
   #   "%s is expressing the highest percent of nonzero cells in cluster %s.",
-  #   marker,
+  #   title,
   #   as.integer(dat_pro$cluster[which(dat_pro$nonzero == max(dat_pro$nonzero))])
   # )
   # egg::ggarrange(
