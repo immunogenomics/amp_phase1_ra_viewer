@@ -1,5 +1,14 @@
 plot_box <- function(dat, title = "") {
-  dat$cluster <- factor(dat$cluster)
+  
+  # Put the clusters in the desired order.
+  clusters <- c(
+    "CB1", "CB2", "CB3", "CB4",
+    "CT1", "CT2", "CT3", "CT4", "CT5", "CT6", "CT7",
+    "CM1",  "CM2", "CM3", "CM4",
+    "CF1", "CF2", "CF3", "CF4"
+  )
+  
+  dat$cluster <- factor(dat$cluster, levels = clusters)
   p1 <- ggplot(
     data    = subset(dat, marker > 0),
     mapping = aes(x = cluster, y = marker, fill = cluster)) +
@@ -24,6 +33,7 @@ plot_box <- function(dat, title = "") {
       panel.border    = element_rect(size = 0.5),
       plot.title = element_text(size = 25,  face="bold")
     )
+  p1
   
   dat_percent <- dat %>%
     group_by(cluster) %>%
