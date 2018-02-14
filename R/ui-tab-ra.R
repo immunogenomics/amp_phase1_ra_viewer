@@ -1,9 +1,6 @@
 tabPanel(
   "Rheumatoid Arthritis",
   
-  p("Explore gene expresson in single-cell RNA-seq clusters."),
-  br(),
-  
   tabsetPanel(
     
     tabPanel(
@@ -52,7 +49,9 @@ tabPanel(
         # Show a plot of the generated distribution
         mainPanel(
           fluidRow(
-            h4("The tSNE plot shows the expression of selected gene in the cells from the selected cell type."),
+            p("Explore gene expresson in single-cell RNA-seq clusters."),
+  
+            # h4("The tSNE plot shows the expression of selected gene in the cells from the selected cell type."),
             plotOutput("tnse_marker_plot", height = "700px"),
             br(),
             # hr(),
@@ -61,11 +60,13 @@ tabPanel(
             #  " cluster."),
             # d3heatmapOutput("marker_heatmap", height = "1600px")
             hr(),
-            h4("The expression of selected gene in the selected Cell Type subsets (in violinplot):"),
-            plotOutput("box_marker_plot_single", height = "500px"),
-            br(),
-            hr(),
-            h4("The expression of selected gene across all the subsets (in violinplot):"),
+            
+            # h4("The expression of selected gene in the selected Cell Type subsets (in violinplot):"),
+            # plotOutput("box_marker_plot_single", height = "500px"),
+            # br(),
+            # hr(),
+            
+            # h4("The expression of selected gene across all the subsets (in violinplot):"),
             plotOutput("box_marker_plot_all", height = "500px"),
             br()
             

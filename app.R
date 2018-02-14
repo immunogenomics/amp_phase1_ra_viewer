@@ -17,6 +17,9 @@ library(shiny)
 library(shinysky) # devtools::install_github("AnalytixWare/ShinySky")
 
 library(ggplot2)
+library(ggbeeswarm)
+library(magrittr)
+library(dplyr)
 # library(scales)
 # library(RColorBrewer)
 # library(pryr)
@@ -95,17 +98,17 @@ server <- function(input, output) {
   #   )
   # })
   
-  output$box_marker_plot_single <- renderPlot({
-    marker <- ifelse(
-      input$one_gene_symbol != "" && input$one_gene_symbol %in% gene_symbols,
-      input$one_gene_symbol,
-      one_gene_symbol_default
-    )
-    gene_ix <- which(gene_symbols == marker)
-    meta$marker <- lf$matrix[,gene_ix]
-    cell_ix <- which(cell_types == input$cell_type)
-    plot_box(meta[cell_ix,], marker)
-  })
+  # output$box_marker_plot_single <- renderPlot({
+  #   marker <- ifelse(
+  #     input$one_gene_symbol != "" && input$one_gene_symbol %in% gene_symbols,
+  #     input$one_gene_symbol,
+  #     one_gene_symbol_default
+  #   )
+  #   gene_ix <- which(gene_symbols == marker)
+  #   meta$marker <- lf$matrix[,gene_ix]
+  #   cell_ix <- which(cell_types == input$cell_type)
+  #   plot_box(meta[cell_ix,], marker)
+  # })
   
   output$box_marker_plot_all <- renderPlot({
     marker <- ifelse(

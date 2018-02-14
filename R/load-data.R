@@ -66,7 +66,12 @@ gene_symbols <- lf$row.attrs$gene_names[]
 
 cell_types   <- lf$col.attrs$cell_type[]
 
-possible_cell_types <- c("fibro", "bcell", "tcell", "mono")
+possible_cell_types <- c(
+  "Fibroblast" = "fibro",
+  "B cell"     = "bcell",
+  "T cell"     = "tcell",
+  "Monocyte"   = "mono"
+)
 
 one_gene_symbol_default <- "HLA-DRA"
 

@@ -2,7 +2,9 @@
 
 cran_packages <- c(
   "RColorBrewer",
+  "dplyr",
   "ggplot2",
+  "magrittr",
   "pryr",
   "scales",
   "shiny"
@@ -13,6 +15,7 @@ install.packages(cran_packages)
 github_packages <- c(
   "AnalytixWare/ShinySky",
   "baptiste/egg",
+  "eclarke/ggbeeswarm",
   "mojaveazure/loomR"
 )
 
