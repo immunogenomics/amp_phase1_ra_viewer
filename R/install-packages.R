@@ -10,7 +10,9 @@ cran_packages <- c(
   "shiny"
 )
 
-install.packages(cran_packages)
+# Load packages, and install them if they are not installed.
+if (!require(pacman)) { install.packages("pacman") }
+pacman::p_load(char = cran_packages)
 
 github_packages <- c(
   "AnalytixWare/ShinySky",
