@@ -2,10 +2,10 @@ plot_box <- function(dat, title = "") {
   
   # Put the clusters in the desired order.
   clusters <- c(
-    "CB1", "CB2", "CB3", "CB4",
-    "CT1", "CT2", "CT3", "CT4", "CT5", "CT6", "CT7",
     "CM1",  "CM2", "CM3", "CM4",
-    "CF1", "CF2", "CF3", "CF4"
+    "CF1", "CF2", "CF3", "CF4",
+    "CB1", "CB2", "CB3", "CB4",
+    "CT1", "CT2", "CT3", "CT4", "CT5", "CT6", "CT7"
   )
   
   dat$cluster <- factor(dat$cluster, levels = clusters)
