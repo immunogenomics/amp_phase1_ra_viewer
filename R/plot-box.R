@@ -2,15 +2,19 @@ plot_box <- function(dat, title = "") {
   
   # Put the clusters in the desired order.
   clusters <- c(
-    "CM1",  "CM2", "CM3", "CM4",
-    "CF1", "CF2", "CF3", "CF4",
-    "CB1", "CB2", "CB3", "CB4",
-    "CT1", "CT2", "CT3", "CT4", "CT5", "CT6", "CT7"
+    "M-1",  "M-2", "M-3", "M-4",
+    "F-1", "F-2", "F-3", "F-4",
+    "B-1", "B-2", "B-3", "B-4",
+    "T-1", "T-2", "T-3", "T-4", "T-5", "T-6", "T-7"
   )
+  
+  ix_zero <- which(dat$marker == 0)
+  dat$marker[ix_zero] <- dat$marker[ix_zero] + runif(n = length(ix_zero), min = -0.5, max = 0)
   
   dat$cluster <- factor(dat$cluster, levels = clusters)
   p1 <- ggplot(
     data    = subset(dat, marker > 0),
+    # data    = dat,
     mapping = aes(x = cluster, y = marker, fill = cluster)) +
     # geom_boxplot() +
     # geom_violin() +
@@ -25,13 +29,13 @@ plot_box <- function(dat, title = "") {
       # subtitle = tsne_subtitle
     ) +
     scale_fill_manual(values = meta_colors$fine_cluster, name = "Cluster") +
-    theme_bw(base_size = 22) + theme(
+    theme_bw(base_size = 26) + theme(
       legend.position = "none",
       # axis.text       = element_blank(),
       # axis.ticks      = element_blank(),
       # panel.grid      = element_blank(),
       panel.border    = element_rect(size = 0.5),
-      plot.title = element_text(size = 25,  face="bold")
+      plot.title = element_text(size = 35,  face="bold")
     )
   p1
   
@@ -51,16 +55,17 @@ plot_box <- function(dat, title = "") {
     scale_y_continuous(limits = c(0, 100), breaks = c(0, 50, 100)) +
     labs(x = NULL, y = "% non-zero") +
     coord_flip() +
-    theme_bw(base_size = 22) + theme(
+    theme_bw(base_size = 26) + theme(
       legend.position = "none",
       axis.text.y       = element_blank(),
       axis.ticks.y      = element_blank(),
       # panel.grid      = element_blank(),
       panel.border    = element_rect(size = 0.5),
-      plot.title = element_text(size = 25,  face="bold")
+      plot.title = element_text(size = 30,  face="bold")
     )
   
   egg::ggarrange(p1, p2, ncol = 2, widths = c(0.8, 0.2))
+
   
   # proportion <- rep(0, length(table(dat$cluster)))
   # for (i in 1:length(table(dat$cluster))){
@@ -98,8 +103,7 @@ plot_box <- function(dat, title = "") {
   #   #   label = bottom_text, 
   #   #   gp = gpar(fontsize = 20, fontface="bold")
   #   # ),
-  #   plots = list(p1, p2), ncol = 2, widths = 2.7:1, height = 2.2:1,
-  #   hr()
+  #   plots = list(p1, p2), ncol = 2, widths = 2.7:1, height = 2.2:1
   # )
 }
 

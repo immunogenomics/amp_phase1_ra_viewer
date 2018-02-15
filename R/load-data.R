@@ -78,49 +78,49 @@ one_gene_symbol_default <- "HLA-DRA"
 
 meta_colors <- list(
   fine_cluster = c(
-    "CF1" = "#6BAED6",
-    "CF2" = "#08306B",
-    "CF3" = "#DEEBF7",
-    "CF4" = "grey",
-    "CT1" = "#FEB24C",
-    "CT2" = "#8C510A",
-    "CT3" = "brown",
-    "CT4" = "#FFFF33",
-    "CT5" = "#C7EAE5",
-    "CT6" = "#003C30",
-    "CT7" = "#35978F",
-    "CB1" = "#FCBBA1",
-    "CB2" = "#CB181D", #FB6A4A #A50F15
-    "CB3" = "#67000D",
-    "CB4" = "#FB9A99",
-    "CM1" = "#AE017E",
-    "CM2" = "#F768A1",
-    "CM3" = "#FDE0EF", #FCC5C0
-    "CM4" = "#49006A"
+    "F-1" = "#6BAED6",
+    "F-2" = "#08306B",
+    "F-3" = "#DEEBF7",
+    "F-4" = "grey",
+    "T-1" = "#FEB24C",
+    "T-2" = "#8C510A",
+    "T-3" = "brown",
+    "T-4" = "#FFFF33",
+    "T-5" = "#C7EAE5",
+    "T-6" = "#003C30",
+    "T-7" = "#35978F",
+    "B-1" = "#FCBBA1",
+    "B-2" = "#CB181D", #FB6A4A #A50F15
+    "B-3" = "#67000D",
+    "B-4" = "#FB9A99",
+    "M-1" = "#AE017E",
+    "M-2" = "#F768A1",
+    "M-3" = "#FDE0EF", #FCC5C0
+    "M-4" = "#49006A"
   )
 )
 
 cluster_markers <- data.frame(
   Subsets = c(
-    "CB1: Naive B cells",
-    "CB2: Activate B cells",
-    "CB3: Age Associated B cells (ABCs)",
-    "CB4: Plasma cells",
-    "CT1: Naive CD4+ T cells",
-    "CT2: Central memory CD4+ T cells",
-    "CT3: Treg CD4+ T cells",
-    "CT4: TpH/TfH CD4+ T cells",
-    "CT5: GZMK+ CD8+ T cells",
-    "CT6: CTL+ CD8+ T cells",
-    "CT7: HLA+ CD8+ T cells",
-    "CM1: activated monocytes",
-    "CM2: NUPR1+",
-    "CM3: C1AQ+ (common to all monocytes)",
-    "CM4: IFN+",
-    "CF1: THY1+ C3+ (sublining)",
-    "CF2: THY1+ HLA+ (sublining)",
-    "CF3: THY1+ DKK3+ (sublining)",
-    "CF4: THY1- (lining)"
+    "B-1: Naive B cells",
+    "B-2: Activate B cells",
+    "B-3: Age Associated B cells (ABCs)",
+    "B-4: Plasma cells",
+    "T-1: Naive CD4+ T cells",
+    "T-2: Central memory CD4+ T cells",
+    "T-3: Treg CD4+ T cells",
+    "T-4: TpH/TfH CD4+ T cells",
+    "T-5: GZMK+ CD8+ T cells",
+    "T-6: CTL+ CD8+ T cells",
+    "T-7: HLA+ CD8+ T cells",
+    "M-1: activated monocytes",
+    "M-2: NUPR1+",
+    "M-3: C1AQ+ (common to all monocytes)",
+    "M-4: IFN+",
+    "F-1: THY1+ C3+ (sublining)",
+    "F-2: THY1+ HLA+ (sublining)",
+    "F-3: THY1+ DKK3+ (sublining)",
+    "F-4: THY1- (lining)"
   ),
   Markers = c(
     "IGHD, CXCR4, IGHM",
@@ -144,3 +144,10 @@ cluster_markers <- data.frame(
     "CLIC5, PRG4"
   )
 )
+
+# Change CM1 to M-1
+meta_mono$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_mono$cluster, 2))
+meta_fibro$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_fibro$cluster, 2))
+meta_bcell$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_bcell$cluster, 2))
+meta_tcell$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_tcell$cluster, 2))
+

@@ -9,7 +9,7 @@
 # Fan Zhang produced the input data (tSNE, clusters).
 #
 # getwd()
-# setwd("/Users/fanzhang/Documents/HMS/amp/results/2018_01_26_ampviewer")
+# setwd("/Users/fanzhang/Documents/GitHub/ampviewer")
 
 # Libraries -------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ library(dplyr)
 # library(scales)
 # library(RColorBrewer)
 # library(pryr)
-# library(egg)
+library(egg)
 # library(loomR) # devtools::install_github("mojaveazure/loomR")
 
 # library(viridis)
@@ -132,8 +132,10 @@ server <- function(input, output) {
   
 }
 
-#
+
 
 # Launch the app --------------------------------------------------------------
 
 shinyApp(ui = ui, server = server)
+
+
