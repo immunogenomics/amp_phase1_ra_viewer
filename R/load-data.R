@@ -145,9 +145,9 @@ cluster_markers <- data.frame(
   )
 )
 
-# Change CM1 to M-1
-meta_mono$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_mono$cluster, 2))
-meta_fibro$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_fibro$cluster, 2))
-meta_bcell$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_bcell$cluster, 2))
-meta_tcell$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_tcell$cluster, 2))
+# # Change CM1 to M-1
+# meta_mono$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_mono$cluster, 2))
+# meta_fibro$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_fibro$cluster, 2))
+# meta_bcell$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_bcell$cluster, 2))
+# meta_tcell$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_tcell$cluster, 2))
 
