@@ -78,6 +78,12 @@ ui <- fluidPage(
 # Debug
 # input <- list(cell_type = "fibro", one_gene_symbol = "IFNB1")
 
+which_numeric_cols <- function(dat) {
+  which(sapply(seq(ncol(dat)), function(i) {
+    is.numeric(dat[,i])
+  }))
+}
+
 server <- function(input, output) {
   
   output$tnse_marker_plot <- renderPlot({
@@ -86,6 +92,10 @@ server <- function(input, output) {
       input$one_gene_symbol,
       one_gene_symbol_default
     )
+    this_gene <- dg$gene[input$dg_table_rows_selected]
+    if (length(this_gene) > 0) {
+      marker <- this_gene
+    }
     gene_ix <- which(gene_symbols == marker)
     meta$marker <- lf$matrix[,gene_ix]
     cell_ix <- which(cell_types == input$cell_type)
@@ -119,6 +129,10 @@ server <- function(input, output) {
       input$one_gene_symbol,
       one_gene_symbol_default
     )
+    this_gene <- dg$gene[input$dg_table_rows_selected]
+    if (length(this_gene) > 0) {
+      marker <- this_gene
+    }
     gene_ix <- which(gene_symbols == marker)
     meta$marker <- lf$matrix[,gene_ix]
     plot_box(meta, marker)
@@ -129,6 +143,16 @@ server <- function(input, output) {
     })
   
   output$table <- renderDataTable(cluster_markers)
+  
+  output$dg_table <- DT::renderDataTable({
+    numeric_cols <- colnames(dg)[which_numeric_cols(dg)]
+    # Javascript-enabled table.
+    DT::datatable(
+      data = dg,
+      selection = "single"
+    ) %>%
+      DT::formatSignif(columns = numeric_cols, digits = 2)
+  }, server = FALSE)
   
 }
 

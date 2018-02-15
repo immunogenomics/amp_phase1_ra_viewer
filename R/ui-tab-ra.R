@@ -68,8 +68,9 @@ tabPanel(
             
             # h4("The expression of selected gene across all the subsets (in violinplot):"),
             plotOutput("box_marker_plot_all", height = "500px"),
-            br()
+            br(),
             
+            DT::dataTableOutput("dg_table")
           )
         )
         

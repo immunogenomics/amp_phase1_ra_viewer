@@ -145,6 +145,26 @@ cluster_markers <- data.frame(
   )
 )
 
+# dg_fibro <- readRDS("data/dg_fibro.rds")
+# dg_fibro$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(dg_fibro$cluster, 2))
+# dg_bcell <- readRDS("data/dg_bcell.rds")
+# dg_bcell$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(dg_bcell$cluster, 2))
+# dg_tcell <- readRDS("data/dg_tcell.rds")
+# dg_tcell$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(dg_tcell$cluster, 2))
+# dg_mono <- readRDS("data/dg_mono.rds")
+# dg_mono$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(dg_mono$cluster, 2))
+# dg <- rbind(dg_fibro, dg_bcell, dg_tcell, dg_mono)
+# rownames(dg) <- seq(nrow(dg))
+# saveRDS(dg, "data/dg.rds")
+
+dg <- readRDS("data/dg.rds")
+colnames(dg) <- c(
+  "zscore", "difference", "is_highest", "pct_nonzero",
+  "cluster", "gene", "cell_type"
+)
+dg %<>% filter(abs(zscore) > 3) %>% arrange(-zscore)
+dg %<>% select(cell_type, cluster, gene, pct_nonzero, zscore, difference)
+
 # # Change CM1 to M-1
 # meta_mono$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_mono$cluster, 2))
 # meta_fibro$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_fibro$cluster, 2))
