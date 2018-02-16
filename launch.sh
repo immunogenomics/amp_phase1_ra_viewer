@@ -8,6 +8,5 @@ rsync -rlzuvh \
    --exclude=make_tar.sh \
    --exclude=launch.sh \
    --exclude=*.Rproj \
-   --exclude=data/*.rds \
    --exclude=.* \
    "./" "$des"
