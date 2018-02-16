@@ -31,18 +31,21 @@ plot_box <- function(dat, title = "") {
     coord_flip() +
     labs(
       x     = NULL,
-      y     = bquote("Log"[2]~"(CPM+1)"),
-      title = title
+      y     = bquote("Log"[2]~"(CPM+1)")
+      # title = title
       # subtitle = tsne_subtitle
     ) +
     scale_fill_manual(values = meta_colors$fine_cluster, name = "Cluster") +
     theme_bw(base_size = 26) + theme(
       legend.position = "none",
+      axis.ticks      = element_line(size = 0.5),
+      axis.text.y     = element_blank(),
+      axis.ticks.y    = element_blank(),
       # axis.text       = element_blank(),
       # axis.ticks      = element_blank(),
       panel.grid      = element_blank(),
       panel.border    = element_rect(size = 0.5),
-      plot.title = element_text(size = 35,  face="bold")
+      plot.title = element_text(size = 30,  face="bold")
     )
   # p1
   
@@ -68,24 +71,30 @@ plot_box <- function(dat, title = "") {
     geom_col(
       data = dat_percent,
       mapping = aes(x = cluster, y = percent, fill = cluster),
-      color = "grey50", size = 0.1
+      color = "black", size = 0.15, width = 0.8
       # fill = "grey60"
+    ) +
+    geom_vline(
+      data = data.frame(x = c(7.5, 11.5, 15.5)),
+      mapping = aes(xintercept = x),
+      color = "grey70"
     ) +
     scale_fill_manual(values = meta_colors$fine_cluster, name = "Cluster") +
     scale_x_discrete(limits = rev(levels(dat$cluster))) +
     scale_y_continuous(limits = c(0, 100), breaks = c(0, 50, 100)) +
-    labs(x = NULL, y = "% non-zero") +
+    labs(x = NULL, y = "% non-zero", title = title) +
     coord_flip() +
     theme_bw(base_size = 26) + theme(
       legend.position = "none",
-      axis.text.y       = element_blank(),
-      axis.ticks.y      = element_blank(),
-      # panel.grid      = element_blank(),
+      axis.ticks      = element_line(size = 0.5),
+      # axis.text.y       = element_blank(),
+      # axis.ticks.y      = element_blank(),
+      panel.grid      = element_blank(),
       panel.border    = element_rect(size = 0.5),
       plot.title = element_text(size = 30,  face="bold")
     )
   
-  egg::ggarrange(p1, p2, ncol = 2, widths = c(0.8, 0.2))
+  egg::ggarrange(p2, p1, ncol = 2, widths = c(0.5, 0.5))
 
   
   # proportion <- rep(0, length(table(dat$cluster)))
