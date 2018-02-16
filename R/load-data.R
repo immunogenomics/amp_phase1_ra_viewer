@@ -145,6 +145,13 @@ cluster_markers <- data.frame(
   )
 )
 
+dg_fibro <- readRDS("data/markers_gene_res_fibro.rds")
+dg_tcell <- readRDS("data/markers_gene_res_tcell.rds")
+dg_bcell <- readRDS("data/markers_gene_res_bcell.rds")
+dg_mono  <- readRDS("data/markers_gene_res_mono.rds") 
+dg <- rbind.data.frame(dg_fibro, dg_tcell, dg_bcell, dg_mono)
+rownames(dg) <- seq(nrow(dg))
+
 # dg_fibro <- readRDS("data/dg_fibro.rds")
 # dg_fibro$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(dg_fibro$cluster, 2))
 # dg_bcell <- readRDS("data/dg_bcell.rds")
@@ -157,17 +164,16 @@ cluster_markers <- data.frame(
 # rownames(dg) <- seq(nrow(dg))
 # saveRDS(dg, "data/dg.rds")
 
-dg <- readRDS("data/dg.rds")
-colnames(dg) <- c(
-  "zscore", "difference", "is_highest", "pct_nonzero",
-  "cluster", "gene", "cell_type"
-)
-dg %<>% filter(abs(zscore) > 3) %>% arrange(-zscore)
-dg %<>% select(cell_type, cluster, gene, pct_nonzero, zscore, difference)
+# dg <- readRDS("data/dg.rds")
+# colnames(dg) <- c(
+#   "zscore", "difference", "is_highest", "pct_nonzero",
+#   "cluster", "gene", "cell_type"
+# )
+# dg %<>% filter(abs(zscore) > 3) %>% arrange(-zscore)
+# dg %<>% select(cell_type, cluster, gene, pct_nonzero, zscore, difference)
 
 # # Change CM1 to M-1
 # meta_mono$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_mono$cluster, 2))
 # meta_fibro$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_fibro$cluster, 2))
 # meta_bcell$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_bcell$cluster, 2))
 # meta_tcell$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_tcell$cluster, 2))
-

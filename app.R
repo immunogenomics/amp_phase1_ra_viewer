@@ -152,11 +152,9 @@ server <- function(input, output) {
       selection = "single"
     ) %>%
       DT::formatSignif(columns = numeric_cols, digits = 2)
-  }, server = FALSE)
+  }, server = TRUE)
   
 }
-
-
 
 # Launch the app --------------------------------------------------------------
 
