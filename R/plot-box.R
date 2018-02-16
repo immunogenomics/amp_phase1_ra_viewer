@@ -12,15 +12,22 @@ plot_box <- function(dat, title = "") {
   dat$marker[ix_zero] <- dat$marker[ix_zero] + runif(n = length(ix_zero), min = -0.5, max = 0)
   
   dat$cluster <- factor(dat$cluster, levels = clusters)
-  p1 <- ggplot(
-    data    = subset(dat, marker > 0),
-    # data    = dat,
-    mapping = aes(x = cluster, y = marker, fill = cluster)) +
+  p1 <- ggplot() +
     # geom_boxplot() +
     # geom_violin() +
-    # geom_jitter(height = 0, width = 0.25, color = "dimgrey", size = 0.3) + 
-    geom_quasirandom(shape = 21, stroke = 0.1, size = 2) +
+    # geom_jitter(height = 0, width = 0.25, color = "dimgrey", size = 0.3) +
+    geom_quasirandom(
+      data    = subset(dat, marker > 0),
+      # data    = dat,
+      mapping = aes(x = cluster, y = marker, fill = cluster),
+      shape = 21, stroke = 0.15, size = 2.5
+    ) +
     scale_x_discrete(limits = rev(levels(dat$cluster))) +
+    geom_vline(
+      data = data.frame(x = c(7.5, 11.5, 15.5)),
+      mapping = aes(xintercept = x),
+      color = "grey70"
+    ) +
     coord_flip() +
     labs(
       x     = NULL,
@@ -33,15 +40,29 @@ plot_box <- function(dat, title = "") {
       legend.position = "none",
       # axis.text       = element_blank(),
       # axis.ticks      = element_blank(),
-      # panel.grid      = element_blank(),
+      panel.grid      = element_blank(),
       panel.border    = element_rect(size = 0.5),
       plot.title = element_text(size = 35,  face="bold")
     )
-  p1
+  # p1
   
   dat_percent <- dat %>%
     group_by(cluster) %>%
     summarise(percent = sum(marker > 0) / length(marker) * 100)
+  
+  # Add small columns on the left showing percent of cells with 0 expression.
+  # data_cols <- data.frame(
+  #   x = 19:1, y = -1, cluster = NA
+  # )
+  # p1 <- p1 + geom_col(
+  #     data = dat_percent,
+  #     mapping = aes(x = cluster, y = -1 * (100 - percent) / 100, fill = cluster),
+  #     size = 0.15, colour = "black", width = 0.5
+  #   ) + geom_col(
+  #     data = data_cols,
+  #     mapping = aes(x = x, y = y, fill = cluster),
+  #     size = 0.15, colour = "black", width = 0.5
+  #   )
   
   p2 <- ggplot() +
     geom_col(
