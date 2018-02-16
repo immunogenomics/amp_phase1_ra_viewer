@@ -145,12 +145,16 @@ cluster_markers <- data.frame(
   )
 )
 
-dg_fibro <- readRDS("data/markers_gene_res_fibro.rds")
-dg_tcell <- readRDS("data/markers_gene_res_tcell.rds")
-dg_bcell <- readRDS("data/markers_gene_res_bcell.rds")
-dg_mono  <- readRDS("data/markers_gene_res_mono.rds") 
-dg <- rbind.data.frame(dg_fibro, dg_tcell, dg_bcell, dg_mono)
-rownames(dg) <- seq(nrow(dg))
+dg <- readRDS("data/dg.rds")
+
+# dg_fibro <- readRDS("data/markers_gene_res_fibro.rds")
+# dg_tcell <- readRDS("data/markers_gene_res_tcell.rds")
+# dg_bcell <- readRDS("data/markers_gene_res_bcell.rds")
+# dg_mono  <- readRDS("data/markers_gene_res_mono.rds") 
+# dg <- rbind.data.frame(dg_fibro, dg_tcell, dg_bcell, dg_mono)
+# rownames(dg) <- seq(nrow(dg))
+# saveRDS(dg, "data/dg.rds")
+
 
 # dg_fibro <- readRDS("data/dg_fibro.rds")
 # dg_fibro$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(dg_fibro$cluster, 2))
