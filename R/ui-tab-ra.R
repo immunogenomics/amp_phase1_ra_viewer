@@ -20,14 +20,20 @@ tabPanel(
           
           strong("Gene:"),
           
-          textInput.typeahead(
-            id = "one_gene_symbol",
-            placeholder = one_gene_symbol_default,
-            local = data.frame(name = gene_symbols),
-            limit = 10,
-            valueKey = "name",
-            tokens = seq_along(gene_symbols),
-            template = HTML("<p>{{name}}</p>")
+          # textInput.typeahead(
+          #   id = "one_gene_symbol",
+          #   placeholder = one_gene_symbol_default,
+          #   local = data.frame(name = gene_symbols),
+          #   limit = 10,
+          #   valueKey = "name",
+          #   tokens = seq_along(gene_symbols),
+          #   template = HTML("<p>{{name}}</p>")
+          # ),
+          
+          selectizeInput(
+            inputId = 'one_gene_symbol',
+            label = "Gene",
+            choices = NULL
           ),
           
           # Sidebar is fluid and 3/12 units wide.

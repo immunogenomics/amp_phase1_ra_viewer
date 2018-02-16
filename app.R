@@ -84,7 +84,15 @@ which_numeric_cols <- function(dat) {
   }))
 }
 
-server <- function(input, output) {
+server <- function(input, output, session) {
+  
+  updateSelectizeInput(
+    session = session,
+    inputId = 'one_gene_symbol',
+    choices = gene_symbols,
+    server = TRUE,
+    selected = one_gene_symbol_default
+  )
   
   output$tnse_marker_plot <- renderPlot({
     marker <- ifelse(
