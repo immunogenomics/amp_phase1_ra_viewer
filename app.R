@@ -86,20 +86,8 @@ which_numeric_cols <- function(dat) {
 
 server <- function(input, output, session) {
   
-  updateSelectizeInput(
-    session = session,
-    inputId = 'one_gene_symbol',
-    choices = gene_symbols,
-    server = TRUE,
-    selected = one_gene_symbol_default
-  )
-  
   output$tnse_marker_plot <- renderPlot({
-    marker <- ifelse(
-      input$one_gene_symbol != "" && input$one_gene_symbol %in% gene_symbols,
-      input$one_gene_symbol,
-      one_gene_symbol_default
-    )
+    marker <- one_gene_symbol_default
     this_gene <- dg$gene[input$dg_table_rows_selected]
     if (length(this_gene) > 0) {
       marker <- this_gene
@@ -119,24 +107,8 @@ server <- function(input, output, session) {
   #   )
   # })
   
-  # output$box_marker_plot_single <- renderPlot({
-  #   marker <- ifelse(
-  #     input$one_gene_symbol != "" && input$one_gene_symbol %in% gene_symbols,
-  #     input$one_gene_symbol,
-  #     one_gene_symbol_default
-  #   )
-  #   gene_ix <- which(gene_symbols == marker)
-  #   meta$marker <- lf$matrix[,gene_ix]
-  #   cell_ix <- which(cell_types == input$cell_type)
-  #   plot_box(meta[cell_ix,], marker)
-  # })
-  
   output$box_marker_plot_all <- renderPlot({
-    marker <- ifelse(
-      input$one_gene_symbol != "" && input$one_gene_symbol %in% gene_symbols,
-      input$one_gene_symbol,
-      one_gene_symbol_default
-    )
+    marker <- one_gene_symbol_default
     this_gene <- dg$gene[input$dg_table_rows_selected]
     if (length(this_gene) > 0) {
       marker <- this_gene

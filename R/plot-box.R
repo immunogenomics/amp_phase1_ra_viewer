@@ -22,6 +22,7 @@ plot_box <- function(dat, title = "") {
       mapping = aes(x = cluster, y = marker, fill = cluster),
       shape = 21, stroke = 0.15, size = 2.5
     ) +
+    scale_y_continuous(breaks = scales::extended_breaks(n = 4)) +
     scale_x_discrete(limits = rev(levels(dat$cluster))) +
     geom_vline(
       data = data.frame(x = c(7.5, 11.5, 15.5)),
@@ -94,7 +95,7 @@ plot_box <- function(dat, title = "") {
       plot.title = element_text(size = 30,  face="bold")
     )
   
-  egg::ggarrange(p2, p1, ncol = 2, widths = c(0.5, 0.5))
+  egg::ggarrange(p2, p1, ncol = 2, widths = c(0.4, 0.6))
 
   
   # proportion <- rep(0, length(table(dat$cluster)))
