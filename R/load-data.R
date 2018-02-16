@@ -63,6 +63,13 @@ if (file.exists(loom_file)) {
   )
 }
 
+# meta_fibro$newcluster <- meta_fibro$cluster
+# meta_fibro$newcluster[meta_fibro$cluster == "F-4"] <- "F-3"
+# meta_fibro$newcluster[meta_fibro$cluster == "F-3"] <- "F-4"
+# meta_fibro$cluster <- meta_fibro$newcluster
+# meta_fibro$newcluster <- NULL
+# save.image(data_file)
+
 gene_symbols <- lf$row.attrs$gene_names[]
 
 cell_types   <- lf$col.attrs$cell_type[]
@@ -119,8 +126,8 @@ cluster_markers <- data.frame(
     "M-4: IFN+",
     "F-1: THY1+ C3+ (sublining)",
     "F-2: THY1+ HLA+ (sublining)",
-    "F-3: THY1+ DKK3+ (sublining)",
-    "F-4: THY1- (lining)"
+    "F-3: THY1- (lining)",
+    "F-4: THY1+ DKK3+ (sublining)"
   ),
   Markers = c(
     "IGHD, CXCR4, IGHM",
@@ -140,12 +147,19 @@ cluster_markers <- data.frame(
     "SPP1, IFITM3, IFI6",
     "C3, PTGFR",
     "HLA-DRA, IL6",
-    "DKK3, COL8A2",
-    "CLIC5, PRG4"
+    "CLIC5, PRG4",
+    "DKK3, COL8A2"
   )
 )
 
 dg <- readRDS("data/dg.rds")
+
+# dg$newcluster <- dg$cluster
+# dg$newcluster[dg$cluster == "F-4"] <- "F-3"
+# dg$newcluster[dg$cluster == "F-3"] <- "F-4"
+# dg$cluster <- dg$newcluster
+# dg$newcluster <- NULL
+# saveRDS(dg, "data/dg.rds")
 
 # dg_fibro <- readRDS("data/markers_gene_res_fibro.rds")
 # dg_tcell <- readRDS("data/markers_gene_res_tcell.rds")
