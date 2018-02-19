@@ -111,7 +111,7 @@ cluster_markers <- data.frame(
   Subsets = c(
     "B-1: Naive B cells",
     "B-2: Activate B cells",
-    "B-3: Age Associated B cells (ABCs)",
+    "B-3: Age-associated B cells (ABCs)",
     "B-4: Plasma cells",
     "T-1: Naive CD4+ T cells",
     "T-2: Central memory CD4+ T cells",
@@ -120,14 +120,14 @@ cluster_markers <- data.frame(
     "T-5: GZMK+ CD8+ T cells",
     "T-6: CTL+ CD8+ T cells",
     "T-7: HLA+ CD8+ T cells",
-    "M-1: activated monocytes",
+    "M-1: pro-inflammatory",
     "M-2: NUPR1+",
-    "M-3: C1AQ+ (common to all monocytes)",
-    "M-4: IFN+",
-    "F-1: THY1+ C3+ (sublining)",
-    "F-2: THY1+ HLA+ (sublining)",
-    "F-3: THY1- (lining)",
-    "F-4: THY1+ DKK3+ (sublining)"
+    "M-3: C1QA+ (common to all monocytes)",
+    "M-4: IFN-activated",
+    "F-1: Sublining CD34+",
+    "F-2: Sublining HLA+",
+    "F-3: Sublining DKK3+",
+    "F-4: Lining"
   ),
   Markers = c(
     "IGHD, CXCR4, IGHM",
