@@ -1,6 +1,7 @@
 # Read 4 datasets: bcell, tcell, mono, fibro
 # Preprocess into a file for quick loading.
 data_file <- "data/shiny.rda"
+# cell_types <- c("fibro", "tcell", "bcell", "mono")
 # if (file.exists(data_file)) {
 #   load(data_file)
 # } else {
@@ -164,7 +165,7 @@ dg <- readRDS("data/dg.rds")
 # dg_fibro <- readRDS("data/markers_gene_res_fibro.rds")
 # dg_tcell <- readRDS("data/markers_gene_res_tcell.rds")
 # dg_bcell <- readRDS("data/markers_gene_res_bcell.rds")
-# dg_mono  <- readRDS("data/markers_gene_res_mono.rds") 
+# dg_mono  <- readRDS("data/markers_gene_res_mono.rds")
 # dg <- rbind.data.frame(dg_fibro, dg_tcell, dg_bcell, dg_mono)
 # rownames(dg) <- seq(nrow(dg))
 # saveRDS(dg, "data/dg.rds")
