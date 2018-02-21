@@ -39,12 +39,11 @@ tabPanel(
     h2("Contact"),
     p(
       "This site is made by", 
-                a("Kamil Slowikowski", href = "mailto:kslowikowski@fas.harvard.edu"),
+      a("Kamil Slowikowski", href = "mailto:kslowikowski@fas.harvard.edu"),
       "and",
-                a("Fan Zhang.", href = "mailto:fanzhang@broadinstitute.org"),
-      "Please contact",
-                a("Fan", href = "mailto:fanzhang@broadinstitute.org"),
-      "if you have any questions, requests, or comments on the analysis and results."
+      a("Fan Zhang.", href = "mailto:fanzhang@broadinstitute.org"),
+      "Please contact us if you have any questions, requests, or comments",
+      " on the analysis and results."
     )
 
   ) # mainPanel
