@@ -84,19 +84,64 @@ which_numeric_cols <- function(dat) {
   }))
 }
 
+#' Test if a program is installed.
+is_installed <- function(command) {
+  !startsWith(system(
+    command = sprintf("command -v %s || echo FALSE", command),
+    intern = TRUE
+  ), "FALSE")
+}
+
+#' Call pngquant to optimize a PNG file.
+optimize_png <- function(filename) {
+  if (is_installed("pngquant")) {
+    opt_filename <- sprintf(
+      "%s-fs8.png", substr(filename, 1, nchar(filename) - 4)
+    )
+    command <- sprintf(
+      "pngquant --speed=1 --quality=0-10 --ext -fs8.png -- %s && mv -f %s %s",
+      filename, opt_filename, filename
+    )
+    system(command)
+  }
+}
+
 server <- function(input, output, session) {
   
-  output$tnse_marker_plot <- renderPlot({
+  output$tnse_marker_plot <- renderImage({
     marker <- one_gene_symbol_default
     this_gene <- dg$gene[input$dg_table_rows_selected]
     if (length(this_gene) > 0) {
       marker <- this_gene
     }
+    stopifnot(marker %in% gene_symbols)
     gene_ix <- which(gene_symbols == marker)
     meta$marker <- lf$matrix[,gene_ix]
+    stopifnot(input$cell_type %in% cell_types)
     cell_ix <- which(cell_types == input$cell_type)
-    plot_tsne(meta[cell_ix,], marker)
-  })
+    
+    temp_dir <- file.path("/tmp/ampviewer")
+    dir.create(temp_dir, showWarnings = FALSE)
+    outfile <- file.path(
+      temp_dir,
+      sprintf("tsne_%s_%s.png", input$cell_type, marker)
+    )
+    
+    if (!file.exists(outfile) || file_test("-nt", "app.R", outfile)) {
+      p <- plot_tsne(meta[cell_ix,], marker)
+      ggsave(filename = outfile, plot = p, width = 9, height = 5, dpi = 100)
+      # png(outfile, width = 600, height = 380)
+      # print(p)
+      # dev.off()
+      optimize_png(outfile)
+    }
+    
+    list(
+      style = 'height: 100%; width: 100%; object-fit: contain',
+      src = outfile,
+      alt = sprintf("%s %s", input$cell_type, marker)
+    )
+  }, deleteFile = FALSE)
   
   # output$marker_heatmap <- renderD3heatmap({
   #   markers <- get(sprintf("markers_%s", input$cell_type))
@@ -107,16 +152,38 @@ server <- function(input, output, session) {
   #   )
   # })
   
-  output$box_marker_plot_all <- renderPlot({
+  output$box_marker_plot_all <- renderImage({
     marker <- one_gene_symbol_default
     this_gene <- dg$gene[input$dg_table_rows_selected]
     if (length(this_gene) > 0) {
       marker <- this_gene
     }
+    stopifnot(marker %in% gene_symbols)
     gene_ix <- which(gene_symbols == marker)
     meta$marker <- lf$matrix[,gene_ix]
-    plot_box(meta, marker)
-  })
+   
+    temp_dir <- file.path("/tmp/ampviewer")
+    dir.create(temp_dir, showWarnings = FALSE)
+    outfile <- file.path(
+      temp_dir,
+      sprintf("beeswarm_%s.png", marker)
+    )
+    
+    if (!file.exists(outfile) || file_test("-nt", "app.R", outfile)) {
+      p <- plot_box(meta, marker)
+      ggsave(filename = outfile, plot = p, width = 6, height = 9, dpi = 100)
+      # png(outfile, width = 385, height = 520)
+      # print(p)
+      # dev.off()
+      optimize_png(outfile)
+    }
+    
+    list(
+      style = 'height: 100%; width: 100%; object-fit: contain',
+      src = outfile,
+      alt = marker
+    )
+  }, deleteFile = FALSE)
   
   output$navbar_right <- renderUI({
     element <- ""

@@ -10,9 +10,9 @@ tabPanel(
         fluidPage(
           fluidRow(
   
-            column(width = 10, plotOutput("tnse_marker_plot")),
+            column(width = 9, plotOutput("tnse_marker_plot", height = "400px")),
             
-            column(width = 2,
+            column(width = 3,
               wellPanel(radioButtons(
                 inputId  = "cell_type",
                 # inline   = TRUE,
