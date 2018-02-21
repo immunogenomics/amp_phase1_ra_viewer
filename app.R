@@ -66,7 +66,7 @@ ui <- fluidPage(
     "AMP Phase I",
     source(file.path("R", "ui-tab-ra.R"), local = TRUE)$value,
     source(file.path("R", "ui-tab-about.R"), local = TRUE)$value,
-    text = textOutput("mem_used")
+    text = uiOutput("navbar_right")
   )
 
 )
@@ -118,9 +118,27 @@ server <- function(input, output, session) {
     plot_box(meta, marker)
   })
   
-  output$mem_used <- renderText({
-       gdata::humanReadable(pryr::mem_used(), standard = "SI")
-    })
+  output$navbar_right <- renderUI({
+    element <- ""
+    hostname <- session$clientData$url_hostname
+    if (any(startsWith(hostname, c("test.", "localhost", "127.0.0.1")))) {
+      mem_used <- gdata::humanReadable(pryr::mem_used(), standard = "SI")
+      git_hash <- system(
+        command = "git log | head -n1 | cut -f2 -d' ' | cut -c1-7",
+        intern = TRUE
+      )
+      element <- tags$div(
+        tags$a(
+          git_hash,
+          href = sprintf(
+            "https://github.com/immunogenomics/ampviewer/commit/%s", git_hash
+          )
+        ),
+        mem_used
+      )
+    }
+    element
+  })
   
   output$table <- renderDataTable(cluster_markers)
   
