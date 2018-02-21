@@ -2,7 +2,9 @@
 
 des="ig:/srv/shiny-server/ampviewer/"
 
-rsync -rlzuvh \
+#rsync -rlzuvh \
+rsync -ahvz \
+   --no-perms --no-owner --no-group --ignore-times --omit-dir-times \
    --progress \
    --exclude=*.png \
    --exclude=make_tar.sh \
