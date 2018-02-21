@@ -11,6 +11,9 @@
 # getwd()
 # setwd("/Users/fanzhang/Documents/GitHub/ampviewer")
 
+# https://github.com/timelyportfolio/d3treeR/issues/19#issuecomment-268110274
+pdf(NULL)
+
 # Libraries -------------------------------------------------------------------
 
 library(shiny)
