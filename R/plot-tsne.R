@@ -14,7 +14,7 @@ quantile_breaks <- function(x, n = 10) {
 plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
   n_nonzero  <- sum(dat$marker > 0)
   # tsne_title <- bquote("tSNE of PCA on Log"[2]~"(CPM + 1)")
-  point_size <- 3.5
+  point_size <- 2.0
   fill_values <- quantile_breaks(dat$marker, n = 9)
   fill_values <- fill_values / max(fill_values)
   fill_palette <- RColorBrewer::brewer.pal(9, "Greens")
@@ -62,6 +62,7 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
     ) +
     # scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
     scale_fill_manual(values = meta_colors$fine_cluster, name = "Cluster") +
+    guides(fill = guide_legend(nrow = 4, override.aes = list(size = 4))) +
     labs(x = NULL, y = NULL) +
     ggtitle("Identified clusters") +
     theme_tsne
