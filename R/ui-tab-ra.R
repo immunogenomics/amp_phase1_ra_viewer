@@ -18,7 +18,7 @@ tabPanel(
                 # inline   = TRUE,
                 label    = "Cell type:",
                 choices  = possible_cell_types,
-                selected = "fibro"
+                selected = "all"
               ))
             )
             

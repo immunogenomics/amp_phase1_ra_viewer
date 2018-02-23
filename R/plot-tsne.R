@@ -11,7 +11,7 @@ quantile_breaks <- function(x, n = 10) {
 #' The left plot is colored by marker.
 #' The right plot is colored by cluster.
 #' @param dat A dataframe with columns T1, T2, marker, cluster
-plot_tsne <- function(dat, title = NULL) {
+plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
   n_nonzero  <- sum(dat$marker > 0)
   # tsne_title <- bquote("tSNE of PCA on Log"[2]~"(CPM + 1)")
   point_size <- 3.5
@@ -29,7 +29,7 @@ plot_tsne <- function(dat, title = NULL) {
   p1 <- ggplot() +
     geom_point(
       data    = dat[order(dat$marker),],
-      mapping = aes(x = T1, y = T2, fill = marker),
+      mapping = aes_string(x = tsne_x, y = tsne_y, fill = "marker"),
       size    = point_size,
       shape   = 21,
       stroke  = 0.15
@@ -54,7 +54,8 @@ plot_tsne <- function(dat, title = NULL) {
   p2 <- ggplot() +
     geom_point(
       data    = dat[sample(nrow(dat)),],
-      mapping = aes(x = T1, y = T2, fill = cluster),
+      # mapping = aes(x = T1, y = T2, fill = cluster),
+      mapping = aes_string(x = tsne_x, y = tsne_y, fill = "cluster"),
       size    = point_size,
       shape   = 21,
       stroke  = 0.15

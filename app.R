@@ -78,9 +78,6 @@ ui <- fluidPage(
 
 # Server ----------------------------------------------------------------------
 
-# Debug
-# input <- list(cell_type = "fibro", one_gene_symbol = "IFNB1")
-
 which_numeric_cols <- function(dat) {
   which(sapply(seq(ncol(dat)), function(i) {
     is.numeric(dat[,i])
@@ -111,6 +108,9 @@ optimize_png <- function(filename) {
 
 server <- function(input, output, session) {
   
+  # Debug
+  # input <- list(cell_type = "fibro", one_gene_symbol = "IFNB1")
+  
   output$tnse_marker_plot <- renderImage({
     marker <- one_gene_symbol_default
     this_gene <- dg$gene[input$dg_table_rows_selected]
@@ -120,8 +120,17 @@ server <- function(input, output, session) {
     stopifnot(marker %in% gene_symbols)
     gene_ix <- which(gene_symbols == marker)
     meta$marker <- lf$matrix[,gene_ix]
-    stopifnot(input$cell_type %in% cell_types)
-    cell_ix <- which(cell_types == input$cell_type)
+    
+    stopifnot(input$cell_type %in% possible_cell_types)
+    if (input$cell_type == "all") {
+      cell_ix <- seq(nrow(meta))
+      tsne_x <- "T1_all"
+      tsne_y <- "T2_all"
+    } else {
+      cell_ix <- which(cell_types == input$cell_type)
+      tsne_x <- "T1"
+      tsne_y <- "T2"
+    }
     
     temp_dir <- file.path("/tmp/ampviewer")
     dir.create(temp_dir, showWarnings = FALSE)
@@ -131,8 +140,8 @@ server <- function(input, output, session) {
     )
     
     if (!file.exists(outfile) || file_test("-nt", "app.R", outfile)) {
-      p <- plot_tsne(meta[cell_ix,], marker)
-      ggsave(filename = outfile, plot = p, width = 9, height = 5, dpi = 100)
+      p <- plot_tsne(meta[cell_ix,], tsne_x, tsne_y, marker)
+      ggsave(filename = outfile, plot = p, width = 10, height = 6, dpi = 100)
       # png(outfile, width = 600, height = 380)
       # print(p)
       # dev.off()
