@@ -1,54 +1,46 @@
+# Differential gene expression table.
+# > head(dg)
+#     gene   auc       wilcox cluster
+# 1    DCN 0.733 4.858918e-57     F-1
+# 2   IGF1 0.722 3.396392e-55     F-1
+# 3  FBLN1 0.711 1.174966e-48     F-1
+# 4 PDGFRL 0.690 1.436098e-39     F-1
+# 5  SFRP1 0.688 2.526206e-41     F-1
+# 6     C3 0.681 2.426171e-39     F-1
+dg_fibro <- readRDS("data/markers_gene_res_fibro.rds")
+dg_tcell <- readRDS("data/markers_gene_res_tcell.rds")
+dg_bcell <- readRDS("data/markers_gene_res_bcell.rds")
+dg_mono  <- readRDS("data/markers_gene_res_mono.rds")
+dg <- rbind(dg_fibro, dg_tcell, dg_bcell, dg_mono)
+rm(dg_fibro, dg_tcell, dg_bcell, dg_mono)
+rownames(dg) <- seq(nrow(dg))
+# dg$newcluster <- dg$cluster
+# dg$newcluster[dg$cluster == "F-4"] <- "F-3"
+# dg$newcluster[dg$cluster == "F-3"] <- "F-4"
+# dg$cluster <- dg$newcluster
+# dg$newcluster <- NULL
+
 # Read 4 datasets: bcell, tcell, mono, fibro
 # Preprocess into a file for quick loading.
-data_file <- "data/shiny.rda"
-# cell_types <- c("fibro", "tcell", "bcell", "mono")
-# if (file.exists(data_file)) {
-#   load(data_file)
-# } else {
-#   e <- environment()
-#   for (cell_type in cell_types) {
-#     log2cpm <- readRDS(sprintf("data/%s_exp.rds", cell_type))
-#     log2cpm <- Matrix(log2cpm)
-#     meta    <- readRDS(sprintf("data/%s_sc_label.rds", cell_type))
-#     nonzero <- rownames(log2cpm)[
-#        which(rowSums(log2cpm > 0) > 10)
-#     ]
-#     # log2cpm_filter <- log2cpm[nonzero,]
-#     # markers <- get_markers(log2cpm_filter, meta$cluster)
-#     assign(sprintf("log2cpm_%s", cell_type), log2cpm, envir = e)
-#     assign(sprintf("meta_%s", cell_type), meta, envir = e)
-#     assign(sprintf("nonzero_%s", cell_type), nonzero, envir = e)
-#     # assign(sprintf("markers_%s", cell_type), markers, envir = e)
-#   }
-#   #all_cell_types <- cbind.data.frame(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
-#   all_meta <- rbind.data.frame(meta_fibro, meta_bcell, meta_tcell, meta_mono)
-#   rm(log2cpm)
-#   rm(meta)
-#   rm(nonzero)
-#   # rm(markers)
-#   gene_symbols <- unique(c(
-#     nonzero_bcell, nonzero_fibro, nonzero_mono, nonzero_tcell
-#   ))
-#   save.image(data_file)
-# }
-
 loom_file <- "data/amp-phase1-ra-single-cells.loom"
 if (file.exists(loom_file)) {
   lf <- loomR::connect(filename = loom_file, mode = "r", skip.validate = FALSE)
-  meta <- lf$col.attrs
-  col_names <- names(meta)
-  meta <- as.data.frame(lapply(col_names, function(col_name) {
-    meta[[col_name]][]
-  }))
-  colnames(meta) <- col_names
 } else {
-  load(data_file)
-  log2cpm <- cbind(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
-  log2cpm <- log2cpm[rowSums(log2cpm > 0 ) > 10,]
-  n_cells <- ncol(log2cpm)
-  n_genes <- nrow(log2cpm)
-  meta    <- rbind.data.frame(meta_fibro, meta_bcell, meta_tcell, meta_mono)
-  stopifnot(all(colnames(log2cpm) == rownames(meta)))
+  for (cell_type in c("fibro", "tcell", "bcell", "mono")) {
+    assign(
+      x = sprintf("log2cpm_%s", cell_type),
+      value = Matrix::Matrix(
+        data = readRDS(sprintf("data/%s_exp.rds", cell_type)),
+        sparse = TRUE
+      )
+    )
+    assign(
+      x = sprintf("meta_%s", cell_type),
+      value = readRDS(sprintf("data/%s_sc_label.rds", cell_type))
+    )
+  }
+  # Combine the different cell types.
+  meta <- rbind(meta_fibro, meta_bcell, meta_tcell, meta_mono)
   meta$cell_type <- c(
     rep("fibro", nrow(meta_fibro)),
     rep("bcell", nrow(meta_bcell)),
@@ -57,19 +49,44 @@ if (file.exists(loom_file)) {
   )
   meta$cell_name <- as.character(meta$cell_name)
   meta$cluster <- as.character(meta$cluster)
+  # Read coordinates for the all-cell tSNE plot.
+  x <- readRDS("data/all_cells_fine_cluster_label.rds")
+  stopifnot(all(rownames(x) %in% meta$cell_name))
+  x <- x[meta$cell_name,]
+  meta$T1_all  <- x$T1
+  meta$T2_all  <- x$T2
+  meta$cluster <- as.character(x$fine_cluster)
+  meta$disease <- as.character(x$disease)
+  meta$plate   <- as.character(x$plate)
+  # meta$newcluster <- meta$cluster
+  # meta$newcluster[meta$cluster == "F-4"] <- "F-3"
+  # meta$newcluster[meta$cluster == "F-3"] <- "F-4"
+  # meta$cluster <- meta$newcluster
+  # meta$newcluster <- NULL
+  # Combine the expression matrices into one matrix.
+  log2cpm <- cbind(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
+  # Discard genes with low expression.
+  # log2cpm <- log2cpm[Matrix::rowSums(log2cpm > 0) > 10, ]
+  log2cpm <- log2cpm[rownames(log2cpm) %in% as.character(unique(dg$gene)), ]
+  # Confirm that the meta data.frame matches the log2cpm matrix.
+  stopifnot(all(meta$cell_name == colnames(log2cpm)))
+  # Delete the temporary variables.
+  rm(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
+  rm(meta_fibro, meta_bcell, meta_tcell, meta_mono)
+  # Create a loom file for quick and easy gene lookups in the app.
   lf <- loomR::create(
     filename   = loom_file,
-    data       = t(log2cpm), # rows are cells, columns are genes
+    data       = Matrix::t(log2cpm), # rows are cells, columns are genes
     cell.attrs = meta
   )
 }
 
-# meta_fibro$newcluster <- meta_fibro$cluster
-# meta_fibro$newcluster[meta_fibro$cluster == "F-4"] <- "F-3"
-# meta_fibro$newcluster[meta_fibro$cluster == "F-3"] <- "F-4"
-# meta_fibro$cluster <- meta_fibro$newcluster
-# meta_fibro$newcluster <- NULL
-# save.image(data_file)
+meta <- lf$col.attrs
+col_names <- names(meta)
+meta <- as.data.frame(lapply(col_names, function(col_name) {
+  meta[[col_name]][]
+}))
+colnames(meta) <- col_names
 
 gene_symbols <- lf$row.attrs$gene_names[]
 
@@ -152,47 +169,3 @@ cluster_markers <- data.frame(
     "DKK3, COL8A2"
   )
 )
-
-dg <- readRDS("data/dg.rds")
-
-# dg$newcluster <- dg$cluster
-# dg$newcluster[dg$cluster == "F-4"] <- "F-3"
-# dg$newcluster[dg$cluster == "F-3"] <- "F-4"
-# dg$cluster <- dg$newcluster
-# dg$newcluster <- NULL
-# saveRDS(dg, "data/dg.rds")
-
-# dg_fibro <- readRDS("data/markers_gene_res_fibro.rds")
-# dg_tcell <- readRDS("data/markers_gene_res_tcell.rds")
-# dg_bcell <- readRDS("data/markers_gene_res_bcell.rds")
-# dg_mono  <- readRDS("data/markers_gene_res_mono.rds")
-# dg <- rbind.data.frame(dg_fibro, dg_tcell, dg_bcell, dg_mono)
-# rownames(dg) <- seq(nrow(dg))
-# saveRDS(dg, "data/dg.rds")
-
-
-# dg_fibro <- readRDS("data/dg_fibro.rds")
-# dg_fibro$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(dg_fibro$cluster, 2))
-# dg_bcell <- readRDS("data/dg_bcell.rds")
-# dg_bcell$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(dg_bcell$cluster, 2))
-# dg_tcell <- readRDS("data/dg_tcell.rds")
-# dg_tcell$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(dg_tcell$cluster, 2))
-# dg_mono <- readRDS("data/dg_mono.rds")
-# dg_mono$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(dg_mono$cluster, 2))
-# dg <- rbind(dg_fibro, dg_bcell, dg_tcell, dg_mono)
-# rownames(dg) <- seq(nrow(dg))
-# saveRDS(dg, "data/dg.rds")
-
-# dg <- readRDS("data/dg.rds")
-# colnames(dg) <- c(
-#   "zscore", "difference", "is_highest", "pct_nonzero",
-#   "cluster", "gene", "cell_type"
-# )
-# dg %<>% filter(abs(zscore) > 3) %>% arrange(-zscore)
-# dg %<>% select(cell_type, cluster, gene, pct_nonzero, zscore, difference)
-
-# # Change CM1 to M-1
-# meta_mono$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_mono$cluster, 2))
-# meta_fibro$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_fibro$cluster, 2))
-# meta_bcell$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_bcell$cluster, 2))
-# meta_tcell$cluster <- sub("(.{1})(-*)", "\\1-\\2", substring(meta_tcell$cluster, 2))
