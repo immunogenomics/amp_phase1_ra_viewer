@@ -60,8 +60,11 @@ switch (strtolower($_SERVER['HTTP_X_GITHUB_EVENT'])) {
     case 'ping':
         echo 'pong';
         break;
-//    case 'push':
-//        break;
+    case 'push':
+        file_put_contents('/var/www/test.immunogenomics.io/github-push.txt', print_r($payload, true));
+        # http://docs.rstudio.com/shiny-server/#restarting-an-application
+        shell_exec('cd /srv/shiny-server/test/ampviewer && git reset --hard HEAD && git pull && touch restart.txt && rm -f /tmp/ampviewer/*');
+        break;
     default:
         header('HTTP/1.0 404 Not Found');
         echo "Event:$_SERVER[HTTP_X_GITHUB_EVENT] Payload:\n";
