@@ -20,6 +20,7 @@ tabPanel(
                 choices  = possible_cell_types,
                 selected = "all"
               ))
+              # tableOutput("cluster_table")
             )
             
           ),

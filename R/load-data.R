@@ -88,8 +88,48 @@ meta <- as.data.frame(lapply(col_names, function(col_name) {
 }))
 colnames(meta) <- col_names
 
+cluster_table <- meta %>%
+  group_by(cluster) %>%
+  summarise(
+    cells = length(cell_name),
+    RA = sum(disease == "RA"),
+    OA = sum(disease == "OA")
+  ) %>% as.data.frame()
+
 gene_symbols <- lf$row.attrs$gene_names[]
 
+# dg_best <- dg %>% group_by(cluster) %>% top_n(n = 10, wt = -wilcox)
+# auc_genes <- unique(as.character(dg_best$gene))
+# mat <- lf$matrix[,gene_symbols %in% auc_genes]
+# meta2 <- cbind(meta[,c("cluster"),drop=FALSE], mat)
+# 
+# cluster_mat <- reshape2::melt(meta2, id.vars = "cluster") %>%
+#   group_by(cluster, variable) %>% summarise(median = median(value))
+# cluster_mat <- data.table::dcast(cluster_mat, cluster ~ variable, value.var = "median")
+# rownames(cluster_mat) <- cluster_mat$cluster
+# cluster_mat$cluster <- NULL
+# colnames(cluster_mat) <- auc_genes
+# cluster_mat <- as.matrix(cluster_mat)
+# dim(cluster_mat)
+# 
+# # cluster_mat_ix <- (colMeans(cluster_mat) > 3) &
+# #   (colSums(cluster_mat > 0) < nrow(cluster_mat) / 2)
+# # cluster_mat <- cluster_mat[,colMeans(cluster_mat) > 3] > 0
+# # cluster_mat <- cluster_mat[,colSums(cluster_mat) < nrow(cluster_mat) / 2]
+# # hmap(cluster_mat[,cluster_mat_ix], method = "TSP")
+# 
+# cluster_mat_ix <- (colMeans(cluster_mat) > 1)
+# mat <- t(cluster_mat[,cluster_mat_ix])
+# # mat <- t(cluster_mat)
+# x <- seriate(mat, method = "BEA_TSP")
+# 
+# pheatmap::pheatmap(
+#   mat = mat[x[[1]], x[[2]]],
+#   cluster_cols = FALSE,
+#   cluster_rows = FALSE,
+#   border_color = NA
+# )
+        
 cell_types   <- lf$col.attrs$cell_type[]
 
 possible_cell_types <- c(
