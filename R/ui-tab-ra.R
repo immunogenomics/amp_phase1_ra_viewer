@@ -37,15 +37,14 @@ tabPanel(
     
     tabPanel(
       h4("Marker genes"),
-      mainPanel(
-      br(),
-      h4("Table of identified subsets marker genes (19 subsets in all)"),
-      br(),
-      fluidRow(
-        column(12,
-               dataTableOutput('table')
+      fluidPage(
+        h4("Table of identified subsets marker genes (19 subsets in all)"),
+        br(),
+        fluidRow(
+          column(12,
+            dataTableOutput('table')
+          )
         )
-      )
       )
     ),
     
