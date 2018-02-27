@@ -44,7 +44,8 @@ tabPanel(
       a("Fan Zhang.", href = "mailto:fanzhang@broadinstitute.org"),
       "Please contact us if you have any questions, requests, or comments",
       " on the analysis and results."
-    )
+    ),
+    br()
 
   ) # mainPanel
 

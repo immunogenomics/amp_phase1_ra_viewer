@@ -47,7 +47,10 @@ tabPanel(
         )
       )
       )
-    )
+    ),
+    
+    br()
+    
     # tabPanel(
     #   "Boxplot",
     #   mainPanel(
