@@ -239,7 +239,7 @@ server <- function(input, output, session) {
         # columnDefs has bugs https://github.com/rstudio/DT/issues/311
         # columnDefs = list(list(targets = c(1), searchable = TRUE)),
         deferRender = TRUE,
-        scrollY = 390,
+        scrollY = 350, # Height in pixels
         scroller = TRUE,
         lengthMenu = FALSE,
         autoWidth = FALSE

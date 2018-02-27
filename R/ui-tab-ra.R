@@ -28,7 +28,7 @@ tabPanel(
           fluidRow(
             
             column(width = 5, plotOutput("box_marker_plot_all", height = "500px")),
-            column(width = 7, DT::dataTableOutput("dg_table", height = "500px"))
+            column(width = 7, DT::dataTableOutput("dg_table", height = "350px"))
             
           )
         )
