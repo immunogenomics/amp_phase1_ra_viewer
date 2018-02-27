@@ -5,3 +5,22 @@
 .tt-dropdown-menu{
     width: 100%;
 }
+
+/*
+#tsne_marker_plot {
+  min-width: 100px !important;
+}
+*/
+
+@media (max-width: 500px) {
+.container-fluid {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+}
+
+#tsne_marker_plot img {
+  max-width: 100%;
+  width: 100%;
+  height: auto
+}

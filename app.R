@@ -61,8 +61,8 @@ ui <- fluidPage(
     includeScript("google-analytics.js"),
     tags$link(
       rel = "stylesheet", type = "text/css", href = "app.css"
-    ),
-    tags$style("#tnse_marker_plot{min-width:500px;max-height:500px;}")
+    )
+    #tags$style("#tnse_marker_plot{min-width:500px;max-height:500px;}")
   ),
 
   navbarPageWithText(
@@ -228,7 +228,16 @@ server <- function(input, output, session) {
     # Javascript-enabled table.
     DT::datatable(
       data = dg,
-      selection = "single"
+      selection = "single",
+      rownames = FALSE,
+      extensions = 'Scroller',
+      options = list(
+        deferRender = TRUE,
+        scrollY = 390,
+        scroller = TRUE,
+        lengthMenu = FALSE,
+        autoWidth = FALSE
+      )
     ) %>%
       DT::formatSignif(columns = numeric_cols, digits = 2)
   }, server = TRUE)
