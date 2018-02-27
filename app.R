@@ -12,6 +12,7 @@
 # setwd("/Users/fanzhang/Documents/GitHub/ampviewer")
 
 # https://github.com/timelyportfolio/d3treeR/issues/19#issuecomment-268110274
+try({dev.off()})
 pdf(NULL)
 
 # Libraries -------------------------------------------------------------------
@@ -228,10 +229,15 @@ server <- function(input, output, session) {
     # Javascript-enabled table.
     DT::datatable(
       data = dg,
+      colnames = c("Gene", "AUC", "-log10(P)", "Cluster"),
       selection = "single",
       rownames = FALSE,
-      extensions = 'Scroller',
+      filter = list(position = "top", plain = TRUE),
+      style = "default",
+      extensions = "Scroller",
       options = list(
+        # columnDefs has bugs https://github.com/rstudio/DT/issues/311
+        # columnDefs = list(list(targets = c(1), searchable = TRUE)),
         deferRender = TRUE,
         scrollY = 390,
         scroller = TRUE,
@@ -239,7 +245,7 @@ server <- function(input, output, session) {
         autoWidth = FALSE
       )
     ) %>%
-      DT::formatSignif(columns = numeric_cols, digits = 2)
+      DT::formatSignif(columns = numeric_cols, digits = 3)
   }, server = TRUE)
   
 }

@@ -19,6 +19,8 @@ rownames(dg) <- seq(nrow(dg))
 # dg$newcluster[dg$cluster == "F-3"] <- "F-4"
 # dg$cluster <- dg$newcluster
 # dg$newcluster <- NULL
+dg$wilcox <- round(-log10(dg$wilcox))
+dg <- dg[order(dg$wilcox, decreasing = TRUE),]
 
 # Read 4 datasets: bcell, tcell, mono, fibro
 # Preprocess into a file for quick loading.
