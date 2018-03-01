@@ -59,7 +59,7 @@ navbarPageWithText <- function(..., text) {
 ui <- fluidPage(
 
   tags$head(
-    includeScript("google-analytics.js"),
+    includeHTML("google-analytics.html"),
     tags$link(
       rel = "stylesheet", type = "text/css", href = "app.css"
     )
