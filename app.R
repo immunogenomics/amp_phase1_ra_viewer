@@ -203,11 +203,16 @@ server <- function(input, output, session) {
     hostname <- session$clientData$url_hostname
     if (any(startsWith(hostname, c("test.", "localhost", "127.0.0.1")))) {
       mem_used <- gdata::humanReadable(pryr::mem_used(), standard = "SI")
+      git_date <- system(
+        command = "git log -1 --pretty=format:'%ci' | cut -f1 -d' '",
+        intern = TRUE
+      )
       git_hash <- system(
-        command = "git log | head -n1 | cut -f2 -d' ' | cut -c1-7",
+        command = "git log -1 --pretty=format:'%h'",
         intern = TRUE
       )
       element <- tags$div(
+        git_date,
         tags$a(
           git_hash,
           href = sprintf(
