@@ -141,7 +141,6 @@ server <- function(input, output, session) {
     )
     
     if (!file.exists(outfile) || file_test("-nt", "app.R", outfile)) {
-      message("marker = ", marker)
       p <- plot_tsne(
         meta[cell_ix,], tsne_x, tsne_y,
         title = marker 
