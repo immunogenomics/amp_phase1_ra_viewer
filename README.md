@@ -14,6 +14,12 @@ Password: `viewampdata`
 Overview
 --------
 
-ampviewer is an app for viewing AMP data.
+To install all the dependencies, run:
+
+```bash
+Rscript R/install-packages.R
+```
+
+A recent version of the app looks like this:
 
 <img height="300px" src="screenshot.png" />
