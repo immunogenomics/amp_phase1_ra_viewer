@@ -212,3 +212,62 @@ cluster_markers <- data.frame(
     "DKK3, COL8A2"
   )
 )
+
+# 
+# library(lme4) # needed for `VarCorr` function
+# library(lme4qtl)
+# 
+# # load synthetic data set `dat40` distributed within `lme4qtl`
+# # - table of phenotypes `dat40`
+# # - the double kinship matrix `kin2`
+# data(dat40)
+# 
+# # (1) model continiuous trait `trait1`
+# mod <- relmatLmer(trait1 ~ AGE + SEX + (1|FAMID) + (1|ID), dat40, relmat = list(ID = kin2))
+# 
+# # get the estimation of h2
+# (vf <- as.data.frame(VarCorr(mod))[, c("grp", "vcov")])
+# #       grp      vcov
+# #1       ID 5.2845001
+# #2    FAMID 0.0000000
+# #3 Residual 0.6172059
+# 
+# prop <- with(vf, vcov / sum(vcov))
+# 
+# (h2 <- prop[1]) 
+# #[1] `0.895419`
+# 
+# # (2) model binary trait `trait1bin`
+# gmod <- relmatGlmer(trait1bin ~ (1|ID), dat40, relmat = list(ID = kin2), family = binomial)
+# 
+# marker <- "IL6"
+# gene_ix <- which(gene_symbols == marker)
+# meta$marker <- lf$matrix[,gene_ix]
+# 
+# clusters <- sort(unique(as.character(meta$cluster)))
+# fits <- Reduce(rbind, mclapply(clusters, function(cluster_i) {
+#   fit <- broom::tidy(glmer(cluster == cluster_i ~ marker + (1|plate), meta, family = binomial))
+#   fit$marker <- marker
+#   fit$cluster <- cluster_i
+#   fit
+# }, mc.cores = 4))
+# fits$p.value[fits$p.value == 0] <- 1
+# 
+# fits <- Reduce(rbind, lapply(seq_along(gene_symbols), function(gene_i) {
+#   marker <- gene_symbols[gene_i]
+#   meta$marker <- lf$matrix[,gene_i]
+#   Reduce(rbind, lapply(clusters, function(cluster_i) {
+#     fit <- broom::tidy(fisher.test(meta$cluster == cluster_i, meta$marker > 0))
+#     fit$marker <- marker
+#     fit$cluster <- cluster_i
+#     fit
+#   }))
+# }))
+# saveRDS(fits, "data/fisher.rds")
+# 
+# fits %>% arrange(p.value) %>% head()
+# 
+# fits$p.value[fits$p.value == 0] <- 1
+
+
+

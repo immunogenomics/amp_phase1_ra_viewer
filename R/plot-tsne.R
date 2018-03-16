@@ -15,6 +15,9 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
   n_nonzero  <- sum(dat$marker > 0)
   # tsne_title <- bquote("tSNE of PCA on Log"[2]~"(CPM + 1)")
   point_size <- 2.0
+  if (nrow(dat) < 5000) {
+    point_size <- 3.0
+  }
   fill_values <- quantile_breaks(dat$marker, n = 9)
   fill_values <- fill_values / max(fill_values)
   fill_palette <- RColorBrewer::brewer.pal(9, "Greens")
@@ -24,7 +27,7 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
     axis.ticks      = element_blank(),
     panel.grid      = element_blank(),
     panel.border    = element_rect(size = 0.5),
-    plot.title = element_text(size = 25,  face="bold")
+    plot.title      = element_text(size = 25)
   )
   p1 <- ggplot() +
     geom_point(
@@ -47,7 +50,7 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
       fill  = guide_colorbar(barwidth = 10, barheight = 1),
       alpha = "none"
     ) +
-    labs(x = NULL, y = NULL, title = title) +
+    labs(x = NULL, y = NULL, title = substitute(italic(x), list(x = title))) +
     theme_tsne
   # Make a plot showing the clustering results.
   dat$cluster <- factor(dat$cluster)
@@ -63,8 +66,8 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
     # scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
     scale_fill_manual(values = meta_colors$fine_cluster, name = "Cluster") +
     guides(fill = guide_legend(nrow = 4, override.aes = list(size = 4))) +
-    labs(x = NULL, y = NULL) +
-    ggtitle("Identified clusters") +
+    labs(x = NULL, y = NULL, title = "Clusters") +
+    # ggtitle("Identified clusters") +
     theme_tsne
   bottom_text <- sprintf(
     "%s cells, %s (%s%%) nonzero cells",
@@ -72,11 +75,11 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
     n_nonzero,
     signif(100 * n_nonzero / nrow(dat), 3)
   )
-  egg::ggarrange(
-    bottom = grid::textGrob(
-      label = bottom_text, gp = grid::gpar(fontsize = 20)
-    ),
-    plots = list(p1, p2), ncol = 2
+  p1 + p2 + plot_annotation(
+    caption = bottom_text,
+    theme = theme(
+      plot.caption = element_text(size = 20)
+    )
   )
 }
 

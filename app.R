@@ -22,12 +22,12 @@ library(shinysky) # devtools::install_github("AnalytixWare/ShinySky")
 
 library(ggplot2)
 library(ggbeeswarm)
+library(patchwork)
 library(magrittr)
 library(dplyr)
 # library(scales)
 # library(RColorBrewer)
 # library(pryr)
-library(egg)
 library(Matrix)
 # library(loomR) # devtools::install_github("mojaveazure/loomR")
 
@@ -114,7 +114,7 @@ server <- function(input, output, session) {
   
   output$tnse_marker_plot <- renderImage({
     marker <- one_gene_symbol_default
-    this_gene <- dg$gene[input$dg_table_rows_selected]
+    this_gene <- as.character(dg$gene[input$dg_table_rows_selected])
     if (length(this_gene) > 0) {
       marker <- this_gene
     }
@@ -129,7 +129,7 @@ server <- function(input, output, session) {
       tsne_y <- "T2_all"
     } else {
       cell_ix <- which(cell_types == input$cell_type)
-      tsne_x <- "T1"
+      tsne_x <- "T1" 
       tsne_y <- "T2"
     }
     
@@ -141,7 +141,11 @@ server <- function(input, output, session) {
     )
     
     if (!file.exists(outfile) || file_test("-nt", "app.R", outfile)) {
-      p <- plot_tsne(meta[cell_ix,], tsne_x, tsne_y, marker)
+      message("marker = ", marker)
+      p <- plot_tsne(
+        meta[cell_ix,], tsne_x, tsne_y,
+        title = marker 
+      )
       ggsave(filename = outfile, plot = p, width = 10, height = 6, dpi = 100)
       # png(outfile, width = 600, height = 380)
       # print(p)

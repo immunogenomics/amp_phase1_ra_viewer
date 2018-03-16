@@ -8,8 +8,8 @@ plot_box <- function(dat, title = "") {
     "T-1", "T-2", "T-3", "T-4", "T-5", "T-6", "T-7"
   )
   
-  ix_zero <- which(dat$marker == 0)
-  dat$marker[ix_zero] <- dat$marker[ix_zero] + runif(n = length(ix_zero), min = -0.5, max = 0)
+  # ix_zero <- which(dat$marker == 0)
+  # dat$marker[ix_zero] <- dat$marker[ix_zero] + runif(n = length(ix_zero), min = -0.5, max = 0)
   
   dat$cluster <- factor(dat$cluster, levels = clusters)
   p1 <- ggplot() +
@@ -92,11 +92,9 @@ plot_box <- function(dat, title = "") {
       # axis.ticks.y      = element_blank(),
       panel.grid      = element_blank(),
       panel.border    = element_rect(size = 0.5),
-      plot.title = element_text(size = 30,  face="bold")
+      plot.title      = element_text(size = 25, face = "italic")
     )
-  
-  egg::ggarrange(p2, p1, ncol = 2, widths = c(0.4, 0.6))
-
+  p2 + p1 + plot_layout(widths = c(0.4, 0.6))
   
   # proportion <- rep(0, length(table(dat$cluster)))
   # for (i in 1:length(table(dat$cluster))){
@@ -128,13 +126,6 @@ plot_box <- function(dat, title = "") {
   #   "%s is expressing the highest percent of nonzero cells in cluster %s.",
   #   title,
   #   as.integer(dat_pro$cluster[which(dat_pro$nonzero == max(dat_pro$nonzero))])
-  # )
-  # egg::ggarrange(
-  #   # bottom = textGrob(
-  #   #   label = bottom_text, 
-  #   #   gp = gpar(fontsize = 20, fontface="bold")
-  #   # ),
-  #   plots = list(p1, p2), ncol = 2, widths = 2.7:1, height = 2.2:1
   # )
 }
 
