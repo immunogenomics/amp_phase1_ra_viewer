@@ -1,0 +1,4 @@
+*.rds filter=lfs -crlf
+*.rda filter=lfs -crlf
+*.loom filter=lfs -crlf
+*.rds filter=lfs diff=lfs merge=lfs -text
