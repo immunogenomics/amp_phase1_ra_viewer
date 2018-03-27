@@ -271,7 +271,7 @@ server <- function(input, output, session) {
     )
     
     # if (!file.exists(outfile) || file_test("-nt", "app.R", outfile)) {
-      p <- plot_bulk_single_cca(dat_cca, 1, 2)
+      p <- plot_bulk_single_cca(dat_cca, 1, 2, marker)
       ggsave(
         filename = outfile, plot = p,
         width = 8, height = 8, dpi = 100

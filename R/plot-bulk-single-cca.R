@@ -1,4 +1,4 @@
-plot_bulk_single_cca <- function(dat_cca, x = 1, y = 2) {
+plot_bulk_single_cca <- function(dat_cca, x = 1, y = 2, marker = "") {
   
   fill_values <- quantile_breaks(dat_cca$marker, n = 9)
   fill_values <- fill_values / max(fill_values)
