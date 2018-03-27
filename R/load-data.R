@@ -358,8 +358,13 @@ dat_cca$data <- c(
 # Gene set enrichment ----------------------------------------------
 
 # library(qusage)
-# msigdb_hallmark <- qusage::read.gmt("data/h.all.v6.1.symbols.gmt")
-# 
+# msig_names <- c("h", "c1", "c2", "c3", "c4", "c5", "c6", "c7")
+# msig <- lapply(msig_names, function(i) {
+#   qusage::read.gmt(sprintf("data/%s.all.v6.1.symbols.gmt", i))
+# })
+# names(msig) <- msig_names
+# saveRDS(msig, "data/msigdb-v6.1.rds")
+ 
 # library(liger)
 # lig <- liger::bulk.gsea(
 #   values = cca_bs$scores$xscores[,1],
