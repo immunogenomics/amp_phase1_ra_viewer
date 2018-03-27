@@ -251,7 +251,7 @@ b_meta$inflamed[
 
 b_meta$inflamed <- factor(b_meta$inflamed)
 b_meta$inflamed <- fct_relevel(
-  b_meta$inflamed, "inflamed RA", "RA", "OA")
+  b_meta$inflamed, "OA", "RA", "inflamed RA")
 
 # b_genes <- data.frame(
 #   mean = rowMeans(b_log2tpm),

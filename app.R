@@ -217,7 +217,6 @@ server <- function(input, output, session) {
       marker <- this_gene
     }
     stopifnot(marker %in% gene_symbols)
-    print(marker)
     b_meta$marker <- as.numeric(b_log2tpm[marker,])
     
     temp_dir <- file.path("/tmp/ampviewer")
@@ -229,7 +228,10 @@ server <- function(input, output, session) {
     
     if (!file.exists(outfile) || file_test("-nt", "app.R", outfile)) {
       p <- plot_bulk_dots(b_meta, marker)
-      ggsave(filename = outfile, plot = p, width = 6, height = 4, dpi = 100)
+      ggsave(
+        filename = outfile, plot = p,
+        width = 6, height = 5, dpi = 100
+      )
       # png(outfile, width = 385, height = 520)
       # print(p)
       # dev.off()
@@ -250,7 +252,6 @@ server <- function(input, output, session) {
       marker <- this_gene
     }
     stopifnot(marker %in% gene_symbols)
-    print(marker)
     gene_ix <- which(gene_symbols == marker)
     meta$marker <- lf$matrix[,gene_ix]
     sc_marker <- structure(
@@ -271,7 +272,10 @@ server <- function(input, output, session) {
     
     # if (!file.exists(outfile) || file_test("-nt", "app.R", outfile)) {
       p <- plot_bulk_single_cca(dat_cca, 1, 2)
-      ggsave(filename = outfile, plot = p, width = 6, height = 4, dpi = 100)
+      ggsave(
+        filename = outfile, plot = p,
+        width = 8, height = 8, dpi = 100
+      )
       # png(outfile, width = 385, height = 520)
       # print(p)
       # dev.off()

@@ -10,9 +10,13 @@ tabPanel(
         fluidPage(
           fluidRow(
   
-            column(width = 9, plotOutput("tnse_marker_plot", height = "400px")),
+            column(
+              width = 9,
+              plotOutput("tnse_marker_plot", height = "400px")
+            ),
             
-            column(width = 3,
+            column(
+              width = 3,
               wellPanel(radioButtons(
                 inputId  = "cell_type",
                 # inline   = TRUE,
@@ -39,11 +43,11 @@ tabPanel(
           fluidRow(
             column(
               width = 5,
-              plotOutput("bulk_dots", height = "200px")
+              plotOutput("bulk_dots", height = "500px")
             ),
             column(
               width = 7,
-              plotOutput("bulk_single_cca", height = "300px")
+              plotOutput("bulk_single_cca", height = "500px")
             )
           )
         )
