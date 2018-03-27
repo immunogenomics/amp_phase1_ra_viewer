@@ -1,4 +1,6 @@
-# Differential gene expression table.
+
+# Differential gene expression table -------------------------------
+
 # > head(dg)
 #     gene   auc       wilcox cluster
 # 1    DCN 0.733 4.858918e-57     F-1
@@ -21,6 +23,8 @@ rownames(dg) <- seq(nrow(dg))
 # dg$newcluster <- NULL
 dg$wilcox <- round(-log10(dg$wilcox))
 dg <- dg[order(dg$wilcox, decreasing = TRUE),]
+
+# Single-cell RNA-seq data -----------------------------------------
 
 # Read 4 datasets: bcell, tcell, mono, fibro
 # Preprocess into a file for quick loading.
@@ -142,10 +146,10 @@ possible_cell_types <- c(
   "Fibroblast" = "fibro"
 )
 
-one_gene_symbol_default <- "HLA-DRA"
+# one_gene_symbol_default <- "HLA-DRA"
+one_gene_symbol_default <- "POSTN"
 
-meta_colors <- list(
-  fine_cluster = c(
+meta_colors$fine_cluster <- c(
     "F-1" = "#6BAED6",
     "F-2" = "#08306B",
     "F-3" = "#DEEBF7",
@@ -165,7 +169,11 @@ meta_colors <- list(
     "M-2" = "#F768A1",
     "M-3" = "#FDE0EF", #FCC5C0
     "M-4" = "#49006A"
-  )
+)
+meta_colors$inflamed <- c(
+  "OA" = "#6A3D9A",
+  "RA" = "#FFD8B2",
+  "inflamed RA" = "#FF7F00"
 )
 
 cluster_markers <- data.frame(
@@ -212,3 +220,203 @@ cluster_markers <- data.frame(
     "DKK3, COL8A2"
   )
 )
+
+# Bulk RNA-seq data ------------------------------------------------
+
+b_log2tpm <- readRDS("data/filtered_log2tpm_lowinput_phase_1.rds")
+b_log2tpm <- as.matrix(b_log2tpm)
+b_meta <- readRDS("data/filtered_meta_lowinput_phase_1.rds")
+b_meta <- janitor::clean_names(b_meta)
+stopifnot(all(b_meta$Sample.ID == colnames(b_log2tpm)))
+
+b_meta$cell_type <- factor(
+  b_meta$cell_type, rev(c("Mono", "Fibro", "B cell", "T cell"))
+)
+
+# Fix typos
+b_meta$cell_type[b_meta$sample_id == "S81"] <- "Mono"
+b_meta$cell_type[b_meta$sample_id == "S82"] <- "Fibro"
+b_meta$cell_type[b_meta$sample_id == "S163"] <- "B cell"
+b_meta$cell_type[b_meta$sample_id == "S164"] <- "T cell"
+
+b_meta$inflamed <- "OA"
+b_meta$inflamed[
+  b_meta$disease_tissue != "Arthro-OA" &
+  b_meta$lymphocytes > 0.177
+] <- "inflamed RA"
+b_meta$inflamed[
+  b_meta$disease_tissue != "Arthro-OA" &
+  b_meta$lymphocytes <= 0.177
+] <- "RA"
+
+b_meta$inflamed <- factor(b_meta$inflamed)
+b_meta$inflamed <- fct_relevel(
+  b_meta$inflamed, "inflamed RA", "RA", "OA")
+
+# b_genes <- data.frame(
+#   mean = rowMeans(b_log2tpm),
+#   sd = rowSds(b_log2tpm)
+# )
+# ggplot() +
+#   geom_point(
+#     data = b_genes,
+#     mapping = aes(x = mean, y = sd),
+#     size = 0.5
+#   ) +
+#   theme_clean()
+# b_mat <- scale_rows(scale(b_log2tpm))
+
+# table(b_meta$inflamed)
+
+# marker <- "CLIC5"
+# b_meta$marker <- as.numeric(b_log2tpm[marker,])
+# plot_bulk_dots(b_meta, "CLIC5")
+
+# d <- subset(b_meta, auto_calculation_of_das28_crp > 0)
+# numeric_cols <- sapply(colnames(d), function(x) {
+#   is.numeric(d[[x]])
+# })
+# numeric_cols <- names(numeric_cols)[numeric_cols]
+# fits <- lapply(numeric_cols, function(x) {
+#   wilcox.test(d[["auto_calculation_of_das28_crp"]], d[[x]])
+# })
+
+# CCA between bulk and single-cell RNA-seq -------------------------
+
+cca_bs <- readRDS("data/allcelltypes_cca_7465_genes.rds")
+
+# 167 pairs of canonical variates
+
+stopifnot(all(cca_bs$names$Xnames == b_meta$sample_id))
+cca_bs_xnames <- cca_bs$names$Xnames
+
+# TODO The CCA analysis should use the same cells
+# as differential expression analysis.
+# all(cca_bs$names$Ynames == meta$cell_name)
+
+ix <- which(cca_bs$names$Ynames %in% meta$cell_name)
+all(cca_bs$names$Ynames[ix] %in% meta$cell_name)
+cca_bs_ynames <- cca_bs$names$Ynames[ix]
+
+dat_cca <- as.data.frame(rbind(
+  cca_bs$scores$corr.X.xscores[,1:10],
+  cca_bs$scores$corr.Y.yscores[,1:10]
+))
+dat_cca <- dat_cca[c(cca_bs_xnames, cca_bs_ynames),]
+cell_name_to_type <- structure(
+  .Data = meta$cell_type,
+  .Names = as.character(meta$cell_name)
+)
+cell_name_to_type <- fct_recode(
+  cell_name_to_type,
+  "Fibro" = "fibro",
+  "B cell" = "bcell",
+  "T cell" = "tcell",
+  "Mono" = "mono"
+)
+dat_cca$cell_type <- c(
+  as.character(b_meta$cell_type),
+  as.character(cell_name_to_type[cca_bs_ynames])
+)
+# table(dat_cca$cell_type)
+dat_cca$data <- c(
+  rep("bulk", nrow(b_meta)),
+  rep("cell", nrow(dat_cca) - nrow(b_meta))
+)
+
+# Discover mislabeled bulk samples
+# ggplot() +
+#   geom_hline(yintercept = 0, color = "grey90") +
+#   geom_vline(xintercept = 0, color = "grey90") +
+#   geom_point(
+#     data = subset(dat_cca, data == "bulk"),
+#     mapping = aes(
+#       x = V3, y = V4, fill = cell_type,
+#       shape = data,
+#       size = data
+#     ),
+#     stroke = 0.1
+#   ) +
+#   scale_shape_manual(values = c(22, 21)) +
+#   scale_size_manual(values = c(3, 2)) +
+#   # geom_circle(
+#   #   mapping = aes(x0 = 0, y0 = 0, r = 1)
+#   # ) +
+#   coord_equal() +
+#   facet_wrap(~ cell_type) +
+#   theme_clean(base_size = 20)
+# subset(
+#   dat_cca,
+#   data == "bulk" & V3 < -0.2 & cell_type %in% c("B cell", "Mono")
+# )
+# subset(
+#   dat_cca,
+#   data == "bulk" & V3 > -0.1 & !cell_type %in% c("B cell", "Mono")
+# )
+# weird <- c("S81", "S82", "S163", "S164")
+
+# Gene set enrichment ----------------------------------------------
+
+# library(qusage)
+# msigdb_hallmark <- qusage::read.gmt("data/h.all.v6.1.symbols.gmt")
+# 
+# library(liger)
+# lig <- liger::bulk.gsea(
+#   values = cca_bs$scores$xscores[,1],
+#   set.list = msigdb_hallmark
+# )
+
+# > str(cca_bs)
+# List of 5
+# $ cor   : num [1:167] 1 1 1 1 1 ...
+# $ names :List of 3
+# ..$ Xnames   : chr [1:167] "S232" "S10" "S18" "S26" ...
+# ..$ Ynames   : chr [1:7127] "S006_L1Q1_A01" "S006_L1Q1_A03" "S006_L1Q1_A05" "S006_L1Q1_A07" ...
+# ..$ ind.names: chr [1:7465] "DPM1" "CFH" "FUCA2" "ANKIB1" ...
+
+# xcoef has the coefficients on each bulk sample
+# ycoef has the coefficients on each single cell
+
+# $ xcoef : num [1:167, 1:167] -0.3077 0.0333 0.1558 -0.0738 -0.3118 ...
+# ..- attr(*, "dimnames")=List of 2
+# .. ..$ : chr [1:167] "S232" "S10" "S18" "S26" ...
+# .. ..$ : NULL
+# $ ycoef : num [1:7127, 1:167] -0.0256 0.0271 -0.2266 -0.189 0.1305 ...
+# ..- attr(*, "dimnames")=List of 2
+# .. ..$ : chr [1:7127] "S006_L1Q1_A01" "S006_L1Q1_A03" "S006_L1Q1_A05" "S006_L1Q1_A07" ...
+# .. ..$ : NULL
+
+# xscores has the positions of bulk genes along the 167 CVs
+
+# $ scores:List of 6
+# ..$ xscores       : num [1:7465, 1:167] 0.688 0.072 0.314 -0.861 -0.229 ...
+# .. ..- attr(*, "dimnames")=List of 2
+# .. .. ..$ : chr [1:7465] "DPM1" "CFH" "FUCA2" "ANKIB1" ...
+# .. .. ..$ : NULL
+
+# yscores has the positions of single-cell genes along the 167 CVs
+
+# ..$ yscores       : num [1:7465, 1:167] 0.6915 0.0715 0.3147 -0.8599 -0.2323 ...
+# .. ..- attr(*, "dimnames")=List of 2
+# .. .. ..$ : chr [1:7465] "DPM1" "CFH" "FUCA2" "ANKIB1" ...
+# .. .. ..$ : NULL
+
+# rows of `corr.X.xscores` have the correlations of the bulk
+# samples with the canonical variates `xscores`
+
+# ..$ corr.X.xscores: num [1:167, 1:167] 0.733 0.616 0.593 0.573 0.603 ...
+# .. ..- attr(*, "dimnames")=List of 2
+# .. .. ..$ : chr [1:167] "S232" "S10" "S18" "S26" ...
+# .. .. ..$ : NULL
+# ..$ corr.Y.xscores: num [1:7127, 1:167] 0.215 0.328 0.363 0.273 0.31 ...
+# .. ..- attr(*, "dimnames")=List of 2
+# .. .. ..$ : chr [1:7127] "S006_L1Q1_A01" "S006_L1Q1_A03" "S006_L1Q1_A05" "S006_L1Q1_A07" ...
+# .. .. ..$ : NULL
+# ..$ corr.X.yscores: num [1:167, 1:167] 0.733 0.616 0.593 0.573 0.603 ...
+# .. ..- attr(*, "dimnames")=List of 2
+# .. .. ..$ : chr [1:167] "S232" "S10" "S18" "S26" ...
+# .. .. ..$ : NULL
+# ..$ corr.Y.yscores: num [1:7127, 1:167] 0.215 0.328 0.363 0.273 0.31 ...
+# .. ..- attr(*, "dimnames")=List of 2
+# .. .. ..$ : chr [1:7127] "S006_L1Q1_A01" "S006_L1Q1_A03" "S006_L1Q1_A05" "S006_L1Q1_A07" ...
+# .. .. ..$ : NULL

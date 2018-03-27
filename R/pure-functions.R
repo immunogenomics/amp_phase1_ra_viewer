@@ -1,0 +1,1 @@
+scale_rows <- function(...) t(scale(t(...)))

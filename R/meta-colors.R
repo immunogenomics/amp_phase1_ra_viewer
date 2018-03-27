@@ -1,0 +1,116 @@
+
+# For variables with numerous levels, this snippet might be useful:
+# rep(c(brewer.pal(9, "Set1"), brewer.pal(8, "Set2"), brewer.pal(8, "Set3")), 3)[1:42]
+# for (i in seq_along(x)) { cat(sprintf('"%s" = "%s",\n', y[i], x[i])) }
+
+# Colors for variables describing samples or cells.
+meta_colors <- list(
+  "type" = c( 
+    "B cell"     = "#E31A1C",
+    "Empty"      = "#999999",
+    "Fibro"      = "#08519C",
+    "Fibroblast" = "#08519C",
+    "Mono"       = "#DE77AE",
+    "Monocyte"   = "#DE77AE",
+    "T cell"     = "#A65628" 
+  ),
+  "sample" = c(
+    "300-0122" = "#E41A1C",
+    "300-0153" = "#377EB8",
+    "300-0211" = "#4DAF4A",
+    "300-0213" = "#984EA3",
+    "300-0481" = "#FF7F00",
+    "300-0482" = "#FFFF33",
+    "300-0483" = "#A65628",
+    "300-0485" = "#F781BF",
+    "300-0486" = "#999999",
+    "300-0487" = "#66C2A5",
+    "300-0511" = "#FC8D62",
+    "300-0528" = "#8DA0CB",
+    "300-0546" = "#E78AC3",
+    "300-2590" = "#A6D854",
+    "301-0121" = "#FFD92F",
+    "301-0122" = "#E5C494",
+    "301-0132" = "#B3B3B3",
+    "301-0151" = "#8DD3C7",
+    "301-0153" = "#FFFFB3",
+    "301-0155" = "#BEBADA",
+    "301-0159" = "#FB8072",
+    "301-0161" = "#80B1D3",
+    "301-0163" = "#FDB462",
+    "301-0244" = "#B3DE69",
+    "301-0250" = "#FCCDE5"
+  ),
+  "plate" = c(
+    "S006" = "#E41A1C",
+    "S008" = "#377EB8",
+    "S010" = "#4DAF4A",
+    "S011" = "#984EA3",
+    "S012" = "#FF7F00",
+    "S013" = "#FFFF33",
+    "S014" = "#A65628",
+    "S015" = "#F781BF",
+    "S016" = "#999999",
+    "S018" = "#66C2A5",
+    "S019" = "#FC8D62",
+    "S020" = "#8DA0CB",
+    "S022" = "#E78AC3",
+    "S023" = "#A6D854",
+    "S025" = "#FFD92F",
+    "S026" = "#E5C494",
+    "S027" = "#B3B3B3",
+    "S028" = "#8DD3C7",
+    "S029" = "#FFFFB3",
+    "S030" = "#BEBADA",
+    "S031" = "#FB8072",
+    "S032" = "#80B1D3",
+    "S033" = "#FDB462",
+    "S034" = "#B3DE69",
+    "S035" = "#FCCDE5",
+    "S036" = "#1B9E77",
+    "S037" = "#D95F02" 
+  ),
+  "disease" = c(
+    "OA" = "#6A3D9A",
+    "RA" = "#FF7F00"
+  ),
+  "disease_assay" = c(
+    "OA arthro" = "#6A3D9A",
+    "RA arthro" = "#FFD8B2",
+    "RA biopsy" = "#FF7F00"
+  ),
+  "cluster" = c(
+    "C-F1" = "#6BAED6",
+    "C-F2" = "#08306B",
+    "C-F3" = "#DEEBF7",
+    "C-F4" = "grey",
+    "C-T1" = "#FEB24C",
+    "C-T2" = "#8C510A",
+    "C-T3" = "brown",
+    "C-T4" = "#FFFF33",
+    "C-T5" = "#C7EAE5",
+    "C-T6" = "#003C30",
+    "C-T7" = "#35978F", 
+    "C-B1" = "#CB181D",
+    "C-B2" = "#FCBBA1", #FB6A4A #A50F15
+    "C-B3" = "#FB9A99",
+    "C-M1" = "#AE017E",
+    "C-M2" = "#F768A1",
+    "C-M3" = "#FDE0EF", #FCC5C0
+    "C-M4" = "#49006A"
+  ),
+  "flow" = c(
+    "B cell"           = "#E31A1C",
+    "CD4 T cell"       = "#E5C494",
+    "CD8 T cell"       = "#A65628",
+    "Endothelial cell" = "#999999",
+    "Fibroblast"       = "#08519C",
+    "Monocyte"         = "#DE77AE",
+    "Other"            = "#F2F2F2"
+  ),
+  "fbsubset" = c(
+    "CD34p"      = "#33A02C",
+    "CD34nTHY1p" = "#E31A1C",
+    "CD34nTHY1n" = "#1F78B4"
+  )
+)

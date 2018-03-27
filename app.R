@@ -20,15 +20,19 @@ pdf(NULL)
 library(shiny)
 library(shinysky) # devtools::install_github("AnalytixWare/ShinySky")
 
+library(forcats)
 library(ggplot2)
 library(ggbeeswarm)
+library(ggforce)
 library(patchwork)
+library(data.table)
 library(magrittr)
 library(dplyr)
 # library(scales)
 # library(RColorBrewer)
 # library(pryr)
 library(Matrix)
+library(matrixStats)
 # library(loomR) # devtools::install_github("mojaveazure/loomR")
 
 # library(viridis)
@@ -38,8 +42,13 @@ library(Matrix)
 # library(pheatmap)
 # library(d3heatmap)
 
+source("R/meta-colors.R")
+source("R/theme-clean.R")
+source("R/pure-functions.R")
 source("R/plot-tsne.R")
 source("R/plot-box.R")
+source("R/plot-bulk-dots.R")
+source("R/plot-bulk-single-cca.R")
 source("R/load-data.R")
 
 # User interface --------------------------------------------------------------
@@ -169,7 +178,7 @@ server <- function(input, output, session) {
   # })
   
   output$box_marker_plot_all <- renderImage({
-    marker <- one_gene_symbol_default
+    marker <- one_gene_symbol_default 
     this_gene <- dg$gene[input$dg_table_rows_selected]
     if (length(this_gene) > 0) {
       marker <- this_gene
@@ -193,6 +202,81 @@ server <- function(input, output, session) {
       # dev.off()
       optimize_png(outfile)
     }
+    
+    list(
+      style = 'height: 100%; width: 100%; object-fit: contain',
+      src = outfile,
+      alt = marker
+    )
+  }, deleteFile = FALSE)
+  
+  output$bulk_dots <- renderImage({
+    marker <- one_gene_symbol_default
+    this_gene <- as.character(dg$gene[input$dg_table_rows_selected])
+    if (length(this_gene) > 0) {
+      marker <- this_gene
+    }
+    stopifnot(marker %in% gene_symbols)
+    print(marker)
+    b_meta$marker <- as.numeric(b_log2tpm[marker,])
+    
+    temp_dir <- file.path("/tmp/ampviewer")
+    dir.create(temp_dir, showWarnings = FALSE)
+    outfile <- file.path(
+      temp_dir,
+      sprintf("bulk_dots_%s.png", marker)
+    )
+    
+    if (!file.exists(outfile) || file_test("-nt", "app.R", outfile)) {
+      p <- plot_bulk_dots(b_meta, marker)
+      ggsave(filename = outfile, plot = p, width = 6, height = 4, dpi = 100)
+      # png(outfile, width = 385, height = 520)
+      # print(p)
+      # dev.off()
+      optimize_png(outfile)
+    }
+    
+    list(
+      style = 'height: 100%; width: 100%; object-fit: contain',
+      src = outfile,
+      alt = marker
+    )
+  }, deleteFile = FALSE)
+  
+  output$bulk_single_cca <- renderImage({
+    marker <- one_gene_symbol_default
+    this_gene <- as.character(dg$gene[input$dg_table_rows_selected])
+    if (length(this_gene) > 0) {
+      marker <- this_gene
+    }
+    stopifnot(marker %in% gene_symbols)
+    print(marker)
+    gene_ix <- which(gene_symbols == marker)
+    meta$marker <- lf$matrix[,gene_ix]
+    sc_marker <- structure(
+      .Data = meta$marker,
+      .Names = as.character(meta$cell_name)
+    )
+    dat_cca$marker <- c(
+      as.numeric(b_log2tpm[marker,]),
+      as.numeric(sc_marker[cca_bs_ynames])
+    )
+    
+    temp_dir <- file.path("/tmp/ampviewer")
+    dir.create(temp_dir, showWarnings = FALSE)
+    outfile <- file.path(
+      temp_dir,
+      sprintf("bulk_single_cca_%s.png", marker)
+    )
+    
+    # if (!file.exists(outfile) || file_test("-nt", "app.R", outfile)) {
+      p <- plot_bulk_single_cca(dat_cca, 1, 2)
+      ggsave(filename = outfile, plot = p, width = 6, height = 4, dpi = 100)
+      # png(outfile, width = 385, height = 520)
+      # print(p)
+      # dev.off()
+      optimize_png(outfile) 
+    # }
     
     list(
       style = 'height: 100%; width: 100%; object-fit: contain',

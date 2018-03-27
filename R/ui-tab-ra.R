@@ -26,10 +26,25 @@ tabPanel(
           ),
           hr(),
           fluidRow(
-            
-            column(width = 5, plotOutput("box_marker_plot_all", height = "500px")),
-            column(width = 7, DT::dataTableOutput("dg_table", height = "350px"))
-            
+            column(
+              width = 5,
+              plotOutput("box_marker_plot_all", height = "500px")
+            ),
+            column(
+              width = 7,
+              DT::dataTableOutput("dg_table", height = "350px")
+            )
+          ),
+          hr(),
+          fluidRow(
+            column(
+              width = 5,
+              plotOutput("bulk_dots", height = "200px")
+            ),
+            column(
+              width = 7,
+              plotOutput("bulk_single_cca", height = "300px")
+            )
           )
         )
       

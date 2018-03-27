@@ -6,6 +6,8 @@ cran_packages <- c(
   "RColorBrewer",
   "dplyr",
   "magrittr",
+  "matrixStats",
+  "janitor",
   "pryr",
   "hdf5r",
   "scales",
@@ -24,7 +26,8 @@ github_packages <- c(
   "eclarke/ggbeeswarm",
   "mojaveazure/loomR",
   "tidyverse/ggplot2",
-  "thomasp85/patchwork"
+  "thomasp85/patchwork",
+  "jefworks/liger"
 )
 
 for (github_package in github_packages) {
@@ -33,4 +36,6 @@ for (github_package in github_packages) {
     devtools::install_github(github_package)
   }
 }
+
+# biocLite("qusage")
 
