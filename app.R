@@ -20,6 +20,8 @@ pdf(NULL)
 library(shiny)
 library(shinysky) # devtools::install_github("AnalytixWare/ShinySky")
 
+library(glue)
+library(stringr)
 library(forcats)
 library(ggplot2)
 library(ggbeeswarm)
@@ -43,6 +45,8 @@ library(matrixStats)
 # library(d3heatmap)
 
 source("R/meta-colors.R")
+source("R/optimize-png.R")
+source("R/save-figure.R")
 source("R/theme-clean.R")
 source("R/pure-functions.R")
 source("R/plot-tsne.R")
@@ -94,34 +98,12 @@ which_numeric_cols <- function(dat) {
   }))
 }
 
-#' Test if a program is installed.
-is_installed <- function(command) {
-  !startsWith(system(
-    command = sprintf("command -v %s || echo FALSE", command),
-    intern = TRUE
-  ), "FALSE")
-}
-
-#' Call pngquant to optimize a PNG file.
-optimize_png <- function(filename) {
-  if (is_installed("pngquant")) {
-    opt_filename <- sprintf(
-      "%s-fs8.png", substr(filename, 1, nchar(filename) - 4)
-    )
-    command <- sprintf(
-      "pngquant --speed=1 --ext -fs8.png -- %s && mv -f %s %s",
-      filename, opt_filename, filename
-    )
-    system(command)
-  }
-}
-
 server <- function(input, output, session) {
   
   # Debug
   # input <- list(cell_type = "fibro", one_gene_symbol = "IFNB1")
   
-  output$tnse_marker_plot <- renderImage({
+  output$tnse_marker_plot <- renderText({
     marker <- one_gene_symbol_default
     this_gene <- as.character(dg$gene[input$dg_table_rows_selected])
     if (length(this_gene) > 0) {
@@ -130,7 +112,6 @@ server <- function(input, output, session) {
     stopifnot(marker %in% gene_symbols)
     gene_ix <- which(gene_symbols == marker)
     meta$marker <- lf$matrix[,gene_ix]
-    
     stopifnot(input$cell_type %in% possible_cell_types)
     if (input$cell_type == "all") {
       cell_ix <- seq(nrow(meta))
@@ -141,32 +122,18 @@ server <- function(input, output, session) {
       tsne_x <- "T1" 
       tsne_y <- "T2"
     }
-    
-    temp_dir <- file.path("/tmp/ampviewer")
-    dir.create(temp_dir, showWarnings = FALSE)
-    outfile <- file.path(
-      temp_dir,
-      sprintf("tsne_%s_%s.png", input$cell_type, marker)
+    save_figure(
+      filename = glue(
+        "scrnaseq_tsne_{celltype}_{marker}.png",
+        celltype = input$cell_type, marker = marker
+      ),
+      width = 10, height = 6, dpi = 100,
+      html_alt = sprintf("%s %s", input$cell_type, marker),
+      ggplot_function = function() {
+        plot_tsne(meta[cell_ix,], tsne_x, tsne_y, title = marker)
+      }
     )
-    
-    if (!file.exists(outfile) || file_test("-nt", "app.R", outfile)) {
-      p <- plot_tsne(
-        meta[cell_ix,], tsne_x, tsne_y,
-        title = marker 
-      )
-      ggsave(filename = outfile, plot = p, width = 10, height = 6, dpi = 100)
-      # png(outfile, width = 600, height = 380)
-      # print(p)
-      # dev.off()
-      optimize_png(outfile)
-    }
-    
-    list(
-      style = 'height: 100%; width: 100%; object-fit: contain',
-      src = outfile,
-      alt = sprintf("%s %s", input$cell_type, marker)
-    )
-  }, deleteFile = FALSE)
+  })
   
   # output$marker_heatmap <- renderD3heatmap({
   #   markers <- get(sprintf("markers_%s", input$cell_type))
@@ -177,7 +144,7 @@ server <- function(input, output, session) {
   #   )
   # })
   
-  output$box_marker_plot_all <- renderImage({
+  output$box_marker_plot_all <- renderText({
     marker <- one_gene_symbol_default 
     this_gene <- dg$gene[input$dg_table_rows_selected]
     if (length(this_gene) > 0) {
@@ -186,31 +153,15 @@ server <- function(input, output, session) {
     stopifnot(marker %in% gene_symbols)
     gene_ix <- which(gene_symbols == marker)
     meta$marker <- lf$matrix[,gene_ix]
-   
-    temp_dir <- file.path("/tmp/ampviewer")
-    dir.create(temp_dir, showWarnings = FALSE)
-    outfile <- file.path(
-      temp_dir,
-      sprintf("beeswarm_%s.png", marker)
+    save_figure(
+      filename = glue("scrnaseq_beeswarm_{marker}.png", marker = marker),
+      width = 6, height = 9, dpi = 100,
+      html_alt = marker,
+      ggplot_function = function() { plot_box(meta, marker) }
     )
+  })
     
-    if (!file.exists(outfile) || file_test("-nt", "app.R", outfile)) {
-      p <- plot_box(meta, marker)
-      ggsave(filename = outfile, plot = p, width = 6, height = 9, dpi = 100)
-      # png(outfile, width = 385, height = 520)
-      # print(p)
-      # dev.off()
-      optimize_png(outfile)
-    }
-    
-    list(
-      style = 'height: 100%; width: 100%; object-fit: contain',
-      src = outfile,
-      alt = marker
-    )
-  }, deleteFile = FALSE)
-  
-  output$bulk_dots <- renderImage({
+  output$bulk_dots <- renderText({
     marker <- one_gene_symbol_default
     this_gene <- as.character(dg$gene[input$dg_table_rows_selected])
     if (length(this_gene) > 0) {
@@ -218,34 +169,15 @@ server <- function(input, output, session) {
     }
     stopifnot(marker %in% gene_symbols)
     b_meta$marker <- as.numeric(b_log2tpm[marker,])
-    
-    temp_dir <- file.path("/tmp/ampviewer")
-    dir.create(temp_dir, showWarnings = FALSE)
-    outfile <- file.path(
-      temp_dir,
-      sprintf("bulk_dots_%s.png", marker)
+    save_figure(
+      filename = glue("bulk_dots_{marker}.png", marker = marker),
+      width = 6, height = 5, dpi = 100,
+      html_alt = marker,
+      ggplot_function = function() { plot_bulk_dots(b_meta, marker) }
     )
-    
-    if (!file.exists(outfile) || file_test("-nt", "app.R", outfile)) {
-      p <- plot_bulk_dots(b_meta, marker)
-      ggsave(
-        filename = outfile, plot = p,
-        width = 6, height = 5, dpi = 100
-      )
-      # png(outfile, width = 385, height = 520)
-      # print(p)
-      # dev.off()
-      optimize_png(outfile)
-    }
-    
-    list(
-      style = 'height: 100%; width: 100%; object-fit: contain',
-      src = outfile,
-      alt = marker
-    )
-  }, deleteFile = FALSE)
+  })
   
-  output$bulk_single_cca <- renderImage({
+  output$bulk_single_cca <- renderText({
     marker <- one_gene_symbol_default
     this_gene <- as.character(dg$gene[input$dg_table_rows_selected])
     if (length(this_gene) > 0) {
@@ -262,32 +194,15 @@ server <- function(input, output, session) {
       as.numeric(b_log2tpm[marker,]),
       as.numeric(sc_marker[cca_bs_ynames])
     )
-    
-    temp_dir <- file.path("/tmp/ampviewer")
-    dir.create(temp_dir, showWarnings = FALSE)
-    outfile <- file.path(
-      temp_dir,
-      sprintf("bulk_single_cca_%s.png", marker)
+    save_figure(
+      filename = glue("bulk_single_cca_{marker}.png", marker = marker),
+      width = 8, height = 8, dpi = 100,
+      html_alt = marker,
+      ggplot_function = function() {
+        plot_bulk_single_cca(dat_cca, 1, 2, marker)
+      }
     )
-    
-    # if (!file.exists(outfile) || file_test("-nt", "app.R", outfile)) {
-      p <- plot_bulk_single_cca(dat_cca, 1, 2, marker)
-      ggsave(
-        filename = outfile, plot = p,
-        width = 8, height = 8, dpi = 100
-      )
-      # png(outfile, width = 385, height = 520)
-      # print(p)
-      # dev.off()
-      optimize_png(outfile) 
-    # }
-    
-    list(
-      style = 'height: 100%; width: 100%; object-fit: contain',
-      src = outfile,
-      alt = marker
-    )
-  }, deleteFile = FALSE)
+  })
   
   output$navbar_right <- renderUI({
     element <- ""

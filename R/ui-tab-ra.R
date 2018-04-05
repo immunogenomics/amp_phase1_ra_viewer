@@ -12,7 +12,7 @@ tabPanel(
   
             column(
               width = 9,
-              plotOutput("tnse_marker_plot", height = "400px")
+              htmlOutput("tnse_marker_plot", height = "400px")
             ),
             
             column(
@@ -32,7 +32,7 @@ tabPanel(
           fluidRow(
             column(
               width = 5,
-              plotOutput("box_marker_plot_all", height = "500px")
+              htmlOutput("box_marker_plot_all", height = "500px")
             ),
             column(
               width = 7,
@@ -43,11 +43,11 @@ tabPanel(
           fluidRow(
             column(
               width = 5,
-              plotOutput("bulk_dots", height = "500px")
+              htmlOutput("bulk_dots", height = "500px")
             ),
             column(
               width = 7,
-              plotOutput("bulk_single_cca", height = "500px")
+              htmlOutput("bulk_single_cca", height = "500px")
             )
           )
         )
