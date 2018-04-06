@@ -12,7 +12,10 @@ tabPanel(
   
             column(
               width = 9,
-              htmlOutput("tnse_marker_plot", height = "400px")
+              div(
+                htmlOutput("tnse_marker_plot", height = "400px"),
+                style = "height: 400px;"
+              )
             ),
             
             column(
