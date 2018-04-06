@@ -20,6 +20,7 @@ pdf(NULL)
 library(shiny)
 library(shinysky) # devtools::install_github("AnalytixWare/ShinySky")
 
+library(digest)
 library(glue)
 library(stringr)
 library(forcats)

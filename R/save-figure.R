@@ -18,10 +18,14 @@ save_figure <- function(
     )
     optimize_png(filename)
   }
+  filename_hash <- digest::digest(file = filename, algo = "sha1")
   glue(
     '<img style="{style}" src="{src}" alt="{alt}"></img>',
     style = html_style,
-    src = str_remove(filename, "www/"),
+    src = glue(
+      "{png}?sha1={hash}",
+      png = str_remove(filename, "www/"), hash = filename_hash
+    ),
     alt = html_alt
   )
 }
