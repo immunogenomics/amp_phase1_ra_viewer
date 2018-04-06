@@ -1,50 +1,12 @@
 # ampviewer
-# Kamil Slowikowski
-# 2018-01-26
-#
-# Fan Zhang Updated (added more visualization fuctions)
-# 2018-01-29
-# 
-# This is an app for viewing single-cell RNA-seq data from AMP.
-# Fan Zhang produced the input data (tSNE, clusters).
-#
-# getwd()
-# setwd("/Users/fanzhang/Documents/GitHub/ampviewer")
 
 # https://github.com/timelyportfolio/d3treeR/issues/19#issuecomment-268110274
 try({dev.off()})
 pdf(NULL)
 
-# Libraries -------------------------------------------------------------------
+# Dependencies ----------------------------------------------------------------
 
-library(shiny)
-library(shinysky) # devtools::install_github("AnalytixWare/ShinySky")
-
-library(digest)
-library(glue)
-library(stringr)
-library(forcats)
-library(ggplot2)
-library(ggbeeswarm)
-library(ggforce)
-library(patchwork)
-library(data.table)
-library(magrittr)
-library(dplyr)
-# library(scales)
-# library(RColorBrewer)
-# library(pryr)
-library(Matrix)
-library(matrixStats)
-# library(loomR) # devtools::install_github("mojaveazure/loomR")
-
-# library(viridis)
-# library(grid)
-# library(parallel)
-# library(formattable)
-# library(pheatmap)
-# library(d3heatmap)
-
+source("R/install-packages.R")
 source("R/meta-colors.R")
 source("R/optimize-png.R")
 source("R/save-figure.R")

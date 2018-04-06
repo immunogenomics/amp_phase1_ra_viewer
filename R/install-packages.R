@@ -1,27 +1,43 @@
-# This script installs the packages required for ampviewer.
+# This script installs and loads the packages required for ampviewer.
 
 installed_packages <- rownames(installed.packages())
 
+# library(viridis)
+# library(grid)
+# library(parallel)
+# library(formattable)
+# library(pheatmap)
+# library(d3heatmap)
+
 cran_packages <- c(
+  "DT",
+  "Matrix",
   "RColorBrewer",
+  "data.table",
+  "digest",
   "dplyr",
+  "forcats",
+  "gdata",
+  "ggbeeswarm",
+  "ggforce",
+  "ggplot2",
+  "glue",
+  "hdf5r",
+  "janitor",
+  "lme4",
   "magrittr",
   "matrixStats",
-  "janitor",
   "pryr",
-  "hdf5r",
   "scales",
   "shiny",
-  "DT",
-  "lme4",
-  "gdata"
+  "stringr"
 )
 
 # Load packages, and install them if they are not installed.
 if (!"pacman" %in% installed_packages) { install.packages("pacman") }
 pacman::p_load(char = cran_packages, install = TRUE, update = TRUE)
 
-github_packages <- c(
+github_repos <- c(
   "AnalytixWare/shinysky",
   "eclarke/ggbeeswarm",
   "mojaveazure/loomR",
@@ -30,10 +46,12 @@ github_packages <- c(
   "jefworks/liger"
 )
 
-for (github_package in github_packages) {
-  p <- strsplit(github_package, "/")[[1]][2]
-  if (!p %in% installed_packages) {
+for (github_repo in github_repos) {
+  github_package <- strsplit(github_repo, "/")[[1]][2]
+  if (!github_package %in% installed_packages) {
     devtools::install_github(github_package)
+  } else {
+    pacman::p_load(char = github_package)
   }
 }
 
