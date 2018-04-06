@@ -51,8 +51,8 @@ plot_box <- function(dat, title = "") {
   # p1
   
   dat_percent <- dat %>%
-    group_by(cluster) %>%
-    summarise(percent = sum(marker > 0) / length(marker) * 100)
+    dplyr::group_by(cluster) %>%
+    dplyr::summarise(percent = sum(marker > 0) / length(marker) * 100)
   
   # Add small columns on the left showing percent of cells with 0 expression.
   # data_cols <- data.frame(
