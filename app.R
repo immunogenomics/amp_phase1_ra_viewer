@@ -124,7 +124,7 @@ server <- function(input, output, session) {
     }
     save_figure(
       filename = glue(
-        "scrnaseq_tsne_{celltype}_{marker}.png",
+        "ampra1_scrnaseq_tsne_{celltype}_{marker}.png",
         celltype = input$cell_type, marker = marker
       ),
       width = 10, height = 6, dpi = 100,
@@ -154,7 +154,7 @@ server <- function(input, output, session) {
     gene_ix <- which(gene_symbols == marker)
     meta$marker <- lf$matrix[,gene_ix]
     save_figure(
-      filename = glue("scrnaseq_beeswarm_{marker}.png", marker = marker),
+      filename = glue("ampra1_scrnaseq_bar_{marker}.png", marker = marker),
       width = 6, height = 9, dpi = 100,
       html_alt = marker,
       ggplot_function = function() { plot_box(meta, marker) }
@@ -170,7 +170,7 @@ server <- function(input, output, session) {
     stopifnot(marker %in% gene_symbols)
     b_meta$marker <- as.numeric(b_log2tpm[marker,])
     save_figure(
-      filename = glue("bulk_dots_{marker}.png", marker = marker),
+      filename = glue("ampra1_rnaseq_dots_{marker}.png", marker = marker),
       width = 6, height = 5, dpi = 100,
       html_alt = marker,
       ggplot_function = function() { plot_bulk_dots(b_meta, marker) }
@@ -195,7 +195,10 @@ server <- function(input, output, session) {
       as.numeric(sc_marker[cca_bs_ynames])
     )
     save_figure(
-      filename = glue("bulk_single_cca_{marker}.png", marker = marker),
+      filename = glue(
+        "ampra1_cca_rnaseq_scrnaseq_{marker}.png",
+        marker = marker
+      ),
       width = 8, height = 8, dpi = 100,
       html_alt = marker,
       ggplot_function = function() {
