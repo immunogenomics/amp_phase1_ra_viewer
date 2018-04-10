@@ -23,6 +23,12 @@ rownames(dg) <- seq(nrow(dg))
 # dg$newcluster <- NULL
 dg$wilcox <- round(-log10(dg$wilcox))
 dg <- dg[order(dg$wilcox, decreasing = TRUE),]
+# object_size(dg)
+# 3.48 MB
+
+# dg <- readRDS("data/cluster_marker_table.rds")
+# object_size(dg)
+# 78.2 MB
 
 # Single-cell RNA-seq data -----------------------------------------
 
