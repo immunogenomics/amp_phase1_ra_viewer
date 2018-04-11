@@ -7,7 +7,9 @@ save_figure <- function(
   out_dir <- "www/figures"
   dir.create(out_dir, showWarnings = FALSE)
   filename <- file.path(out_dir, filename)
-  if (!file.exists(filename) || file_test("-nt", "app.R", filename)) {
+  # Set to FALSE to disable caching figures.
+  cache <- TRUE
+  if (!cache || !file.exists(filename) || file_test("-nt", "app.R", filename)) {
     if (is.null(ggplot_function)) {
       stop("ggplot_function is NULL")
     }
