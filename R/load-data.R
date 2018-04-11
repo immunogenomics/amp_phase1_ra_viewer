@@ -1,4 +1,11 @@
 
+
+# From BuenColors
+solar_flare <- c(
+  "#3361A5", "#2884E7", "#1BA7FF", "#76CEFF", "#FFFFFF", "#FFE060", 
+  "#FA8E24", "#DA2828", "#A31D1D"
+)
+
 # Differential gene expression table -------------------------------
 
 # > head(dg)
@@ -313,6 +320,10 @@ cell_name_to_type <- structure(
   .Data = meta$cell_type,
   .Names = as.character(meta$cell_name)
 )
+cell_name_to_cluster <- structure(
+  .Data = meta$cluster,
+  .Names = as.character(meta$cell_name)
+)
 cell_name_to_type <- fct_recode(
   cell_name_to_type,
   "Fibro" = "fibro",
@@ -329,6 +340,29 @@ dat_cca$data <- c(
   rep("bulk", nrow(b_meta)),
   rep("cell", nrow(dat_cca) - nrow(b_meta))
 )
+dat_cca$cluster <- c(
+  as.character(b_meta$cell_type),
+  as.character(cell_name_to_cluster[cca_bs_ynames])
+)
+
+# rbindlist(lapply(1:10, function(i) {
+#   form <- as.formula(sprintf("V%s ~ cluster", i))
+#   data.frame(
+#     broom::tidy(anova(aov(formula = form, data = dat_cca)))[1,],
+#     CV = i
+#   )
+# }))
+
+# mat_cca <- data.table::dcast(
+#   data = melt_cca,
+#   formula = variable ~ cluster,
+#   value.var = "value",
+#   fun.aggregate = mean
+# )
+# rownames(mat_cca) <- mat_cca$variable
+# mat_cca$variable <- NULL
+
+
 
 # Discover mislabeled bulk samples
 # ggplot() +

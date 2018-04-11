@@ -16,6 +16,7 @@ source("R/plot-tsne.R")
 source("R/plot-box.R")
 source("R/plot-bulk-dots.R")
 source("R/plot-bulk-single-cca.R")
+source("R/plot-cca-scores.R")
 source("R/load-data.R")
 
 # User interface --------------------------------------------------------------
@@ -64,7 +65,12 @@ which_numeric_cols <- function(dat) {
 server <- function(input, output, session) {
   
   # Debug
-  # input <- list(cell_type = "fibro", one_gene_symbol = "IFNB1")
+  # input <- list(
+  #   cell_type = "fibro",
+  #   one_gene_symbol = "IFNB1",
+  #   bulk_single_cca_xaxis = 1,
+  #   bulk_single_cca_yaxis = 2
+  # )
   
   output$tnse_marker_plot <- renderText({
     marker <- one_gene_symbol_default
@@ -157,15 +163,58 @@ server <- function(input, output, session) {
       as.numeric(b_log2tpm[marker,]),
       as.numeric(sc_marker[cca_bs_ynames])
     )
+    dimx <- input$bulk_single_cca_xaxis
+    dimy <- input$bulk_single_cca_yaxis
+    if (!dimx %in% 1:10) {
+      dimx <- 1
+    }
+    if (!dimy %in% 1:10) {
+      dimy <- 2
+    }
     save_figure(
       filename = glue(
-        "ampra1_cca_rnaseq_scrnaseq_{marker}.png",
+        "ampra1_cca_rnaseq_scrnaseq_cv{x}_cv{y}_{marker}.png",
+        x = dimx,
+        y = dimy,
         marker = marker
       ),
       width = 8, height = 8, dpi = 100,
       html_alt = marker,
       ggplot_function = function() {
-        plot_bulk_single_cca(dat_cca, 1, 2, marker)
+        plot_bulk_single_cca(
+          dat_cca = dat_cca,
+          x = as.character(dimx),
+          y = as.character(dimy),
+          marker = marker
+        )
+      }
+    )
+  })
+  
+  output$bulk_single_cca_scores <- renderText({
+    dimx <- input$bulk_single_cca_xaxis
+    dimy <- input$bulk_single_cca_yaxis
+    if (!dimx %in% 1:10) {
+      dimx <- 1
+    }
+    if (!dimy %in% 1:10) {
+      dimy <- 2
+    }
+    save_figure(
+      filename = glue(
+        "ampra1_cca_rnaseq_scrnaseq_scores_{x}_{y}.png",
+        x = dimx,
+        y = dimy
+      ),
+      width = 8, height = 7, dpi = 100,
+      html_alt = "CCA scores",
+      ggplot_function = function() {
+        plot_cca_scores(
+          cca_bs, cv = as.integer(dimx), n = 20
+        ) +
+        plot_cca_scores(
+          cca_bs, cv = as.integer(dimy), n = 20
+        )
       }
     )
   })
