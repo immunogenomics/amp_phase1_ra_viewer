@@ -1,4 +1,6 @@
-plot_bulk_single_cca <- function(dat_cca, x = 1, y = 2, marker = "") {
+plot_bulk_single_cca <- function(
+  dat_cca, x = 1, y = 2, marker = ""
+) {
   
   fill_values <- quantile_breaks(dat_cca$marker, n = 9)
   fill_values <- fill_values / max(fill_values)
@@ -53,12 +55,22 @@ plot_bulk_single_cca <- function(dat_cca, x = 1, y = 2, marker = "") {
           override.aes = list(stroke = 0.5, size = 4)
         )
       )
-    } else {
+    } else if (this_fill == "cluster") {
       p <- p +
-        scale_fill_manual(values = meta_colors$type) +
+        scale_fill_manual(values = meta_colors$cluster, name = NULL) +
         guides(
           fill = guide_legend(
-            ncol = 2, override.aes = list(shape = 22, size = 4)
+            nrow = 4,
+            override.aes = list(shape = this_shape, size = 4)
+          )
+        )
+    } else if (this_fill == "cell_type") {
+      p <- p +
+        scale_fill_manual(values = meta_colors$type, name = NULL) +
+        guides(
+          fill = guide_legend(
+            ncol = 2,
+            override.aes = list(shape = this_shape, size = 4)
           )
         )
     }
@@ -72,7 +84,8 @@ plot_bulk_single_cca <- function(dat_cca, x = 1, y = 2, marker = "") {
     labs(subtitle = "cell")
   
   p3 <- make_subplot(this_data = "bulk", this_fill = "cell_type")
-  p4 <- make_subplot(this_data = "cell", this_fill = "cell_type")
+  
+  p4 <- make_subplot(this_data = "cell", this_fill = "cluster")
   
   p1 + p2 + p3 + p4 + plot_layout(ncol = 2) +
     plot_annotation(
