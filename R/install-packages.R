@@ -24,12 +24,13 @@ cran_packages <- c(
   "glue",
   "hdf5r",
   "janitor",
-  "lme4",
+#   "lme4",
   "magrittr",
   "matrixStats",
   "pryr",
   "scales",
   "shiny",
+  "shinydashboard",
   "stringr"
 )
 
