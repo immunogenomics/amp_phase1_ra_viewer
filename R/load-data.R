@@ -31,7 +31,7 @@ rownames(dg) <- seq(nrow(dg))
 dg$wilcox <- round(-log10(dg$wilcox))
 dg <- dg[order(dg$wilcox, decreasing = TRUE),]
 # object_size(dg)
-# 3.48 MB
+# 3.57 MB
 
 # dg <- readRDS("data/cluster_marker_table.rds")
 # object_size(dg)
@@ -41,9 +41,11 @@ dg <- dg[order(dg$wilcox, decreasing = TRUE),]
 
 # Read 4 datasets: bcell, tcell, mono, fibro
 # Preprocess into a file for quick loading.
-loom_file <- "data/amp-phase1-ra-single-cells.loom"
-if (file.exists(loom_file)) {
-  lf <- loomR::connect(filename = loom_file, mode = "r", skip.validate = FALSE)
+matrix_file <- "data/amp-phase1-ra-single-cells-matrix"
+meta_file <- "data/amp-phase1-ra-single-cells-meta.rds"
+if (file.exists(meta_file)) {
+  meta <- readRDS(file = meta_file)
+  ffload(matrix_file, overwrite = TRUE)
 } else {
   for (cell_type in c("fibro", "tcell", "bcell", "mono")) {
     assign(
@@ -92,20 +94,11 @@ if (file.exists(loom_file)) {
   # Delete the temporary variables.
   rm(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
   rm(meta_fibro, meta_bcell, meta_tcell, meta_mono)
-  # Create a loom file for quick and easy gene lookups in the app.
-  lf <- loomR::create(
-    filename   = loom_file,
-    data       = Matrix::t(log2cpm), # rows are cells, columns are genes
-    cell.attrs = meta
-  )
+  # Save to files.
+  fm <- as.ff(as.matrix(log2cpm), dimorder = c(2, 1))
+  ffsave(fm, file = matrix_file)
+  saveRDS(meta, file = meta_file)
 }
-
-meta <- lf$col.attrs
-col_names <- names(meta)
-meta <- as.data.frame(lapply(col_names, function(col_name) {
-  meta[[col_name]][]
-}))
-colnames(meta) <- col_names
 
 cluster_table <- meta %>%
   group_by(cluster) %>%
@@ -115,11 +108,11 @@ cluster_table <- meta %>%
     OA = sum(disease == "OA")
   ) %>% as.data.frame()
 
-gene_symbols <- lf$row.attrs$gene_names[]
+gene_symbols <- rownames(fm)
 
 # dg_best <- dg %>% group_by(cluster) %>% top_n(n = 10, wt = -wilcox)
 # auc_genes <- unique(as.character(dg_best$gene))
-# mat <- lf$matrix[,gene_symbols %in% auc_genes]
+# mat <- fm[gene_symbols %in% auc_genes,]
 # meta2 <- cbind(meta[,c("cluster"),drop=FALSE], mat)
 # 
 # cluster_mat <- reshape2::melt(meta2, id.vars = "cluster") %>%
@@ -149,8 +142,6 @@ gene_symbols <- lf$row.attrs$gene_names[]
 #   border_color = NA
 # )
         
-cell_types   <- lf$col.attrs$cell_type[]
-
 possible_cell_types <- c(
   "All cells"  = "all",
   "B cell"     = "bcell",
@@ -316,14 +307,10 @@ dat_cca <- as.data.frame(rbind(
   cca_bs$scores$corr.Y.yscores[,1:10]
 ))
 dat_cca <- dat_cca[c(cca_bs_xnames, cca_bs_ynames),]
-cell_name_to_type <- structure(
-  .Data = meta$cell_type,
-  .Names = as.character(meta$cell_name)
-)
-cell_name_to_cluster <- structure(
-  .Data = meta$cluster,
-  .Names = as.character(meta$cell_name)
-)
+cell_name_to_type <- meta$cell_type
+names(cell_name_to_type) <- as.character(meta$cell_name)
+cell_name_to_cluster <- meta$cluster
+names(cell_name_to_cluster) <- as.character(meta$cell_name)
 cell_name_to_type <- fct_recode(
   cell_name_to_type,
   "Fibro" = "fibro",

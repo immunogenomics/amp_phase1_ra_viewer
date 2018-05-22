@@ -12,6 +12,7 @@ installed_packages <- rownames(installed.packages())
 cran_packages <- c(
   "DT",
   "Matrix",
+  "ff",
   "RColorBrewer",
   "data.table",
   "digest",
@@ -36,12 +37,11 @@ cran_packages <- c(
 
 # Load packages, and install them if they are not installed.
 if (!"pacman" %in% installed_packages) { install.packages("pacman") }
-pacman::p_load(char = cran_packages, install = TRUE, update = TRUE)
+pacman::p_load(char = cran_packages, install = TRUE, update = FALSE)
 
 github_repos <- c(
   "AnalytixWare/shinysky",
   "eclarke/ggbeeswarm",
-  "mojaveazure/loomR",
   "tidyverse/ggplot2",
   "thomasp85/patchwork",
   "jefworks/liger"
@@ -50,7 +50,7 @@ github_repos <- c(
 for (github_repo in github_repos) {
   github_package <- strsplit(github_repo, "/")[[1]][2]
   if (!github_package %in% installed_packages) {
-    devtools::install_github(github_package)
+    devtools::install_github(github_repo)
   } else {
     pacman::p_load(char = github_package)
   }

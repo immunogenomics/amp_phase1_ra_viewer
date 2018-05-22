@@ -28,7 +28,7 @@
 # 
 # marker <- "IL6"
 # gene_ix <- which(gene_symbols == marker)
-# meta$marker <- lf$matrix[,gene_ix]
+# meta$marker <- fm[gene_ix,]
 # 
 # clusters <- sort(unique(as.character(meta$cluster)))
 # fits <- Reduce(rbind, mclapply(clusters, function(cluster_i) {
@@ -46,7 +46,7 @@
 # } else {
 #   fits <- Reduce(rbind, lapply(seq_along(gene_symbols), function(gene_i) {
 #     marker <- gene_symbols[gene_i]
-#     meta$marker <- lf$matrix[,gene_i]
+#     meta$marker <- fm[gene_i,]
 #     Reduce(rbind, lapply(clusters, function(cluster_i) {
 #       fit <- broom::tidy(fisher.test(meta$cluster == cluster_i, meta$marker > 0))
 #       fit$marker <- marker
@@ -74,7 +74,7 @@
 # 
 # fits <- Reduce(rbind, mclapply(seq_along(gene_symbols)[1:100], function(gene_i) {
 #   marker <- gene_symbols[gene_i]
-#   meta_m$marker <- lf$matrix[ix_m,gene_i]
+#   meta_m$marker <- fm[gene_i,ix_m]
 #   Reduce(rbind, lapply(clusters, function(cluster_i) {
 #     # fit <- broom::tidy(fisher.test(meta$cluster == cluster_i, meta$marker > 0))
 #     fit <- broom::tidy(glmer(cluster == cluster_i ~ marker + (1|plate), meta_m, family = binomial))
@@ -91,7 +91,7 @@
 # x %>% group_by(cluster) %>% top_n(n = 5, wt = -log10(p.value))
 
 # gene_i <- which(gene_symbols == "ABI3")
-# meta$marker <- lf$matrix[,gene_i]
+# meta$marker <- fm[gene_i,]
 # auroc1l(meta$marker, meta$cluster == "M-2")
 
 # # https://gist.github.com/mbq/21ef2370961a634ce45b44007e938b60
@@ -112,7 +112,7 @@
 # 
 # auc_m <- Reduce(rbind, lapply(gene_symbols_m, function(gene_symbol) {
 #   gene_i <- which(gene_symbols == gene_symbol)
-#   meta_m$marker <- lf$matrix[ix_m, gene_i]
+#   meta_m$marker <- fm[gene_i, ix_m]
 #   sapply(X = clusters, FUN = function(cluster_i) {
 #     indicator <- meta_m$cluster == cluster_i
 #     auc <- auroc(meta_m$marker, indicator)
@@ -165,12 +165,12 @@ if (file.exists(mudan_file)) {
     ix_m <- which(meta$cluster %in% clusters)
     meta_m <- meta[ix_m,]
     genes_m <- vapply(seq_along(gene_symbols), function(gene_i) {
-      x <- lf$matrix[ix_m, gene_i]
+      x <- fm[gene_i,ix_m]
       sum(x > 0)
     }, 1.0)
     gene_symbols_m <- gene_symbols[genes_m > 10]
     ix_genes <- which(gene_symbols %in% gene_symbols_m)
-    mat_m <- t(lf$matrix[ix_m, ix_genes])
+    mat_m <- fm[ix_genes, ix_m]
     rownames(mat_m) <- gene_symbols[ix_genes]
     colnames(mat_m) <- meta_m$cell_name
     cols <- as.character(meta_m$cluster)
