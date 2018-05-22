@@ -1,4 +1,5 @@
 
+message("MEMORY USAGE load-data.R 1: ", ceiling(pryr::mem_used() / 1e6), " MB")
 
 # From BuenColors
 solar_flare <- c(
@@ -41,11 +42,18 @@ dg <- dg[order(dg$wilcox, decreasing = TRUE),]
 
 # Read 4 datasets: bcell, tcell, mono, fibro
 # Preprocess into a file for quick loading.
-matrix_file <- "data/amp-phase1-ra-single-cells-matrix"
+# log2cpm_file <- "data/amp-phase1-ra-single-cells-matrix"
+log2cpm_file <- "data/amp-phase1-ra-single-cells-matrix.h5"
+log2cpm_dimnames_file <- "data/amp-phase1-ra-single-cells-dimnames.rda"
 meta_file <- "data/amp-phase1-ra-single-cells-meta.rds"
 if (file.exists(meta_file)) {
   meta <- readRDS(file = meta_file)
-  ffload(matrix_file, overwrite = TRUE)
+  # ffload(log2cpm_file, overwrite = TRUE)
+  load(log2cpm_dimnames_file)
+  log2cpm <- HDF5Array::HDF5Array(filepath = log2cpm_file, name = "log2cpm")
+  load(log2cpm_dimnames_file)
+  rownames(log2cpm) <- log2cpm_rows
+  colnames(log2cpm) <- log2cpm_cols
 } else {
   for (cell_type in c("fibro", "tcell", "bcell", "mono")) {
     assign(
@@ -95,9 +103,13 @@ if (file.exists(meta_file)) {
   rm(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
   rm(meta_fibro, meta_bcell, meta_tcell, meta_mono)
   # Save to files.
-  fm <- as.ff(as.matrix(log2cpm), dimorder = c(2, 1))
-  ffsave(fm, file = matrix_file)
+  # log2cpm <- as.ff(as.matrix(log2cpm), dimorder = c(2, 1))
+  # ffsave(log2cpm, file = log2cpm_file)
   saveRDS(meta, file = meta_file)
+  log2cpm_rows <- rownames(log2cpm)
+  log2cpm_cols <- colnames(log2cpm)
+  save(list = c("log2cpm_rows", "log2cpm_cols"), file = log2cpm_dimnames_file)
+  log2cpm <- HDF5Array::writeHDF5Array(log2cpm, name = "log2cpm", filepath = log2cpm_file)
 }
 
 cluster_table <- meta %>%
@@ -108,11 +120,13 @@ cluster_table <- meta %>%
     OA = sum(disease == "OA")
   ) %>% as.data.frame()
 
-gene_symbols <- rownames(fm)
+gene_symbols <- rownames(log2cpm)
+
+message("MEMORY USAGE load-data.R 2: ", ceiling(pryr::mem_used() / 1e6), " MB")
 
 # dg_best <- dg %>% group_by(cluster) %>% top_n(n = 10, wt = -wilcox)
 # auc_genes <- unique(as.character(dg_best$gene))
-# mat <- fm[gene_symbols %in% auc_genes,]
+# mat <- log2cpm[gene_symbols %in% auc_genes,]
 # meta2 <- cbind(meta[,c("cluster"),drop=FALSE], mat)
 # 
 # cluster_mat <- reshape2::melt(meta2, id.vars = "cluster") %>%

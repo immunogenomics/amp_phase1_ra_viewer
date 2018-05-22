@@ -1,5 +1,7 @@
 # This script installs and loads the packages required for ampviewer.
 
+message("MEMORY USAGE install-packages.R 1: ", ceiling(pryr::mem_used() / 1e6), " MB")
+
 installed_packages <- rownames(installed.packages())
 
 # library(viridis)
@@ -58,3 +60,10 @@ for (github_repo in github_repos) {
 
 # biocLite("qusage")
 
+source("https://bioconductor.org/biocLite.R")
+bioc_packages <- c(
+  "HDF5Array"
+)
+biocLite(bioc_packages, suppressUpdates = TRUE, suppressAutoUpdate = TRUE)
+
+message("MEMORY USAGE install-packages.R 2: ", ceiling(pryr::mem_used() / 1e6), " MB")

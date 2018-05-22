@@ -80,7 +80,7 @@ server <- function(input, output, session) {
     }
     stopifnot(marker %in% gene_symbols)
     gene_ix <- which(gene_symbols == marker)
-    meta$marker <- fm[gene_ix,]
+    meta$marker <- as.numeric(log2cpm[gene_ix,])
     stopifnot(input$cell_type %in% possible_cell_types)
     if (input$cell_type == "all") {
       cell_ix <- seq(nrow(meta))
@@ -121,7 +121,7 @@ server <- function(input, output, session) {
     }
     stopifnot(marker %in% gene_symbols)
     gene_ix <- which(gene_symbols == marker)
-    meta$marker <- fm[gene_ix,]
+    meta$marker <- as.numeric(log2cpm[gene_ix,])
     save_figure(
       filename = glue("ampra1_scrnaseq_bar_{marker}.png", marker = marker),
       width = 6, height = 9, dpi = 100,
@@ -154,7 +154,7 @@ server <- function(input, output, session) {
     }
     stopifnot(marker %in% gene_symbols)
     gene_ix <- which(gene_symbols == marker)
-    meta$marker <- fm[gene_ix,]
+    meta$marker <- as.numeric(log2cpm[gene_ix,])
     sc_marker <- meta$marker
     names(sc_marker) <- as.character(meta$cell_name)
     
