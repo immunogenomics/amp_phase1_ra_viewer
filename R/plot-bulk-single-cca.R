@@ -60,7 +60,7 @@ plot_bulk_single_cca <- function(
         scale_fill_manual(values = meta_colors$cluster, name = NULL) +
         guides(
           fill = guide_legend(
-            nrow = 4,
+            nrow = 6,
             override.aes = list(shape = this_shape, size = 4)
           )
         )

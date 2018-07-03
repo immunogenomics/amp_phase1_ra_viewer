@@ -3,7 +3,7 @@ tabPanel(
 
   mainPanel(
 
-    h1("Accelerating Medicines Partnerships (AMP)"),
+    h2("Accelerating Medicines Partnerships (AMP)"),
     p(
       "The",
       a("Accelerating Medicines Partnership (AMP)",
@@ -17,25 +17,40 @@ tabPanel(
       " increase the number of new diagnostics and therapies for patients",
       " and reduce the time and cost of developing them."
     ),
-    h2("Disclaimer"),
+    h2("Citation"),
     p(
-      "Data presented on this page is from Phase 1 of the AMP partership.",
-      " Currently, this is private data meant to be shared internally,",
-      " only with consortium members."
+      "This website supports the results of our",
+      a("preprint paper.",
+        href = "https://www.biorxiv.org/content/early/2018/06/20/351130"),
+        "Welcome to read the paper to know more details."
     ),
     p(
       strong(
-        "Sharing any data from this site with anyone outside of the",
-        " AMP partnership is prohibited."
+        "Zhang, F., Wei, K., Slowikowski, K., Fonseka, C.Y., Rao, D.A., Kelly, S.,", 
+        "Goodman, S.M., Tabechian, D., Hughes, L.B., Salomon-Escoto, K. and Watts, G.F., 2018.",
+        "Defining Inflammatory Cell States in Rheumatoid Arthritis", 
+        "Joint Synovial Tissues by Integrating Single-cell Transcriptomics and Mass Cytometry. bioRxiv, p.351130."
       )
     ),
-    p(
-      "This website is an experiment in providing early access to",
-      " preliminary data analysis results. The content of this site is",
-      " subject to change at any time without notice. We hope that you",
-      " find it useful, but we provide it 'as is' without warranty of",
-      " any kind, express or implied."
-    ),
+    # h2("Disclaimer"),
+    # p(
+    #   "Data presented on this page is from Phase 1 of the AMP partership."
+    #   # " Currently, this is private data meant to be shared internally,",
+    #   # " only with consortium members."
+    # ),
+    # p(
+    #    strong(
+    #     "Sharing any data from this site with anyone outside of the",
+    #    " AMP partnership is prohibited."
+    #   )
+    # ),
+    # p(
+    #   "This website is an experiment in providing early access to",
+    #   " preliminary data analysis results. The content of this site is",
+    #   " subject to change at any time without notice. We hope that you",
+    #   " find it useful, but we provide it 'as is' without warranty of",
+    #   " any kind, express or implied."
+    # ),
     h2("Contact"),
     p(
       "This site is maintained by", 

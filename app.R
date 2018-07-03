@@ -8,7 +8,7 @@ pdf(NULL)
 
 source("R/install-packages.R")
 source("R/meta-colors.R")
-source("R/optimize-png.R")
+source("R/optimize-png.R") 
 source("R/save-figure.R")
 source("R/theme-clean.R")
 source("R/pure-functions.R")
@@ -45,8 +45,8 @@ ui <- fluidPage(
 
   navbarPageWithText(
     "AMP Phase I",
-    source(file.path("R", "ui-tab-ra.R"), local = TRUE)$value,
     source(file.path("R", "ui-tab-about.R"), local = TRUE)$value,
+    source(file.path("R", "ui-tab-ra.R"), local = TRUE)$value,
     text = uiOutput("navbar_right")
   )
 
@@ -66,12 +66,12 @@ server <- function(input, output, session) {
   
   # Debug
   # input <- list(
-  #   cell_type = "fibro",
+  #   cell_type = "Fibroblast",
   #   one_gene_symbol = "IFNB1",
   #   bulk_single_cca_xaxis = 1,
   #   bulk_single_cca_yaxis = 2
   # )
-  
+
   output$tnse_marker_plot <- renderText({
     marker <- one_gene_symbol_default
     this_gene <- as.character(dg$gene[input$dg_table_rows_selected])
@@ -115,7 +115,7 @@ server <- function(input, output, session) {
   
   output$box_marker_plot_all <- renderText({
     marker <- one_gene_symbol_default 
-    this_gene <- dg$gene[input$dg_table_rows_selected]
+    this_gene <- as.character(dg$gene[input$dg_table_rows_selected])
     if (length(this_gene) > 0) {
       marker <- this_gene
     }
@@ -254,7 +254,7 @@ server <- function(input, output, session) {
     # Javascript-enabled table.
     DT::datatable(
       data = dg,
-      colnames = c("Gene", "AUC", "-log10(P)", "Cluster"),
+      colnames = c("Gene", "Cluster", "-log10P", "AUC", "%nonzero"),
       selection = "single",
       rownames = FALSE,
       filter = list(position = "top", plain = TRUE),
@@ -270,7 +270,7 @@ server <- function(input, output, session) {
         autoWidth = FALSE
       )
     ) %>%
-      DT::formatSignif(columns = numeric_cols, digits = 3)
+      DT::formatSignif(columns = numeric_cols, digits = 2)
   }, server = TRUE)
   
 }

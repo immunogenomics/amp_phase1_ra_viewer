@@ -16,18 +16,19 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
   # tsne_title <- bquote("tSNE of PCA on Log"[2]~"(CPM + 1)")
   point_size <- 2.0
   if (nrow(dat) < 5000) {
-    point_size <- 3.0
+    point_size <- 2.5
   }
   fill_values <- quantile_breaks(dat$marker, n = 9)
   fill_values <- fill_values / max(fill_values)
   fill_palette <- RColorBrewer::brewer.pal(9, "Greens")
-  theme_tsne <- theme_bw(base_size = 22) + theme(
+  theme_tsne <- theme_bw(base_size = 15) + theme(
     legend.position = "bottom",
     axis.text       = element_blank(),
     axis.ticks      = element_blank(),
     panel.grid      = element_blank(),
     panel.border    = element_rect(size = 0.5),
-    plot.title      = element_text(size = 25)
+    plot.title      = element_text(size = 22),
+    legend.text    = element_text(size = 15)
   )
   p1 <- ggplot() +
     geom_point(
@@ -47,7 +48,7 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
       name    = bquote("Log"[2]~"(CPM+1)  ")
     ) +
     guides(
-      fill  = guide_colorbar(barwidth = 10, barheight = 1),
+      fill  = guide_colorbar(barwidth = 7, barheight = 0.7),
       alpha = "none"
     ) +
     labs(x = NULL, y = NULL, title = substitute(italic(x), list(x = title))) +
@@ -61,11 +62,11 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
       mapping = aes_string(x = tsne_x, y = tsne_y, fill = "cluster"),
       size    = point_size,
       shape   = 21,
-      stroke  = 0.15
+      stroke  = 0.12
     ) +
     # scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
-    scale_fill_manual(values = meta_colors$fine_cluster, name = "Cluster") +
-    guides(fill = guide_legend(nrow = 4, override.aes = list(size = 4))) +
+    scale_fill_manual(values = meta_colors$cluster, name = "Cluster") +
+    guides(fill = guide_legend(nrow = 6, override.aes = list(size = 2))) +
     labs(x = NULL, y = NULL, title = "Clusters") +
     # ggtitle("Identified clusters") +
     theme_tsne
@@ -78,7 +79,7 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
   p1 + p2 + plot_annotation(
     caption = bottom_text,
     theme = theme(
-      plot.caption = element_text(size = 20, hjust = 0.5)
+      plot.caption = element_text(size = 18, hjust = 0.5)
     )
   )
 }

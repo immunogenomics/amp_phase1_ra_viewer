@@ -1,7 +1,7 @@
 tabPanel(
   "Rheumatoid Arthritis",
   
-  tabsetPanel(selected = "CCA",
+  tabsetPanel(selected = "One Gene",
     
     tabPanel(
       "One Gene",
@@ -144,7 +144,7 @@ tabPanel(
     tabPanel(
       "Marker Genes",
       fluidPage(
-        h4("Table of identified subsets marker genes (19 subsets in all)"),
+        h4("Table of identified single-cell RNA-seq subsets"),
         br(),
         fluidRow(
           column(12,

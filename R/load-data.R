@@ -17,20 +17,29 @@ solar_flare <- c(
 # 4 PDGFRL 0.690 1.436098e-39     F-1
 # 5  SFRP1 0.688 2.526206e-41     F-1
 # 6     C3 0.681 2.426171e-39     F-1
-dg_fibro <- readRDS("data/markers_gene_res_fibro.rds")
-dg_tcell <- readRDS("data/markers_gene_res_tcell.rds")
-dg_bcell <- readRDS("data/markers_gene_res_bcell.rds")
-dg_mono  <- readRDS("data/markers_gene_res_mono.rds")
-dg <- rbind(dg_fibro, dg_tcell, dg_bcell, dg_mono)
-rm(dg_fibro, dg_tcell, dg_bcell, dg_mono)
+# dg_fibro <- readRDS("data/markers_gene_res_fibro.rds")
+# dg_tcell <- readRDS("data/markers_gene_res_tcell.rds")
+# dg_bcell <- readRDS("data/markers_gene_res_bcell.rds")
+# dg_mono  <- readRDS("data/markers_gene_res_mono.rds")
+# dg <- rbind(dg_fibro, dg_tcell, dg_bcell, dg_mono)
+# rm(dg_fibro, dg_tcell, dg_bcell, dg_mono)
+# rownames(dg) <- seq(nrow(dg))
+
+# Upload all the genes without any filters
+dg <- readRDS("data/cluster_marker_table_within_celltype_de.rds")
 rownames(dg) <- seq(nrow(dg))
-# dg$newcluster <- dg$cluster
-# dg$newcluster[dg$cluster == "F-4"] <- "F-3"
-# dg$newcluster[dg$cluster == "F-3"] <- "F-4"
-# dg$cluster <- dg$newcluster
-# dg$newcluster <- NULL
-dg$wilcox <- round(-log10(dg$wilcox))
-dg <- dg[order(dg$wilcox, decreasing = TRUE),]
+
+# > head(dg)
+# gene cluster wilcox_pvalue       auc pct_nonzero
+# 200229 C10orf105   SC-F4           242 0.8885902   0.8038741
+# 205349     CLIC5   SC-F4           231 0.8887112   0.8111380
+# 330101      SDC1   SC-B4           214 0.9617745   0.9264214
+# 307561      MZB1   SC-B4           199 0.9974530   1.0000000
+# 292513    FNDC3B   SC-B4           196 0.9617428   0.9397993
+# 292253    FKBP11   SC-B4           195 0.9945727   0.9933110
+
+dg$wilcox_pvalue <- round(-log10(dg$wilcox_pvalue))
+dg <- dg[order(dg$wilcox_pvalue, decreasing = TRUE),]
 # object_size(dg)
 # 3.57 MB
 
@@ -40,77 +49,102 @@ dg <- dg[order(dg$wilcox, decreasing = TRUE),]
 
 # Single-cell RNA-seq data -----------------------------------------
 
-# Read 4 datasets: bcell, tcell, mono, fibro
-# Preprocess into a file for quick loading.
-# log2cpm_file <- "data/amp-phase1-ra-single-cells-matrix"
-log2cpm_file <- "data/amp-phase1-ra-single-cells-matrix.h5"
-log2cpm_dimnames_file <- "data/amp-phase1-ra-single-cells-dimnames.rda"
-meta_file <- "data/amp-phase1-ra-single-cells-meta.rds"
-if (file.exists(meta_file)) {
-  meta <- readRDS(file = meta_file)
-  # ffload(log2cpm_file, overwrite = TRUE)
-  load(log2cpm_dimnames_file)
-  log2cpm <- HDF5Array::HDF5Array(filepath = log2cpm_file, name = "log2cpm")
-  load(log2cpm_dimnames_file)
-  rownames(log2cpm) <- log2cpm_rows
-  colnames(log2cpm) <- log2cpm_cols
-} else {
-  for (cell_type in c("fibro", "tcell", "bcell", "mono")) {
-    assign(
-      x = sprintf("log2cpm_%s", cell_type),
-      value = Matrix::Matrix(
-        data = readRDS(sprintf("data/%s_exp.rds", cell_type)),
-        sparse = TRUE
-      )
-    )
-    assign(
-      x = sprintf("meta_%s", cell_type),
-      value = readRDS(sprintf("data/%s_sc_label.rds", cell_type))
-    )
-  }
-  # Combine the different cell types.
-  meta <- rbind(meta_fibro, meta_bcell, meta_tcell, meta_mono)
-  meta$cell_type <- c(
-    rep("fibro", nrow(meta_fibro)),
-    rep("bcell", nrow(meta_bcell)),
-    rep("tcell", nrow(meta_tcell)),
-    rep("mono", nrow(meta_mono))
-  )
-  meta$cell_name <- as.character(meta$cell_name)
-  meta$cluster <- as.character(meta$cluster)
-  # Read coordinates for the all-cell tSNE plot.
-  x <- readRDS("data/all_cells_fine_cluster_label.rds")
-  stopifnot(all(rownames(x) %in% meta$cell_name))
-  x <- x[meta$cell_name,]
-  meta$T1_all  <- x$T1
-  meta$T2_all  <- x$T2
-  meta$cluster <- as.character(x$fine_cluster)
-  meta$disease <- as.character(x$disease)
-  meta$plate   <- as.character(x$plate)
-  # meta$newcluster <- meta$cluster
-  # meta$newcluster[meta$cluster == "F-4"] <- "F-3"
-  # meta$newcluster[meta$cluster == "F-3"] <- "F-4"
-  # meta$cluster <- meta$newcluster
-  # meta$newcluster <- NULL
-  # Combine the expression matrices into one matrix.
-  log2cpm <- cbind(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
-  # Discard genes with low expression.
-  # log2cpm <- log2cpm[Matrix::rowSums(log2cpm > 0) > 10, ]
-  log2cpm <- log2cpm[rownames(log2cpm) %in% as.character(unique(dg$gene)), ]
-  # Confirm that the meta data.frame matches the log2cpm matrix.
-  stopifnot(all(meta$cell_name == colnames(log2cpm)))
-  # Delete the temporary variables.
-  rm(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
-  rm(meta_fibro, meta_bcell, meta_tcell, meta_mono)
-  # Save to files.
-  # log2cpm <- as.ff(as.matrix(log2cpm), dimorder = c(2, 1))
-  # ffsave(log2cpm, file = log2cpm_file)
-  saveRDS(meta, file = meta_file)
-  log2cpm_rows <- rownames(log2cpm)
-  log2cpm_cols <- colnames(log2cpm)
-  save(list = c("log2cpm_rows", "log2cpm_cols"), file = log2cpm_dimnames_file)
-  log2cpm <- HDF5Array::writeHDF5Array(log2cpm, name = "log2cpm", filepath = log2cpm_file)
-}
+# # Read 4 datasets: bcell, tcell, mono, fibro
+# # Preprocess into a file for quick loading.
+# log2cpm_file <- "data/amp-phase1-ra-single-cells-matrix.h5"
+# log2cpm_dimnames_file <- "data/amp-phase1-ra-single-cells-dimnames.rda"
+# meta_file <- "data/amp-phase1-ra-single-cells-meta.rds"
+# if (file.exists(meta_file)) {
+#   meta <- readRDS(file = meta_file)
+#   # ffload(log2cpm_file, overwrite = TRUE)
+#   load(log2cpm_dimnames_file)
+#   log2cpm <- HDF5Array::HDF5Array(file = log2cpm_file, name = "log2cpm")
+#   load(log2cpm_dimnames_file)
+#   rownames(log2cpm) <- log2cpm_rows
+#   colnames(log2cpm) <- log2cpm_cols
+# } else {
+  # for (cell_type in c("fibro", "tcell", "bcell", "mono")) {
+  #   assign(
+  #     x = sprintf("log2cpm_%s", cell_type),
+  #     value = Matrix::Matrix(
+  #       data = readRDS(sprintf("data/%s_exp.rds", cell_type)),
+  #       sparse = TRUE
+  #     )
+  #   )
+  #   assign(
+  #     x = sprintf("meta_%s", cell_type),
+  #     value = readRDS(sprintf("data/%s_sc_label.rds", cell_type))
+  #   )
+  # }
+  # # Combine the different cell types.
+  # meta <- rbind(meta_fibro, meta_bcell, meta_tcell, meta_mono)
+  # meta$cell_type <- c(
+  #   rep("fibro", nrow(meta_fibro)),
+  #   rep("bcell", nrow(meta_bcell)),
+  #   rep("tcell", nrow(meta_tcell)),
+  #   rep("mono", nrow(meta_mono))
+  # )
+  # meta$cell_name <- as.character(meta$cell_name)
+  # meta$cluster <- as.character(meta$cluster)
+  # # Change F-1 to SC-F1
+  # meta$cluster <- paste("SC-", sapply(strsplit(meta$cluster, split='-', fixed=TRUE), function(x) (paste(x[1], x[2], sep=""))), sep="")
+  # # Read coordinates for the all-cell tSNE plot.
+  # x <- readRDS("data/all_cells_fine_cluster_label.rds")
+  # # Change F-1 to SC-F1
+  # x$fine_cluster <- paste("SC-", sapply(strsplit(x$fine_cluster, split='-', fixed=TRUE), function(x) (paste(x[1], x[2], sep=""))), sep="")
+  # 
+  # # Combine the expression matrices into one matrix.
+  # log2cpm <- cbind(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
+  # # Confirm that the meta data.frame matches the log2cpm matrix.
+  # stopifnot(all(meta$cell_name == colnames(log2cpm)))
+#   # Remove SC-T1 from log2cpm
+#   log2cpm <- log2cpm[, -which(meta$cluster == "SC-T1")]
+#   # Discard genes with low expression.
+#   # log2cpm <- log2cpm[Matrix::rowSums(log2cpm > 0) > 10, ]
+#   log2cpm <- log2cpm[rownames(log2cpm) %in% as.character(unique(dg$gene)), ]
+#   
+#   # Remove SC-T1 from both meta and x
+#   meta <- meta[-which(meta$cluster == "SC-T1"),]
+#   x <- x[-which(x$fine_cluster == "SC-T1"),]
+#   
+#   stopifnot(all(rownames(x) %in% meta$cell_name))
+#   x <- x[meta$cell_name,]
+#   meta$T1_all  <- x$T1
+#   meta$T2_all  <- x$T2
+#   meta$cluster <- as.character(x$fine_cluster)
+#   meta$disease <- as.character(x$disease)
+#   meta$plate   <- as.character(x$plate)
+#   # meta$newcluster <- meta$cluster
+#   # meta$newcluster[meta$cluster == "F-4"] <- "F-3"
+#   # meta$newcluster[meta$cluster == "F-3"] <- "F-4"
+#   # meta$cluster <- meta$newcluster
+#   # meta$newcluster <- NULL
+#   
+#   
+#   # Confirm that the meta data.frame matches the log2cpm matrix.
+#   stopifnot(all(meta$cell_name == colnames(log2cpm)))
+#   # Delete the temporary variables.
+#   rm(log2cpm_fibro, log2cpm_bcell, log2cpm_tcell, log2cpm_mono)
+#   rm(meta_fibro, meta_bcell, meta_tcell, meta_mono)
+#   # Save to files.
+#   # log2cpm <- as.ff(as.matrix(log2cpm), dimorder = c(2, 1))
+#   # ffsave(log2cpm, file = log2cpm_file)
+#   saveRDS(meta, file = meta_file)
+#   log2cpm_rows <- rownames(log2cpm)
+#   log2cpm_cols <- colnames(log2cpm)
+#   save(list = c("log2cpm_rows", "log2cpm_cols"), file = log2cpm_dimnames_file)
+#   log2cpm <- HDF5Array::writeHDF5Array(log2cpm, name = "log2cpm", file = log2cpm_file)
+# }
+
+# Use the data that we presented for the AMP RA Phase I paper
+meta <- readRDS("data/celseq_synovium_meta_5265cells_paper.rds")
+log2cpm <- readRDS("data/celseq_synovium_log2_5265cells_paper.rds")
+stopifnot(all(meta$cell_name == colnames(log2cpm)))
+log2cpm_rows <- rownames(log2cpm)
+log2cpm_cols <- colnames(log2cpm)
+
+# object_size(log2cpm)
+# 1.37 GB
 
 cluster_table <- meta %>%
   group_by(cluster) %>%
@@ -157,36 +191,40 @@ message("MEMORY USAGE load-data.R 2: ", ceiling(pryr::mem_used() / 1e6), " MB")
 # )
         
 possible_cell_types <- c(
+  # "All cells"  = "all",
+  # "B cell"     = "bcell",
+  # "T cell"     = "tcell",
+  # "Monocyte"   = "mono",
+  # "Fibroblast" = "fibro"
   "All cells"  = "all",
-  "B cell"     = "bcell",
-  "T cell"     = "tcell",
-  "Monocyte"   = "mono",
-  "Fibroblast" = "fibro"
+  "B cell"     = "B cell",
+  "T cell"     = "T cell",
+  "Monocyte"   = "Monocyte",
+  "Fibroblast" = "Fibroblast"
 )
 
-# one_gene_symbol_default <- "HLA-DRA"
 one_gene_symbol_default <- "POSTN"
 
-meta_colors$fine_cluster <- c(
-    "F-1" = "#6BAED6",
-    "F-2" = "#08306B",
-    "F-3" = "#DEEBF7",
-    "F-4" = "grey",
-    "T-1" = "#FEB24C",
-    "T-2" = "#8C510A",
-    "T-3" = "brown",
-    "T-4" = "#FFFF33",
-    "T-5" = "#C7EAE5",
-    "T-6" = "#003C30",
-    "T-7" = "#35978F",
-    "B-1" = "#FCBBA1",
-    "B-2" = "#CB181D", #FB6A4A #A50F15
-    "B-3" = "#67000D",
-    "B-4" = "#FB9A99",
-    "M-1" = "#AE017E",
-    "M-2" = "#F768A1",
-    "M-3" = "#FDE0EF", #FCC5C0
-    "M-4" = "#49006A"
+meta_colors$cluster <- c(
+    "SC-F1" = "#6BAED6",
+    "SC-F2" = "#08306B", 
+    "SC-F3" = "#DEEBF7",
+    "SC-F4" = "grey",
+    # "SC-T1" = "#FEB24C",
+    "SC-T1" = "#8C510A",
+    "SC-T2" = "brown",
+    "SC-T3" = "#FFFF33",
+    "SC-T4" = "#C7EAE5",
+    "SC-T5" = "#003C30",
+    "SC-T6" = "#35978F", 
+    "SC-B1" = "#FCBBA1",
+    "SC-B2" = "#CB181D", #FB6A4A #A50F15
+    "SC-B3" = "#67000D",
+    "SC-B4" = "#FB9A99",
+    "SC-M1" = "#AE017E",
+    "SC-M2" = "#F768A1",
+    "SC-M3" = "#FDE0EF", #FCC5C0
+    "SC-M4" = "#49006A"
 )
 meta_colors$inflamed <- c(
   "OA" = "#6A3D9A",
@@ -196,46 +234,44 @@ meta_colors$inflamed <- c(
 
 cluster_markers <- data.frame(
   Subsets = c(
-    "B-1: Naive B cells",
-    "B-2: Memory B cells",
-    "B-3: Age-associated B cells/activated B cells",
-    "B-4: Plasma cells",
-    "T-1: Effector memory T cells",
-    "T-2: Central memory T cells",
-    "T-3: Treg",
-    "T-4: Tph/Tfh",
-    "T-5: GZMK+ CD8+ T cells",
-    "T-6: CTL+ CD8+ T cells",
-    "T-7: HLA+ CD8+ T cells",
-    "M-1: pro-inflammatory",
-    "M-2: NUPR1+",
-    "M-3: C1QA+ (common to all monocytes)",
-    "M-4: IFN-activated",
-    "F-1: Sublining CD34+",
-    "F-2: Sublining HLA+ IFN+",
-    "F-3: Sublining DKK3+",
-    "F-4: Lining"
+    "SC-B1: IGHD+ CD27- naive B cells",
+    "SC-B2: IGHG3+ CD27- memory B cells",
+    "SC-B3: CD11c+ autoimmune-associated B cells",
+    "SC-B4: Plasma cells",
+    "SC-T1: CCR7+ CD4+ T cells",
+    "SC-T2: FOXP3+ Tregs",
+    "SC-T3: PD-1+ Tph/Tfh",
+    "SC-T4: GZMK+ T cells",
+    "SC-T5: GNLY+ GZMB+ CTLs",
+    "SC-T6: GZMK+/GZMB+ T cells",
+    "SC-M1: IL1B+ pro-inflammatory monocytes",
+    "SC-M2: NUPR1+ monocytes",
+    "SC-M3: C1QA+ monocytes",
+    "SC-M4: IFN-activated monocytes",
+    "SC-F1: CD34+ sublining ",
+    "SC-F2: HLA+ sublining ",
+    "SC-F3: DKK3+ sublining ",
+    "SC-F4: CD55+ lining"
   ),
   Markers = c(
     "IGHD, CXCR4, IGHM",
-    "HLA-DPB1, HLA-DRA, MS4A1",
+    "IGHG3, HLA-DRA, MS4A1",
     "ITGAX, ACTB, TBX21, AICDA",
     "XBP1, MZB1, FKBP11, SSR4, DERL3",
-    "PTPRC",
     "CCR7, LEF1",
     "FOXP3, IKZF2, LAYN, CTLA4",
     "PDCD1, CXCL13",
     "GZMA, CCL5, NKG7, CD8A",
-    "GNLY, CX3CR1, GZMB",
-    "HLA-DQA1, HLA-DRA",
-    "NR4A2, PLAUR, HBEGF",
+    "GNLY, GZMB, CX3CR1",
+    "GZMK, HLA-DQA1, HLA-DRA",
+    "IL1B, NR4A2, PLAUR, HBEGF",
     "GPNMB, HTRA1, NUPR1",
     "C1QA, MARCO",
     "SPP1, IFITM3, IFI6",
     "C3, PTGFR",
     "HLA-DRA, IL6",
-    "CLIC5, PRG4",
-    "DKK3, COL8A2"
+    "DKK3, COL8A2",
+    "CLIC5, PRG4"
   )
 )
 

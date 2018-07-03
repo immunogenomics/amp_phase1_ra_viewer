@@ -2,10 +2,10 @@ plot_box <- function(dat, title = "") {
   
   # Put the clusters in the desired order.
   clusters <- c(
-    "M-1",  "M-2", "M-3", "M-4",
-    "F-1", "F-2", "F-3", "F-4",
-    "B-1", "B-2", "B-3", "B-4",
-    "T-1", "T-2", "T-3", "T-4", "T-5", "T-6", "T-7"
+    "SC-M1",  "SC-M2", "SC-M3", "SC-M4",
+    "SC-F1", "SC-F2", "SC-F3", "SC-F4",
+    "SC-B1", "SC-B2", "SC-B3", "SC-B4",
+    "SC-T1", "SC-T2", "SC-T3", "SC-T4", "SC-T5", "SC-T6"
   )
   
   # ix_zero <- which(dat$marker == 0)
@@ -36,7 +36,7 @@ plot_box <- function(dat, title = "") {
       # title = title
       # subtitle = tsne_subtitle
     ) +
-    scale_fill_manual(values = meta_colors$fine_cluster, name = "Cluster") +
+    scale_fill_manual(values = meta_colors$cluster, name = "Cluster") +
     theme_bw(base_size = 26) + theme(
       legend.position = "none",
       axis.ticks      = element_line(size = 0.5),
@@ -80,7 +80,7 @@ plot_box <- function(dat, title = "") {
       mapping = aes(xintercept = x),
       color = "grey70"
     ) +
-    scale_fill_manual(values = meta_colors$fine_cluster, name = "Cluster") +
+    scale_fill_manual(values = meta_colors$cluster, name = "Cluster") +
     scale_x_discrete(limits = rev(levels(dat$cluster))) +
     scale_y_continuous(limits = c(0, 100), breaks = c(0, 50, 100)) +
     labs(x = NULL, y = "% non-zero", title = title) +
@@ -119,7 +119,7 @@ plot_box <- function(dat, title = "") {
   #   ) +
   #   scale_y_continuous(labels = percent) +
   #   # scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
-  #   scale_fill_manual(values = meta_colors$fine_cluster, name = "Cluster") +
+  #   scale_fill_manual(values = meta_colors$cluster, name = "Cluster") +
   #   theme_box
   # p3 <- ggplot()
   # bottom_text <- sprintf(
