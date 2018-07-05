@@ -24,7 +24,7 @@ tabPanel(
                 inputId  = "cell_type",
                 # inline   = TRUE,
                 label    = "Cell type:",
-                choices  = possible_cell_types,
+                choices  = possible_cell_types_rna,
                 selected = "all"
               ))
               # tableOutput("cluster_table")
@@ -54,7 +54,7 @@ tabPanel(
     ), # tabPanel
     
     tabPanel(
-      "CCA",
+      "CCA integration",
       fluidPage(
         fluidRow(
           # column(
@@ -140,19 +140,58 @@ tabPanel(
         )
       )
     ),
+  
     
     tabPanel(
-      "Marker Genes",
+      "One Protein",
+      
+      # Show a plot of the generated distribution
+      fluidPage(
+        fluidRow(
+          
+          column(
+            width = 9,
+            div(
+              htmlOutput("tnse_cytof", height = "400px"),
+              style = "height: 400px;"
+            )
+          ),
+          
+          column(
+            width = 3,
+            wellPanel(radioButtons(
+              inputId  = "cell_type",
+              # inline   = TRUE,
+              label    = "Cell type:",
+              choices  = possible_cell_types_cytof,
+              selected = "Fibroblast"
+            ))
+          )
+          
+        ),
+        hr(),
+        fluidRow(
+          column(
+            width = 7,
+            DT::dataTableOutput("cytof_table", height = "350px")
+          )
+        )
+      )
+    ),
+    
+    tabPanel(
+      "Clusters annotation and connection",
       fluidPage(
         h4("Table of identified single-cell RNA-seq subsets"),
         br(),
         fluidRow(
           column(12,
-            dataTableOutput('table')
+                 dataTableOutput('table')
           )
         )
       )
     ),
+    
     
     br()
     

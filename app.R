@@ -13,6 +13,7 @@ source("R/save-figure.R")
 source("R/theme-clean.R")
 source("R/pure-functions.R")
 source("R/plot-tsne.R")
+source("R/plot-tsne-cytof.R")
 source("R/plot-box.R")
 source("R/plot-bulk-dots.R")
 source("R/plot-bulk-single-cca.R")
@@ -68,6 +69,9 @@ server <- function(input, output, session) {
   # input <- list(
   #   cell_type = "Fibroblast",
   #   one_gene_symbol = "IFNB1",
+  #   dg_table_rows_selected = "IFNB1",
+  #   one_protein_symbol = "CD90",
+  #   cytof_table_rows_selected = "CD90",
   #   bulk_single_cca_xaxis = 1,
   #   bulk_single_cca_yaxis = 2
   # )
@@ -81,7 +85,7 @@ server <- function(input, output, session) {
     stopifnot(marker %in% gene_symbols)
     gene_ix <- which(gene_symbols == marker)
     meta$marker <- as.numeric(log2cpm[gene_ix,])
-    stopifnot(input$cell_type %in% possible_cell_types)
+    stopifnot(input$cell_type %in% possible_cell_types_rna)
     if (input$cell_type == "all") {
       cell_ix <- seq(nrow(meta))
       tsne_x <- "T1_all"
@@ -140,7 +144,7 @@ server <- function(input, output, session) {
     b_meta$marker <- as.numeric(b_log2tpm[marker,])
     save_figure(
       filename = glue("ampra1_rnaseq_dots_{marker}.png", marker = marker),
-      width = 6, height = 5, dpi = 100,
+      width = 9, height = 5, dpi = 100,
       html_alt = marker,
       ggplot_function = function() { plot_bulk_dots(b_meta, marker) }
     )
@@ -272,6 +276,59 @@ server <- function(input, output, session) {
     ) %>%
       DT::formatSignif(columns = numeric_cols, digits = 2)
   }, server = TRUE)
+  
+  
+  
+  output$tnse_cytof <- renderText({
+    marker <- one_protein_symbol_default
+    this_protein <- as.character(proteins$markers[input$cytof_table_rows_selected])
+    if (length(this_protein) > 0) {
+      marker <- this_protein
+    }
+    stopifnot(marker %in% protein_symbols)
+    stopifnot(input$cell_type %in% possible_cell_types_cytof)
+    cytof_all$marker <- as.numeric(cytof_all[,which(colnames(cytof_all) == marker)])
+    cell_ix <- which(cytof_all$cell_type == input$cell_type)
+    tsne_x <- "SNE1" 
+    tsne_y <- "SNE2"
+      
+    save_figure(
+      filename = glue(
+        "ampra1_cytof_tsne_{celltype}_{marker}.png",
+        celltype = input$cell_type, marker = marker
+      ),
+      width = 10, height = 6, dpi = 100,
+      html_alt = sprintf("%s %s", input$cell_type, marker),
+      ggplot_function = function() {
+        plot_tsne_cytof(cytof_all[cell_ix,], tsne_x, tsne_y, title = marker)
+      }
+    )
+  })
+  
+  output$cytof_table <- DT::renderDataTable({
+    numeric_cols <- colnames(proteins)[which_numeric_cols(proteins)]
+    # Javascript-enabled table.
+    DT::datatable(
+      data = proteins,
+      colnames = c("Protein","Markers"),
+      selection = "single",
+      rownames = FALSE,
+      filter = list(position = "top", plain = TRUE),
+      style = "default",
+      extensions = "Scroller",
+      options = list(
+        # columnDefs has bugs https://github.com/rstudio/DT/issues/311
+        # columnDefs = list(list(targets = c(1), searchable = TRUE)),
+        deferRender = TRUE,
+        scrollY = 350, # Height in pixels
+        scroller = TRUE,
+        lengthMenu = FALSE,
+        autoWidth = FALSE
+      )
+    ) %>%
+      DT::formatSignif(columns = numeric_cols, digits = 2)
+  }, server = TRUE)
+  
   
 }
 

@@ -190,7 +190,7 @@ message("MEMORY USAGE load-data.R 2: ", ceiling(pryr::mem_used() / 1e6), " MB")
 #   border_color = NA
 # )
         
-possible_cell_types <- c(
+possible_cell_types_rna <- c(
   # "All cells"  = "all",
   # "B cell"     = "bcell",
   # "T cell"     = "tcell",
@@ -226,10 +226,49 @@ meta_colors$cluster <- c(
     "SC-M3" = "#FDE0EF", #FCC5C0
     "SC-M4" = "#49006A"
 )
+
+meta_colors$cytof_cluster <- c(
+  "THY1- Cadherin11-" ="#E41A1C", 
+  "THY1- Cadherin11+" ="#377EB8",
+  "THY1- CD34- HLA-DR+" = "#4DAF4A", 
+  "THY1- CD34+ HLA-DR+" ="#984EA3", 
+  "THY1+ CD34- HLA-DR-" ="#FF7F00", 
+  "THY1+ CD34- HLA-DR+" ="#FFFF33",
+  "THY1+ CD34+ HLA-DR-" =  "#A65628", 
+  "THY1+ CD34+ HLA-DR+" ="#F781BF",
+  
+  "CD11c-" ="#E41A1C",   
+  "CD11c+ CCR2+" ="#377EB8",
+  "CD11c+ CD38-"   = "#4DAF4A",   
+  "CD11c+ CD38- CD64+" ="#984EA3", 
+  "CD11c+ CD38+" = "#FF7F00",
+  
+  "CD4- CD8-" = "#E41A1C",
+  "CD4+ CCR2+" ="#377EB8",    
+  "CD4+ HLA-DR+"     = "#4DAF4A", 
+  "CD4+ PD-1+ ICOS-"  ="#984EA3", 
+  "CD4+ PD-1+ ICOS+"  ="#FF7F00",  # 
+  "CD8+ PD-1- HLA-DR-"   ="#FFFF33", # 
+  "CD8+ PD-1- HLA-DR+"   =  "#A65628",    
+  "CD8+ PD-1+ HLA-DR-"   ="#F781BF",
+  "CD8+ PD-1+ HLA-DR+" ="#999999",
+  
+  "IgA+ IgM- IgD-" = "#A6CEE3",
+  "IgM- IgD- HLA-DR-"="#1F78B4",
+  "CD38++ CD20- IgM+ HLA-DR+" = "#B2DF8A", 
+  "IgM+ IgD+ CD11c-" ="#FB9A99", 
+  "IgM+ IgD+ CD11c+"  ="#E31A1C",
+  "CD38++ CD20- IgM- IgD-" =  "#FDBF6F",    
+  "CD38+ HLA-DR++ CD20- CD11c+" ="#FF7F00",
+  "IgM+ IgD-"  ="#33A02C", 
+  "IgM- IgD- HLA-DR++ CD20+ CD11c+" = "#6A3D9A",
+  "IgM- IgD- HLA-DR+" = "#CAB2D6"
+)
+
 meta_colors$inflamed <- c(
   "OA" = "#6A3D9A",
-  "RA" = "#FFD8B2",
-  "inflamed RA" = "#FF7F00"
+  "leukocyte-poor RA" = "#FFD8B2",
+  "leukocyte-rich RA" = "#FF7F00"
 )
 
 cluster_markers <- data.frame(
@@ -297,15 +336,15 @@ b_meta$inflamed <- "OA"
 b_meta$inflamed[
   b_meta$disease_tissue != "Arthro-OA" &
   b_meta$lymphocytes > 0.177
-] <- "inflamed RA"
+] <- "leukocyte-rich RA"
 b_meta$inflamed[
   b_meta$disease_tissue != "Arthro-OA" &
   b_meta$lymphocytes <= 0.177
-] <- "RA"
+] <- "leukocyte-poor RA"
 
 b_meta$inflamed <- factor(b_meta$inflamed)
 b_meta$inflamed <- fct_relevel(
-  b_meta$inflamed, "OA", "RA", "inflamed RA")
+  b_meta$inflamed, "OA", "leukocyte-poor RA", "leukocyte-rich RA")
 
 # b_genes <- data.frame(
 #   mean = rowMeans(b_log2tpm),
@@ -502,3 +541,66 @@ dat_cca$cluster <- c(
 # .. ..- attr(*, "dimnames")=List of 2
 # .. .. ..$ : chr [1:7127] "S006_L1Q1_A01" "S006_L1Q1_A03" "S006_L1Q1_A05" "S006_L1Q1_A07" ...
 # .. .. ..$ : NULL
+
+
+# Load cytof data
+cytof_all <- readRDS("data/cytof_markers_tsne.rds")
+
+# Take all the protein markers
+protein_symbols <- colnames(cytof_all)[1:35]
+colnames(cytof_all)[which(colnames(cytof_all) == "markers")] <- "cluster"
+
+one_protein_symbol_default <- "CD90"
+
+# Show a table of all the proteins for users to choose
+proteins = data.frame(
+  protein = as.character(seq(1, length(protein_symbols))),
+  markers = protein_symbols
+)
+
+possible_cell_types_cytof <- c(
+  "B cell"     = "B cell",
+  "T cell"     = "T cell",
+  "Monocyte"   = "Monocyte",
+  "Fibroblast" = "Fibroblast"
+)
+
+# # Combind all the cytof cell type clusters together into one file
+# 
+# load("synData.Fibro.downsample.SNE.RData")
+# load("synData.Bcell.downsample.SNE.RData")
+# load("synData.Mono.downsample.SNE.RData")
+# load("synData.Tcell.downsample.SNE.RData")
+# synData.Bcell.downsample$assign_lbl <- rep("", nrow(synData.Bcell.downsample))
+# 
+# synData.Bcell.downsample <- synData.Bcell.downsample[, order(match(colnames(synData.Bcell.downsample), colnames(synData.Fibro.downsample)))]
+# synData.Mono.downsample <- synData.Mono.downsample[, order(match(colnames(synData.Mono.downsample), colnames(synData.Fibro.downsample)))]
+# synData.Tcell.downsample <- synData.Tcell.downsample[, order(match(colnames(synData.Tcell.downsample), colnames(synData.Fibro.downsample)))]
+# 
+# all(colnames(synData.Bcell.downsample) == colnames(synData.Fibro.downsample))
+# all(colnames(synData.Bcell.downsample) == colnames(synData.Mono.downsample))
+# all(colnames(synData.Bcell.downsample) == colnames(synData.Tcell.downsample))
+# 
+# synData.Fibro.downsample$cell_type <- rep("Fibroblast", nrow(synData.Fibro.downsample))
+# synData.Mono.downsample$cell_type <- rep("Monocyte", nrow(synData.Mono.downsample))
+# synData.Bcell.downsample$cell_type <- rep("B cell", nrow(synData.Bcell.downsample))
+# synData.Tcell.downsample$cell_type <- rep("T cell", nrow(synData.Tcell.downsample))
+# 
+# synData.Fibro.downsample$markers[which(synData.Fibro.downsample$markers == "CD90- Cadherin.11-")] <- "THY1- Cadherin11-"
+# synData.Fibro.downsample$markers[which(synData.Fibro.downsample$markers == "CD90- Cadherin.11+")] <- "THY1- Cadherin11+"
+# synData.Fibro.downsample$markers[which(synData.Fibro.downsample$markers == "CD90- CD34- HLA-DR+")] <- "THY1- CD34- HLA-DR+"
+# synData.Fibro.downsample$markers[which(synData.Fibro.downsample$markers == "CD90- CD34+ HLA-DR+")] <- "THY1- CD34+ HLA-DR+"
+# synData.Fibro.downsample$markers[which(synData.Fibro.downsample$markers == "CD90+ CD34- HLA-DR-")] <- "THY1+ CD34- HLA-DR-"
+# synData.Fibro.downsample$markers[which(synData.Fibro.downsample$markers == "CD90+ CD34- HLA-DR+")] <- "THY1+ CD34- HLA-DR+"
+# synData.Fibro.downsample$markers[which(synData.Fibro.downsample$markers == "CD90+ CD34+ HLA-DR-")] <- "THY1+ CD34+ HLA-DR-"
+# synData.Fibro.downsample$markers[which(synData.Fibro.downsample$markers == "CD90+ CD34+ HLA-DR+")] <- "THY1+ CD34+ HLA-DR+"
+# 
+# synData.Tcell.downsample$markers <- as.character(synData.Tcell.downsample$markers)
+# synData.Tcell.downsample$markers[which(synData.Tcell.downsample$markers == "CD8+")] <- "CD8+ PD-1- HLA-DR-"
+# synData.Tcell.downsample$markers[which(synData.Tcell.downsample$markers == "CD8+ HLA-DR+")] <- "CD8+ PD-1- HLA-DR+"
+# synData.Tcell.downsample$markers[which(synData.Tcell.downsample$markers == "CD8+ PD-1+")] <- "CD8+ PD-1+ HLA-DR-"
+# 
+# cytof_all <- rbind.data.frame(synData.Fibro.downsample, synData.Mono.downsample,
+#                               synData.Tcell.downsample, synData.Bcell.downsample)
+# saveRDS(cytof_all, "cytof_markers_tsne.rds")
+
