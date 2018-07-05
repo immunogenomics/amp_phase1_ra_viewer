@@ -2,8 +2,15 @@ tabPanel(
   "About",
 
   mainPanel(
-
-    h2("Accelerating Medicines Partnerships (AMP)"),
+   
+    h3(
+      strong(
+            "Defining Inflammatory Cell States in Rheumatoid Arthritis (RA)
+            Joint Synovial Tissues by Integrating Single-cell Transcriptomics and Mass Cytometry"
+            )
+      ),
+    
+    h3("Accelerating Medicines Partnerships (AMP)"),
     p(
       "The",
       a("Accelerating Medicines Partnership (AMP)",
@@ -17,20 +24,29 @@ tabPanel(
       " increase the number of new diagnostics and therapies for patients",
       " and reduce the time and cost of developing them."
     ),
-    h2("Citation"),
+    
+    h3("AMP RA Phase I"),
     p(
-      "This website supports the results of our",
-      a("preprint paper.",
+      "Detecting distinct cellular subsets in tissues affected by rheumatoid arthritis is the key to deciphering pathogenesis in RA.",
+      "We applied a multi-modal high dimensional strategy", 
+      "including single-cell RNA-seq, mass cytometry, bulk RNA-seq, and flow cytometry",
+      "to synovial tissue samples from 51 individuals with RA and osteoarthritis.",
+      "Using an integrative strategy that uses canonical correlational analysis,", 
+      "we are able to integrate across these data sets to define cellular populations that are robust.",
+      "Evidence of these populations are seen across the different data modalities.",
+      "This website supports the results of our AMP RA Phase I paper",
+      a("(preprint version).",
         href = "https://www.biorxiv.org/content/early/2018/06/20/351130"),
         "Welcome to read the paper to know more details."
     ),
     p(
       strong(
+       "Citation:" 
+      ),
         "Zhang, F., Wei, K., Slowikowski, K., Fonseka, C.Y., Rao, D.A., Kelly, S.,", 
         "Goodman, S.M., Tabechian, D., Hughes, L.B., Salomon-Escoto, K. and Watts, G.F., 2018.",
         "Defining Inflammatory Cell States in Rheumatoid Arthritis", 
         "Joint Synovial Tissues by Integrating Single-cell Transcriptomics and Mass Cytometry. bioRxiv, p.351130."
-      )
     ),
     # h2("Disclaimer"),
     # p(
@@ -51,7 +67,8 @@ tabPanel(
     #   " find it useful, but we provide it 'as is' without warranty of",
     #   " any kind, express or implied."
     # ),
-    h2("Contact"),
+    
+    h3("Contact"),
     p(
       "This site is maintained by", 
       a("Kamil Slowikowski", href = "mailto:kslowikowski@fas.harvard.edu"),
@@ -60,6 +77,7 @@ tabPanel(
       "Please contact us if you have any questions, requests, or comments",
       " on the analysis and results."
     ),
+    br(),
     br()
 
   ) # mainPanel
