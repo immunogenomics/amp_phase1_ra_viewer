@@ -137,14 +137,18 @@ dg <- dg[order(dg$wilcox_pvalue, decreasing = TRUE),]
 # }
 
 # Use the data that we presented for the AMP RA Phase I paper
+log2cpm_file <- "data/amp-phase1-ra-single-cells-matrix_5265.h5"
+log2cpm_dimnames_file <- "data/amp-phase1-ra-single-cells-dimnames_5625.rda"
 meta <- readRDS("data/celseq_synovium_meta_5265cells_paper.rds")
-log2cpm <- readRDS("data/celseq_synovium_log2_5265cells_paper.rds")
+# log2cpm <- readRDS("data/celseq_synovium_log2_5265cells_paper.rds")
+log2cpm <- HDF5Array::HDF5Array(file = log2cpm_file, name = "log2cpm")
 stopifnot(all(meta$cell_name == colnames(log2cpm)))
-log2cpm_rows <- rownames(log2cpm)
-log2cpm_cols <- colnames(log2cpm)
+load(log2cpm_dimnames_file)
+rownames(log2cpm) <- log2cpm_rows
+colnames(log2cpm) <- log2cpm_cols
 
 # object_size(log2cpm)
-# 1.37 GB
+# 2.42 MB
 
 cluster_table <- meta %>%
   group_by(cluster) %>%
@@ -546,6 +550,19 @@ dat_cca$cluster <- c(
 # Load cytof data
 cytof_all <- readRDS("data/cytof_markers_tsne.rds")
 
+# cytof_file <- "data/amp-phase1-ra-cytof-matrix.h5"
+# cytof_dimnames_file <- "data/amp-phase1-ra-cytof-dimnames.rda"
+# cytof_all <- HDF5Array::HDF5Array(file = cytof_file, name = "cytof_all")
+# # Convert to data frame for the purpose of 
+# # "cytof_all$marker <- as.numeric(cytof_all[, which(colnames(cytof_all) == marker)])" in the output
+# cytof_all <- as.data.frame(cytof_all)
+# load(cytof_dimnames_file)
+# rownames(cytof_all) <- cytof_rows
+# colnames(cytof_all) <- cytof_cols
+
+object_size(cytof_all)
+# 23.1 MB
+
 # Take all the protein markers
 protein_symbols <- colnames(cytof_all)[1:35]
 colnames(cytof_all)[which(colnames(cytof_all) == "markers")] <- "cluster"
@@ -602,5 +619,15 @@ possible_cell_types_cytof <- c(
 # 
 # cytof_all <- rbind.data.frame(synData.Fibro.downsample, synData.Mono.downsample,
 #                               synData.Tcell.downsample, synData.Bcell.downsample)
+# cytof_all <- cytof_all[, c(1:35, 41:44, 46, 47, 51:53)]
 # saveRDS(cytof_all, "cytof_markers_tsne.rds")
+# 
+# cytof_all <- as.matrix(cytof_all)
+# cytof_file <- "data/amp-phase1-ra-cytof-matrix.h5"
+# cytof_dimnames_file <- "data/amp-phase1-ra-cytof-dimnames.rda"
+# cytof_rows <- rownames(cytof_all)
+# cytof_cols <- colnames(cytof_all)
+# save(list = c("cytof_rows", "cytof_cols"), file = cytof_dimnames_file)
+# cytof_all <- HDF5Array::writeHDF5Array(cytof_all, name = "cytof_all", file = cytof_file)
+
 
