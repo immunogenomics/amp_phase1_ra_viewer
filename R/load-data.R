@@ -138,7 +138,7 @@ dg <- dg[order(dg$wilcox_pvalue, decreasing = TRUE),]
 
 # Use the data that we presented for the AMP RA Phase I paper
 log2cpm_file <- "data/amp-phase1-ra-single-cells-matrix_5265.h5"
-log2cpm_dimnames_file <- "data/amp-phase1-ra-single-cells-dimnames_5625.rda"
+log2cpm_dimnames_file <- "data/amp-phase1-ra-single-cells-dimnames_5265.rda"
 meta <- readRDS("data/celseq_synovium_meta_5265cells_paper.rds")
 # log2cpm <- readRDS("data/celseq_synovium_log2_5265cells_paper.rds")
 log2cpm <- HDF5Array::HDF5Array(file = log2cpm_file, name = "log2cpm")
