@@ -48,11 +48,11 @@ plot_tsne_cytof <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
       breaks  = scales::pretty_breaks(n = 4),
       name    = bquote("Log"[2]~"(CPM+1)  ")
     ) +
-    guides(
-      fill  = guide_colorbar(barwidth = 7, barheight = 0.7),
-      alpha = "none"
-    ) +
     labs(x = NULL, y = NULL, title = substitute(italic(x), list(x = title))) +
+    guides(
+    fill  = guide_colorbar(barwidth = 7, barheight = 0.7),
+    alpha = "none"
+    ) +
     theme_tsne
   # Make a plot showing the clustering results.
   dat$cluster <- factor(dat$cluster)
@@ -68,9 +68,8 @@ plot_tsne_cytof <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
     ) +
     # scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
     scale_fill_manual(values = meta_colors$cytof_cluster, name = "Cluster") +
-    guides(fill = guide_legend(nrow = 6, override.aes = list(size = 2))) +
     labs(x = NULL, y = NULL, title = "Clusters") +
-    # ggtitle("Identified clusters") +
+    guides(fill = guide_legend(nrow = 9)) + # , override.aes = list(size = 2)
     theme_tsne
   # bottom_text <- sprintf(
   #   "%s cells, %s (%s%%) nonzero cells",

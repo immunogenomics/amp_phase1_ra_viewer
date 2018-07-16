@@ -34,7 +34,8 @@ cran_packages <- c(
   "scales",
   "shiny",
   "shinydashboard",
-  "stringr"
+  "stringr",
+  "pbapply"
 )
 
 # Load packages, and install them if they are not installed.

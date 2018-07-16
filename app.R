@@ -28,8 +28,8 @@ navbarPageWithText <- function(..., text) {
   navbar <- navbarPage(...)
   textEl <- tags$div(class = "navbar-text pull-right", text)
   navbar[[3]][[1]]$children[[1]] <- htmltools::tagAppendChild(
-    navbar[[3]][[1]]$children[[1]],
-    textEl
+  navbar[[3]][[1]]$children[[1]],
+  textEl
   )
   navbar
 }
@@ -258,7 +258,7 @@ server <- function(input, output, session) {
     # Javascript-enabled table.
     DT::datatable(
       data = dg,
-      colnames = c("Gene", "Cluster", "-log10P", "AUC", "%nonzero"),
+      colnames = c("Gene", "Single-cell RNA-seq cluster", "AUC", "% nonzero"),
       selection = "single",
       rownames = FALSE,
       filter = list(position = "top", plain = TRUE),
@@ -281,7 +281,7 @@ server <- function(input, output, session) {
   
   output$tnse_cytof <- renderText({
     marker <- one_protein_symbol_default
-    this_protein <- as.character(proteins$markers[input$cytof_table_rows_selected])
+    this_protein <- as.character(cytof_summarize$protein[input$cytof_table_rows_selected])
     if (length(this_protein) > 0) {
       marker <- this_protein
     }
@@ -309,11 +309,11 @@ server <- function(input, output, session) {
   })
   
   output$cytof_table <- DT::renderDataTable({
-    numeric_cols <- colnames(proteins)[which_numeric_cols(proteins)]
+    numeric_cols <- colnames(cytof_summarize)[which_numeric_cols(cytof_summarize)]
     # Javascript-enabled table.
     DT::datatable(
-      data = proteins,
-      colnames = c("Protein","Markers"),
+      data = cytof_summarize,
+      colnames = c("Protein","Mass cytometry cluster", "% nonzero"),
       selection = "single",
       rownames = FALSE,
       filter = list(position = "top", plain = TRUE),

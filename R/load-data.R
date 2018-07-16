@@ -9,22 +9,6 @@ solar_flare <- c(
 
 # Differential gene expression table -------------------------------
 
-# > head(dg)
-#     gene   auc       wilcox cluster
-# 1    DCN 0.733 4.858918e-57     F-1
-# 2   IGF1 0.722 3.396392e-55     F-1
-# 3  FBLN1 0.711 1.174966e-48     F-1
-# 4 PDGFRL 0.690 1.436098e-39     F-1
-# 5  SFRP1 0.688 2.526206e-41     F-1
-# 6     C3 0.681 2.426171e-39     F-1
-# dg_fibro <- readRDS("data/markers_gene_res_fibro.rds")
-# dg_tcell <- readRDS("data/markers_gene_res_tcell.rds")
-# dg_bcell <- readRDS("data/markers_gene_res_bcell.rds")
-# dg_mono  <- readRDS("data/markers_gene_res_mono.rds")
-# dg <- rbind(dg_fibro, dg_tcell, dg_bcell, dg_mono)
-# rm(dg_fibro, dg_tcell, dg_bcell, dg_mono)
-# rownames(dg) <- seq(nrow(dg))
-
 # Upload all the genes without any filters
 dg <- readRDS("data/cluster_marker_table_within_celltype_de.rds")
 rownames(dg) <- seq(nrow(dg))
@@ -40,8 +24,11 @@ rownames(dg) <- seq(nrow(dg))
 
 dg$wilcox_pvalue <- round(-log10(dg$wilcox_pvalue))
 dg <- dg[order(dg$wilcox_pvalue, decreasing = TRUE),]
+dg <- dg[, -which(colnames(dg) == "wilcox_pvalue")]
+dg$pct_nonzero <- paste(round(100 * (dg$pct_nonzero), 1), "%", sep="")
+
 # object_size(dg)
-# 3.57 MB
+# 12.2 MB
 
 # dg <- readRDS("data/cluster_marker_table.rds")
 # object_size(dg)
@@ -200,14 +187,14 @@ possible_cell_types_rna <- c(
   # "T cell"     = "tcell",
   # "Monocyte"   = "mono",
   # "Fibroblast" = "fibro"
+  "Fibroblast" = "Fibroblast",
+  "Monocyte"   = "Monocyte",
   "B cell"     = "B cell",
   "T cell"     = "T cell",
-  "Monocyte"   = "Monocyte",
-  "Fibroblast" = "Fibroblast",
   "All cells"  = "all"
 )
 
-one_gene_symbol_default <- "POSTN"
+one_gene_symbol_default <- "THY1"
 
 meta_colors$cluster <- c(
     "SC-F1" = "#6BAED6",
@@ -566,14 +553,79 @@ object_size(cytof_all)
 # Take all the protein markers
 protein_symbols <- colnames(cytof_all)[1:35]
 colnames(cytof_all)[which(colnames(cytof_all) == "markers")] <- "cluster"
+rownames(cytof_all) <- seq(nrow(cytof_all))
 
 one_protein_symbol_default <- "CD90"
 
-# Show a table of all the proteins for users to choose
-proteins = data.frame(
-  protein = as.character(seq(1, length(protein_symbols))),
-  markers = protein_symbols
-)
+# Read the calculated statistics for protein markers
+cytof_summarize <- readRDS("data/cytof_summarize.rds")
+
+# # Calculate %nonzero per protein marker per cytof cluster
+# protein_exp <- t(cytof_all[, c(1:35)])
+# cell_clusters <- cytof_all$cluster
+# 
+# get_markers <- function(protein_exp, cell_clusters) {
+#   # Compute statistics for each cluster.
+#   dat_marker <- rbindlist(pblapply(
+#     X = rownames(protein_exp),
+#     cl = 2,
+#     FUN = function(protein_name) {
+#       protein  <- as.numeric(protein_exp[protein_name,])
+#       rbindlist(lapply(unique(cell_clusters), function(cell_cluster) {
+#         ix <- cell_clusters == cell_cluster
+#         x <- protein[ix]
+#         # x_mean <- mean(x)
+#         # x_sd   <- sd(x)
+#         x_pct_nonzero <- sum(x > 0) / length(x) 
+#         # y <- protein[!ix]
+#         # y_mean <- mean(y)
+#         # y_sd   <- sd(y)
+#         # y_pct_nonzero <- sum(y > 0) / length(y)
+#         # test_w <- wilcox.test(x, y, alternative = "two.sided")
+#         # test_t <- t.test(x, y, alternative = "two.sided")
+#         data.frame(
+#           "protein"              = protein_name,
+#           "cluster"           = cell_cluster,
+#           # "wilcox_pvalue"     = test_w$p.value,
+#           # "ttest_pvalue"      = test_t$p.value,
+#           # "auc"               = auroc(protein, ix),
+#           "pct_nonzero"       = x_pct_nonzero
+#           # "pct_nonzero_other" = y_pct_nonzero,
+#           # "log2FC"            = x_mean - y_mean,
+#           # "mean"              = x_mean,
+#           # "sd"                = x_sd,
+#           # "mean_other"        = y_mean,
+#           # "sd_other"          = y_sd
+#         )
+#       }))
+#     }
+#   ))
+#   # Check if the mean is highest in this cluster.
+#   dat_marker[
+#     ,
+#     # mean_highest := mean >= max(mean),
+#     by = protein
+#     ]
+#   dat_marker[
+#     ,
+#     # pct_nonzero_highest := pct_nonzero >= max(pct_nonzero),
+#     by = protein
+#     ]
+#   return(dat_marker)
+# }
+# cytof_summarize <- get_markers(
+#   protein_exp,
+#   cell_clusters
+# )
+# cytof_summarize <- as.data.frame(cytof_summarize)
+# cytof_summarize$pct_nonzero <- paste(round(cytof_summarize$pct_nonzero * 100, 2), "%", sep="")
+# saveRDS(cytof_summarize, "cytof_summarize.rds")
+
+
+
+
+
+
 
 possible_cell_types_cytof <- c(
   "B cell"     = "B cell",

@@ -25,7 +25,7 @@ plot_box <- function(dat, title = "") {
     scale_y_continuous(breaks = scales::extended_breaks(n = 4)) +
     scale_x_discrete(limits = rev(levels(dat$cluster))) +
     geom_vline(
-      data = data.frame(x = c(7.5, 11.5, 15.5)),
+      data = data.frame(x = c(6.5, 10.5, 14.5)),
       mapping = aes(xintercept = x),
       color = "grey70"
     ) +
@@ -76,7 +76,7 @@ plot_box <- function(dat, title = "") {
       # fill = "grey60"
     ) +
     geom_vline(
-      data = data.frame(x = c(7.5, 11.5, 15.5)),
+      data = data.frame(x = c(6.5, 10.5, 14.5)),
       mapping = aes(xintercept = x),
       color = "grey70"
     ) +

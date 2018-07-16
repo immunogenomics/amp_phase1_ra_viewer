@@ -8,16 +8,7 @@ tabPanel(
       "This site provides access to view the data from the",
       a("Accelerating Medicines Partnership (AMP)",
         href = "https://www.nih.gov/research-training/accelerating-medicines-partnership-amp"),
-      "RA Phase I project."
-    ),
-    br(),
-    
-    p(
-      "Please feel free to explore the site.",
-      "This site is maintained by", 
-      a("Fan Zhang.", href = "mailto:fanzhang@broadinstitute.org"),
-      "Please contact us if you have any questions, requests, or comments",
-      " on the analysis and results."
+      "Rheumatoid Arthritis (RA) Phase I project."
     ),
     br(),
     
@@ -32,7 +23,13 @@ tabPanel(
     ),
     br(),
     
-    p(
+    h5("Overview of synovial tissue workflow", align = "center"),
+    img(src='synovial_pipeline_small.png', align = "left"),
+    br(),
+    br(),
+
+    p( 
+      "Please feel free to explore the site.",
       "On this site, we provide an interactive view of the single-cell RNA-seq and mass cytometry.",
       "To access the full data, please go to",
       a("ImmPort",
@@ -46,11 +43,15 @@ tabPanel(
     ),
     br(),
     
-    h5("Overview of synovial tissue workflow.", align = "center"),
-    
-    mainPanel(
-      img(src='synovial_pipeline_small.png', align = "left")
+    p(
+      "This site is maintained by", 
+      a("Fan Zhang.", href = "mailto:fanzhang@broadinstitute.org"),
+      "Please contact us if you have any questions, requests, or comments",
+      " on the analysis and results."
     ),
+    br(),
+    br(),
+    br()
     
     # h3("Accelerating Medicines Partnerships (AMP)"),
     # p(
@@ -111,9 +112,7 @@ tabPanel(
     #   "Please contact us if you have any questions, requests, or comments",
     #   " on the analysis and results."
     # ),
-    br(),
-    br()
 
   ) # mainPanel
-
+  
 ) # tabPanel
