@@ -19,8 +19,6 @@ rownames(dg) <- seq(nrow(dg))
 # 205349     CLIC5   SC-F4           231 0.8887112   0.8111380
 # 330101      SDC1   SC-B4           214 0.9617745   0.9264214
 # 307561      MZB1   SC-B4           199 0.9974530   1.0000000
-# 292513    FNDC3B   SC-B4           196 0.9617428   0.9397993
-# 292253    FKBP11   SC-B4           195 0.9945727   0.9933110
 
 dg$wilcox_pvalue <- round(-log10(dg$wilcox_pvalue))
 dg <- dg[order(dg$wilcox_pvalue, decreasing = TRUE),]
@@ -106,7 +104,6 @@ dg$pct_nonzero <- paste(round(100 * (dg$pct_nonzero), 1), "%", sep="")
 #   # meta$newcluster[meta$cluster == "F-3"] <- "F-4"
 #   # meta$cluster <- meta$newcluster
 #   # meta$newcluster <- NULL
-#   
 #   
 #   # Confirm that the meta data.frame matches the log2cpm matrix.
 #   stopifnot(all(meta$cell_name == colnames(log2cpm)))
@@ -305,113 +302,118 @@ cluster_markers <- data.frame(
   )
 )
 
-# Bulk RNA-seq data ------------------------------------------------
-
-b_log2tpm <- readRDS("data/filtered_log2tpm_lowinput_phase_1.rds")
-b_log2tpm <- as.matrix(b_log2tpm)
-b_meta <- readRDS("data/filtered_meta_lowinput_phase_1.rds")
-b_meta <- janitor::clean_names(b_meta)
-stopifnot(all(b_meta$Sample.ID == colnames(b_log2tpm)))
-
-b_meta$cell_type <- factor(
-  b_meta$cell_type, rev(c("Mono", "Fibro", "B cell", "T cell"))
-)
-
-# Fix typos
-b_meta$cell_type[b_meta$sample_id == "S81"] <- "Mono"
-b_meta$cell_type[b_meta$sample_id == "S82"] <- "Fibro"
-b_meta$cell_type[b_meta$sample_id == "S163"] <- "B cell"
-b_meta$cell_type[b_meta$sample_id == "S164"] <- "T cell"
-
-b_meta$inflamed <- "OA"
-b_meta$inflamed[
-  b_meta$disease_tissue != "Arthro-OA" &
-  b_meta$lymphocytes > 0.177
-] <- "leukocyte-rich RA"
-b_meta$inflamed[
-  b_meta$disease_tissue != "Arthro-OA" &
-  b_meta$lymphocytes <= 0.177
-] <- "leukocyte-poor RA"
-
-b_meta$inflamed <- factor(b_meta$inflamed)
-b_meta$inflamed <- fct_relevel(
-  b_meta$inflamed, "OA", "leukocyte-poor RA", "leukocyte-rich RA")
-
-# b_genes <- data.frame(
-#   mean = rowMeans(b_log2tpm),
-#   sd = rowSds(b_log2tpm)
+# ---------------------------------------------------------------------------
+# Comment the code from line 307 to line 365, since we don't show the bulk RNA-seq data for now
+# # Bulk RNA-seq data ------------------------------------------------
+# 
+# b_log2tpm <- readRDS("data/filtered_log2tpm_lowinput_phase_1.rds")
+# b_log2tpm <- as.matrix(b_log2tpm)
+# b_meta <- readRDS("data/filtered_meta_lowinput_phase_1.rds")
+# b_meta <- janitor::clean_names(b_meta)
+# stopifnot(all(b_meta$Sample.ID == colnames(b_log2tpm)))
+# 
+# b_meta$cell_type <- factor(
+#   b_meta$cell_type, rev(c("Mono", "Fibro", "B cell", "T cell"))
 # )
-# ggplot() +
-#   geom_point(
-#     data = b_genes,
-#     mapping = aes(x = mean, y = sd),
-#     size = 0.5
-#   ) +
-#   theme_clean()
-# b_mat <- scale_rows(scale(b_log2tpm))
+# 
+# # Fix typos
+# b_meta$cell_type[b_meta$sample_id == "S81"] <- "Mono"
+# b_meta$cell_type[b_meta$sample_id == "S82"] <- "Fibro"
+# b_meta$cell_type[b_meta$sample_id == "S163"] <- "B cell"
+# b_meta$cell_type[b_meta$sample_id == "S164"] <- "T cell"
+# 
+# b_meta$inflamed <- "OA"
+# b_meta$inflamed[
+#   b_meta$disease_tissue != "Arthro-OA" &
+#   b_meta$lymphocytes > 0.177
+# ] <- "leukocyte-rich RA"
+# b_meta$inflamed[
+#   b_meta$disease_tissue != "Arthro-OA" &
+#   b_meta$lymphocytes <= 0.177
+# ] <- "leukocyte-poor RA"
+# 
+# b_meta$inflamed <- factor(b_meta$inflamed)
+# b_meta$inflamed <- fct_relevel(
+#   b_meta$inflamed, "OA", "leukocyte-poor RA", "leukocyte-rich RA")
+# 
+# # b_genes <- data.frame(
+# #   mean = rowMeans(b_log2tpm),
+# #   sd = rowSds(b_log2tpm)
+# # )
+# # ggplot() +
+# #   geom_point(
+# #     data = b_genes,
+# #     mapping = aes(x = mean, y = sd),
+# #     size = 0.5
+# #   ) +
+# #   theme_clean()
+# # b_mat <- scale_rows(scale(b_log2tpm))
+# 
+# # table(b_meta$inflamed)
+# 
+# # marker <- "CLIC5"
+# # b_meta$marker <- as.numeric(b_log2tpm[marker,])
+# # plot_bulk_dots(b_meta, "CLIC5")
+# 
+# # d <- subset(b_meta, auto_calculation_of_das28_crp > 0)
+# # numeric_cols <- sapply(colnames(d), function(x) {
+# #   is.numeric(d[[x]])
+# # })
+# # numeric_cols <- names(numeric_cols)[numeric_cols]
+# # fits <- lapply(numeric_cols, function(x) {
+# #   wilcox.test(d[["auto_calculation_of_das28_crp"]], d[[x]])
+# # })
 
-# table(b_meta$inflamed)
+# ---------------------------------------------------------------------------
+# Comment the code from line 369 to line 414, since we don't show the CCA plots for now
+# # CCA between bulk and single-cell RNA-seq -------------------------
+# 
+# cca_bs <- readRDS("data/allcelltypes_cca_7465_genes.rds")
+# 
+# # 167 pairs of canonical variates
+# 
+# stopifnot(all(cca_bs$names$Xnames == b_meta$sample_id))
+# cca_bs_xnames <- cca_bs$names$Xnames
+# 
+# # TODO The CCA analysis should use the same cells
+# # as differential expression analysis.
+# # all(cca_bs$names$Ynames == meta$cell_name)
+# 
+# ix <- which(cca_bs$names$Ynames %in% meta$cell_name)
+# all(cca_bs$names$Ynames[ix] %in% meta$cell_name)
+# cca_bs_ynames <- cca_bs$names$Ynames[ix]
+# 
+# dat_cca <- as.data.frame(rbind(
+#   cca_bs$scores$corr.X.xscores[,1:10],
+#   cca_bs$scores$corr.Y.yscores[,1:10]
+# ))
+# dat_cca <- dat_cca[c(cca_bs_xnames, cca_bs_ynames),]
+# cell_name_to_type <- meta$cell_type
+# names(cell_name_to_type) <- as.character(meta$cell_name)
+# cell_name_to_cluster <- meta$cluster
+# names(cell_name_to_cluster) <- as.character(meta$cell_name)
+# cell_name_to_type <- fct_recode(
+#   cell_name_to_type,
+#   "Fibro" = "fibro",
+#   "B cell" = "bcell",
+#   "T cell" = "tcell",
+#   "Mono" = "mono"
+# )
+# dat_cca$cell_type <- c(
+#   as.character(b_meta$cell_type),
+#   as.character(cell_name_to_type[cca_bs_ynames])
+# )
+# # table(dat_cca$cell_type)
+# dat_cca$data <- c(
+#   rep("bulk", nrow(b_meta)),
+#   rep("cell", nrow(dat_cca) - nrow(b_meta))
+# )
+# dat_cca$cluster <- c(
+#   as.character(b_meta$cell_type),
+#   as.character(cell_name_to_cluster[cca_bs_ynames])
+# )
 
-# marker <- "CLIC5"
-# b_meta$marker <- as.numeric(b_log2tpm[marker,])
-# plot_bulk_dots(b_meta, "CLIC5")
-
-# d <- subset(b_meta, auto_calculation_of_das28_crp > 0)
-# numeric_cols <- sapply(colnames(d), function(x) {
-#   is.numeric(d[[x]])
-# })
-# numeric_cols <- names(numeric_cols)[numeric_cols]
-# fits <- lapply(numeric_cols, function(x) {
-#   wilcox.test(d[["auto_calculation_of_das28_crp"]], d[[x]])
-# })
-
-# CCA between bulk and single-cell RNA-seq -------------------------
-
-cca_bs <- readRDS("data/allcelltypes_cca_7465_genes.rds")
-
-# 167 pairs of canonical variates
-
-stopifnot(all(cca_bs$names$Xnames == b_meta$sample_id))
-cca_bs_xnames <- cca_bs$names$Xnames
-
-# TODO The CCA analysis should use the same cells
-# as differential expression analysis.
-# all(cca_bs$names$Ynames == meta$cell_name)
-
-ix <- which(cca_bs$names$Ynames %in% meta$cell_name)
-all(cca_bs$names$Ynames[ix] %in% meta$cell_name)
-cca_bs_ynames <- cca_bs$names$Ynames[ix]
-
-dat_cca <- as.data.frame(rbind(
-  cca_bs$scores$corr.X.xscores[,1:10],
-  cca_bs$scores$corr.Y.yscores[,1:10]
-))
-dat_cca <- dat_cca[c(cca_bs_xnames, cca_bs_ynames),]
-cell_name_to_type <- meta$cell_type
-names(cell_name_to_type) <- as.character(meta$cell_name)
-cell_name_to_cluster <- meta$cluster
-names(cell_name_to_cluster) <- as.character(meta$cell_name)
-cell_name_to_type <- fct_recode(
-  cell_name_to_type,
-  "Fibro" = "fibro",
-  "B cell" = "bcell",
-  "T cell" = "tcell",
-  "Mono" = "mono"
-)
-dat_cca$cell_type <- c(
-  as.character(b_meta$cell_type),
-  as.character(cell_name_to_type[cca_bs_ynames])
-)
-# table(dat_cca$cell_type)
-dat_cca$data <- c(
-  rep("bulk", nrow(b_meta)),
-  rep("cell", nrow(dat_cca) - nrow(b_meta))
-)
-dat_cca$cluster <- c(
-  as.character(b_meta$cell_type),
-  as.character(cell_name_to_cluster[cca_bs_ynames])
-)
-
+# ----------------------------------------------------------
 # rbindlist(lapply(1:10, function(i) {
 #   form <- as.formula(sprintf("V%s ~ cluster", i))
 #   data.frame(
@@ -428,7 +430,6 @@ dat_cca$cluster <- c(
 # )
 # rownames(mat_cca) <- mat_cca$variable
 # mat_cca$variable <- NULL
-
 
 
 # Discover mislabeled bulk samples
@@ -534,8 +535,10 @@ dat_cca$cluster <- c(
 # .. .. ..$ : NULL
 
 
-# Load cytof data
+# Load cytof data -------------------------
 cytof_all <- readRDS("data/cytof_markers_tsne.rds")
+object_size(cytof_all)
+# 23.1 MB
 
 # cytof_file <- "data/amp-phase1-ra-cytof-matrix.h5"
 # cytof_dimnames_file <- "data/amp-phase1-ra-cytof-dimnames.rda"
@@ -547,8 +550,6 @@ cytof_all <- readRDS("data/cytof_markers_tsne.rds")
 # rownames(cytof_all) <- cytof_rows
 # colnames(cytof_all) <- cytof_cols
 
-object_size(cytof_all)
-# 23.1 MB
 
 # Take all the protein markers
 protein_symbols <- colnames(cytof_all)[1:35]
@@ -556,11 +557,18 @@ colnames(cytof_all)[which(colnames(cytof_all) == "markers")] <- "cluster"
 rownames(cytof_all) <- seq(nrow(cytof_all))
 
 one_protein_symbol_default <- "CD90"
-
 # Read the calculated statistics for protein markers
 cytof_summarize <- readRDS("data/cytof_summarize.rds")
 
-# # Calculate %nonzero per protein marker per cytof cluster
+possible_cell_types_cytof <- c(
+  "B cell"     = "B cell",
+  "T cell"     = "T cell",
+  "Monocyte"   = "Monocyte",
+  "Fibroblast" = "Fibroblast"
+)
+
+# --------------------------------------------------
+# # Calculate %nonzero per protein marker per cytof cluster: line 572 to line 630
 # protein_exp <- t(cytof_all[, c(1:35)])
 # cell_clusters <- cytof_all$cluster
 # 
@@ -622,19 +630,8 @@ cytof_summarize <- readRDS("data/cytof_summarize.rds")
 # saveRDS(cytof_summarize, "cytof_summarize.rds")
 
 
-
-
-
-
-
-possible_cell_types_cytof <- c(
-  "B cell"     = "B cell",
-  "T cell"     = "T cell",
-  "Monocyte"   = "Monocyte",
-  "Fibroblast" = "Fibroblast"
-)
-
-# # Combind all the cytof cell type clusters together into one file
+# ----------------------------------------------------------------------------------------
+# # Combind all the 4 cell type cytof clusters into one file for visualization: cytof_markers_tsne.rds
 # 
 # load("synData.Fibro.downsample.SNE.RData")
 # load("synData.Bcell.downsample.SNE.RData")

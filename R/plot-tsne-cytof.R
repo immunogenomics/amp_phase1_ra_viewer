@@ -22,7 +22,7 @@ plot_tsne_cytof <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
   fill_values <- fill_values / max(fill_values)
   fill_palette <- RColorBrewer::brewer.pal(9, "Greens")
   theme_tsne <- theme_bw(base_size = 15) + theme(
-    legend.position = "bottom",
+    legend.position = "right",
     axis.text       = element_blank(),
     axis.ticks      = element_blank(),
     panel.grid      = element_blank(),
@@ -69,7 +69,7 @@ plot_tsne_cytof <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
     # scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
     scale_fill_manual(values = meta_colors$cytof_cluster, name = "Cluster") +
     labs(x = NULL, y = NULL, title = "Clusters") +
-    guides(fill = guide_legend(nrow = 9)) + # , override.aes = list(size = 2)
+    guides(fill = guide_legend(nrow = 10)) + # , override.aes = list(size = 2)
     theme_tsne
   # bottom_text <- sprintf(
   #   "%s cells, %s (%s%%) nonzero cells",

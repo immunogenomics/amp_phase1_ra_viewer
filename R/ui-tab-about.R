@@ -24,7 +24,7 @@ tabPanel(
     br(),
     
     h5("Overview of synovial tissue workflow", align = "center"),
-    img(src='synovial_pipeline_small.png', align = "left"),
+    img(src='synovial_pipeline.png', width = 600, align = "left"),
     br(),
     br(),
 
