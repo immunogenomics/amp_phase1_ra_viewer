@@ -287,6 +287,9 @@ server <- function(input, output, session) {
     }
     stopifnot(marker %in% protein_symbols)
     stopifnot(input$cell_type %in% possible_cell_types_cytof)
+    # if (!input$cell_type %in% possible_cell_types_cytof) {
+    #   textOutput( "The mass cytometry data were analyzed per cell type.")
+    # }
     cytof_all$marker <- as.numeric(cytof_all[, which(colnames(cytof_all) == marker)])
     cell_ix <- which(cytof_all$cell_type == input$cell_type)
     tsne_x <- "SNE1" 

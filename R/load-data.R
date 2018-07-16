@@ -200,11 +200,11 @@ possible_cell_types_rna <- c(
   # "T cell"     = "tcell",
   # "Monocyte"   = "mono",
   # "Fibroblast" = "fibro"
-  "All cells"  = "all",
   "B cell"     = "B cell",
   "T cell"     = "T cell",
   "Monocyte"   = "Monocyte",
-  "Fibroblast" = "Fibroblast"
+  "Fibroblast" = "Fibroblast",
+  "All cells"  = "all"
 )
 
 one_gene_symbol_default <- "POSTN"
