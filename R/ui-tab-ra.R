@@ -4,7 +4,7 @@ tabPanel(
 
     fluidRow(
       column(
-        width = 12,
+        width = 7,
         wellPanel(
           radioButtons(
           inputId  = "cell_type",
@@ -12,9 +12,9 @@ tabPanel(
           label    = "Cell type:",
           choices  = possible_cell_types_rna,
           selected = "Fibroblast"
+             )
+          )
        )
-     )
-    )
     ),
   
   

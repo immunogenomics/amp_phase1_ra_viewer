@@ -1,5 +1,7 @@
-# ampviewer
-
+# ampviewer for AMP Phase I RA 
+# author: Kamil Slowikowski and Fan Zhang
+# date: 2018-07-16
+# 
 # https://github.com/timelyportfolio/d3treeR/issues/19#issuecomment-268110274
 try({dev.off()})
 pdf(NULL)
@@ -100,7 +102,7 @@ server <- function(input, output, session) {
         "ampra1_scrnaseq_tsne_{celltype}_{marker}.png",
         celltype = input$cell_type, marker = marker
       ),
-      width = 10, height = 6, dpi = 100,
+      width = 14, height = 8, dpi = 100,
       html_alt = sprintf("%s %s", input$cell_type, marker),
       ggplot_function = function() {
         plot_tsne(meta[cell_ix,], tsne_x, tsne_y, title = marker)
@@ -300,7 +302,7 @@ server <- function(input, output, session) {
         "ampra1_cytof_tsne_{celltype}_{marker}.png",
         celltype = input$cell_type, marker = marker
       ),
-      width = 10, height = 6, dpi = 100,
+      width = 14, height = 9, dpi = 100,
       html_alt = sprintf("%s %s", input$cell_type, marker),
       ggplot_function = function() {
         plot_tsne_cytof(cytof_all[cell_ix,], tsne_x, tsne_y, title = marker)

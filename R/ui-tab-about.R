@@ -17,7 +17,7 @@ tabPanel(
       a("bioRxiv:",
           href = "https://www.biorxiv.org/content/early/2018/06/20/351130"),
       strong(
-        "Defining Inflammatory Cell States in Rheumatoid Arthritis (RA)
+        "Defining Inflammatory Cell States in Rheumatoid Arthritis
         Joint Synovial Tissues by Integrating Single-cell Transcriptomics and Mass Cytometry"
       )
     ),
@@ -44,9 +44,9 @@ tabPanel(
     br(),
     
     p(
-      "This site is maintained by", 
-      a("Fan Zhang.", href = "mailto:fanzhang@broadinstitute.org"),
-      "Please contact us if you have any questions, requests, or comments",
+      "Please contact", 
+      a("Fan Zhang", href = "mailto:fanzhang@broadinstitute.org"),
+      "if you have any questions, requests, or comments",
       " on the analysis and results."
     ),
     br(),
