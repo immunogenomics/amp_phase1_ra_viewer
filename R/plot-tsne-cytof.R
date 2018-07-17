@@ -77,7 +77,7 @@ plot_tsne_cytof <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
       stroke  = 0.1
     ) +
     # scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
-    scale_fill_manual(values = meta_colors$cytof_cluster, name = "Mass cytometry cluster") +
+    scale_fill_manual(values = meta_colors$cytof_cluster, name = "Cluster") +
     labs(x = NULL, y = NULL, title = "Clusters") +
     guides(fill = guide_legend(nrow = 10), override.aes = list(size = 3)) +
     theme_tsne_2

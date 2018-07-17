@@ -75,7 +75,7 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
       stroke  = 0.12
     ) +
     # scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
-    scale_fill_manual(values = meta_colors$cluster, name = "Single-cell RNA-seq cluster") +
+    scale_fill_manual(values = meta_colors$cluster, name = "Cluster") +
     guides(fill = guide_legend(nrow = 6, override.aes = list(size = 3))) +
     labs(x = NULL, y = NULL, title = "Clusters") +
     # ggtitle("Identified clusters") +
