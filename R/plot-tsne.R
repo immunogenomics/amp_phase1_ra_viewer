@@ -91,7 +91,7 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
   p1 + p2 + plot_annotation(
     caption = bottom_text,
     theme = theme(
-      plot.caption = element_text(size = 18, hjust = 0.5)
+      plot.caption = element_text(size = 25, hjust = 0.5)
     )
   )
 }

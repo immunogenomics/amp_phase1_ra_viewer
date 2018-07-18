@@ -55,7 +55,7 @@ plot_tsne_cytof <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
       colours = colorRampPalette(fill_palette)(length(fill_values)),
       values  = fill_values,
       breaks  = scales::pretty_breaks(n = 4),
-      name    = bquote("Log"[2]~"(CPM+1)  ")
+      name    = bquote("Normalized intensity")
     ) +
     labs(x = NULL, y = NULL, title = substitute(x, list(x = title))) +
     guides(
@@ -79,7 +79,9 @@ plot_tsne_cytof <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
     # scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
     scale_fill_manual(values = meta_colors$cytof_cluster, name = "Cluster") +
     labs(x = NULL, y = NULL, title = "Clusters") +
-    guides(fill = guide_legend(nrow = 10), override.aes = list(size = 3)) +
+    guides(fill = guide_legend(nrow = 10), override.aes = list(size = 3),
+           colour = guide_legend(override.aes = list(size=10))
+           ) +
     theme_tsne_2
   
   # bottom_text <- sprintf(
