@@ -1,15 +1,9 @@
-ampviewer
-=========
+amp_phase1_ra_viewer
+====================
 
-The live version is here: https://immunogenomics.io/amp
+A recent version of the app looks like this:
 
-The test version automatically pulls the latest changes directly from this GitHub repo:
-
-https://test.immunogenomics.io/amp
-
-Username: `amp`
-
-Password: `viewampdata`
+<img height="300px" src="https://i.imgur.com/ub0nt6l.png" />
 
 Overview
 --------
@@ -20,6 +14,3 @@ To install all the dependencies, run:
 Rscript R/install-packages.R
 ```
 
-A recent version of the app looks like this:
-
-<img height="300px" src="screenshot.png" />
