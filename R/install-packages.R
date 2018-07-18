@@ -65,6 +65,10 @@ source("https://bioconductor.org/biocLite.R")
 bioc_packages <- c(
   "HDF5Array"
 )
-biocLite(bioc_packages, suppressUpdates = TRUE, suppressAutoUpdate = TRUE)
+for (bioc_package in bioc_packages) {
+  if (!bioc_package %in% installed_packages) {
+    biocLite(bioc_package, suppressUpdates = TRUE, suppressAutoUpdate = TRUE)
+  }
+}
 
 message("MEMORY USAGE install-packages.R 2: ", ceiling(pryr::mem_used() / 1e6), " MB")

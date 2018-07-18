@@ -44,8 +44,8 @@ tabPanel(
     br(),
     
     p(
-      "Please contact", 
-      a("Fan Zhang", href = "mailto:fanzhang@broadinstitute.org"),
+      "Please", 
+      a("contact us", href = "mailto:support@immunogenomics.io"),
       "if you have any questions, requests, or comments",
       " on the analysis and results."
     ),
