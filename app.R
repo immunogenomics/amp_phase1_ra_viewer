@@ -251,7 +251,6 @@ server <- function(input, output, session) {
     element
   })
   
-  # output$cluster_table <- renderTable(cluster_table)
   
   output$table <- renderDataTable(cluster_markers)
   
