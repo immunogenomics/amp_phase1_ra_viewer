@@ -18,14 +18,24 @@ plot_bulk_dots <- function(dat, marker = "") {
     ) +
     # geom_segment(data = bulk.summary, aes(x=cell_type,xend=max(pos),y=0,yend=0),colour="green") + 
     stat_summary(
-      fun.y = median, fun.ymin = median, fun.ymax = median,
-      geom = "crossbar",
+      fun.data=mean_sdl, fun.args = list(mult=1),
+      geom="pointrange", 
+      size = 0.6,
+      shape = 124,
+      fatten = 8,
       position = position_jitterdodge(jitter.width = 0.2, seed = 1, dodge.width = 0.8),
-      width = 0.8, size = 0.5,
-      colour = "black",
+      color="black",
       show.legend = FALSE
-      # colour = rep(c("#FF7F00", "#FFD8B2", "#6A3D9A"), 4)
-    ) +
+      ) +
+    # stat_summary(
+    #   fun.y = median, fun.ymin = median, fun.ymax = median,
+    #   geom = "crossbar",
+    #   position = position_jitterdodge(jitter.width = 0.2, seed = 1, dodge.width = 0.8),
+    #   width = 0.8, size = 0.5,
+    #   colour = "black",
+    #   show.legend = FALSE
+    #   # colour = rep(c("#FF7F00", "#FFD8B2", "#6A3D9A"), 4)
+    # ) +
     # geom_boxplot(position = position_dodge(.75)) + 
     # geom_hline(data = bulk.summary, aes(yintercept = marker, width = 0.3), 
     #            col = rep(c("#6A3D9A", "#FFD8B2", "#FF7F00"), 4)) +
