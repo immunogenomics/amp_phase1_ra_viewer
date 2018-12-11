@@ -1,4 +1,3 @@
-
 message("MEMORY USAGE load-data.R 1: ", ceiling(pryr::mem_used() / 1e6), " MB")
 
 # From BuenColors
@@ -306,22 +305,60 @@ cluster_markers <- data.frame(
 # Comment the code from line 307 to line 365, since we don't show the bulk RNA-seq data for now
 # # Bulk RNA-seq data ------------------------------------------------
 # 
-# b_log2tpm <- readRDS("data/filtered_log2tpm_lowinput_phase_1.rds")
-# b_log2tpm <- as.matrix(b_log2tpm)
-# b_meta <- readRDS("data/filtered_meta_lowinput_phase_1.rds")
-# b_meta <- janitor::clean_names(b_meta)
-# stopifnot(all(b_meta$Sample.ID == colnames(b_log2tpm)))
-# 
-# b_meta$cell_type <- factor(
-#   b_meta$cell_type, rev(c("Mono", "Fibro", "B cell", "T cell"))
-# )
-# 
-# # Fix typos
-# b_meta$cell_type[b_meta$sample_id == "S81"] <- "Mono"
-# b_meta$cell_type[b_meta$sample_id == "S82"] <- "Fibro"
+b_log2tpm <- readRDS("data/filtered_log2tpm_lowinput_phase_1.rds")
+b_log2tpm <- as.matrix(b_log2tpm)
+rownames(b_log2tpm) <- gsub("\\.", "-", rownames(b_log2tpm))
+b_meta <- readRDS("data/filtered_meta_lowinput_phase_1.rds")
+b_meta <- janitor::clean_names(b_meta)
+stopifnot(all(b_meta$Sample.ID == colnames(b_log2tpm)))
+
+b_meta$cell_type <- factor(
+  b_meta$cell_type, rev(c("Monocyte", "Fibroblast", "B cell", "T cell"))
+)
+
+
+# Fix typos
+# b_meta$cell_type[b_meta$sample_id == "S81"] <- "Monocyte"
+# b_meta$cell_type[b_meta$sample_id == "S82"] <- "Fibroblast"
 # b_meta$cell_type[b_meta$sample_id == "S163"] <- "B cell"
 # b_meta$cell_type[b_meta$sample_id == "S164"] <- "T cell"
-# 
+
+inflam_label <- read.xls("data/postQC_all_samples.xlsx")
+table(inflam_label$lym_25)
+
+
+b_meta$inflamed <- "OA"
+
+
+for (i in 1:nrow(b_meta)) {
+  
+  not_done = TRUE
+  
+  for (j in 1:nrow(inflam_label)) {
+    
+      if ((b_meta$donor_id[i] == inflam_label$Patient[j]) & (not_done)) {
+    
+        b_meta$inflamed[i] <- as.character(inflam_label$lym_25[j])
+        not_done <- FALSE
+        
+      }
+    
+      if (!not_done) {
+        break
+      }
+    
+    }
+    
+}
+
+b_meta$inflamed[b_meta$inflamed == "inflamed RA"] <- "leukocyte-rich RA"
+b_meta$inflamed[b_meta$inflamed == "non-inflamed RA"] <- "leukocyte-poor RA"
+
+b_meta$inflamed <- factor(b_meta$inflamed)
+b_meta$inflamed <- fct_relevel(
+  b_meta$inflamed, "OA", "leukocyte-poor RA", "leukocyte-rich RA")
+
+
 # b_meta$inflamed <- "OA"
 # b_meta$inflamed[
 #   b_meta$disease_tissue != "Arthro-OA" &
@@ -335,34 +372,35 @@ cluster_markers <- data.frame(
 # b_meta$inflamed <- factor(b_meta$inflamed)
 # b_meta$inflamed <- fct_relevel(
 #   b_meta$inflamed, "OA", "leukocyte-poor RA", "leukocyte-rich RA")
+
+
+# b_genes <- data.frame(
+#   mean = rowMeans(b_log2tpm),
+#   sd = rowSds(b_log2tpm)
+# )
+# ggplot() +
+#   geom_point(
+#     data = b_genes,
+#     mapping = aes(x = mean, y = sd),
+#     size = 0.5
+#   ) +
+#   theme_clean()
+# b_mat <- scale_rows(scale(b_log2tpm))
 # 
-# # b_genes <- data.frame(
-# #   mean = rowMeans(b_log2tpm),
-# #   sd = rowSds(b_log2tpm)
-# # )
-# # ggplot() +
-# #   geom_point(
-# #     data = b_genes,
-# #     mapping = aes(x = mean, y = sd),
-# #     size = 0.5
-# #   ) +
-# #   theme_clean()
-# # b_mat <- scale_rows(scale(b_log2tpm))
+# table(b_meta$inflamed)
 # 
-# # table(b_meta$inflamed)
+# marker <- "CLIC5"
+# b_meta$marker <- as.numeric(b_log2tpm[marker,])
+# plot_bulk_dots(b_meta, "CLIC5")
 # 
-# # marker <- "CLIC5"
-# # b_meta$marker <- as.numeric(b_log2tpm[marker,])
-# # plot_bulk_dots(b_meta, "CLIC5")
-# 
-# # d <- subset(b_meta, auto_calculation_of_das28_crp > 0)
-# # numeric_cols <- sapply(colnames(d), function(x) {
-# #   is.numeric(d[[x]])
-# # })
-# # numeric_cols <- names(numeric_cols)[numeric_cols]
-# # fits <- lapply(numeric_cols, function(x) {
-# #   wilcox.test(d[["auto_calculation_of_das28_crp"]], d[[x]])
-# # })
+# d <- subset(b_meta, auto_calculation_of_das28_crp > 0)
+# numeric_cols <- sapply(colnames(d), function(x) {
+#   is.numeric(d[[x]])
+# })
+# numeric_cols <- names(numeric_cols)[numeric_cols]
+# fits <- lapply(numeric_cols, function(x) {
+#   wilcox.test(d[["auto_calculation_of_das28_crp"]], d[[x]])
+# })
 
 # ---------------------------------------------------------------------------
 # Comment the code from line 369 to line 414, since we don't show the CCA plots for now

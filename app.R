@@ -135,7 +135,7 @@ server <- function(input, output, session) {
       ggplot_function = function() { plot_box(meta, marker) }
     )
   })
-    
+  
   output$bulk_dots <- renderText({
     marker <- one_gene_symbol_default
     this_gene <- as.character(dg$gene[input$dg_table_rows_selected])

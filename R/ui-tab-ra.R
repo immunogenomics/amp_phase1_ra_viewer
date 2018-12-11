@@ -60,18 +60,17 @@ tabPanel(
               width = 7,
               DT::dataTableOutput("dg_table", height = "350px")
             )
+          ),
+        hr(),
+        fluidRow(
+          column(
+            width = 10,
+            htmlOutput("bulk_dots", height = "500px")
           )
-          # hr(),
-          # fluidRow(
-          #   column(
-          #     width = 5,
-          #     htmlOutput("bulk_dots", height = "500px")
-          #   )
-          # )
-        #)
-      
+        )
+
     ), # tabPanel
-    
+
     # tabPanel(
     #   "CCA integration",
     #   fluidPage(
