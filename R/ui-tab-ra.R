@@ -64,7 +64,8 @@ tabPanel(
         hr(),
         fluidRow(
           column(
-            width = 10,
+            width = 8,
+            h4("Bulk RNA-seq samples"),
             htmlOutput("bulk_dots", height = "500px")
           )
         )
@@ -231,7 +232,7 @@ tabPanel(
         strong("SC-T5:"), "GNLY+ GZMB+ CTLs;",
         strong("SC-T6:"), "GZMK+/GZMB+ T cells;"),
       
-      p(strong("SC-B1:"), "IGHD+ CD270 naive B cells;",
+      p(strong("SC-B1:"), "IGHD+ CD27 naive B cells;",
         strong("SC-B2:"), "IGHG3+ CD27- memory B cells;",
         strong("SC-B3:"), "autoimmune-associated cells (ABC);",
         strong("SC-B4:"), "Plasmablasts")
