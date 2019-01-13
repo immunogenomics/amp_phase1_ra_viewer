@@ -14,7 +14,7 @@ installed_packages <- rownames(installed.packages())
 cran_packages <- c(
   "DT",
   "Matrix",
-  "ff",
+  #"ff",
   "RColorBrewer",
   "data.table",
   "digest",
@@ -22,7 +22,7 @@ cran_packages <- c(
   "forcats",
   "gdata",
   "ggbeeswarm",
-  "ggforce",
+  #"ggforce",
   "ggplot2",
   "glue",
   "hdf5r",
@@ -35,8 +35,8 @@ cran_packages <- c(
   "shiny",
   "shinydashboard",
   "stringr",
-  "pbapply",
-  "Hmisc"
+  "pbapply"
+  #"Hmisc"
 )
 
 # Load packages, and install them if they are not installed.
@@ -47,8 +47,7 @@ github_repos <- c(
   "AnalytixWare/shinysky",
   "eclarke/ggbeeswarm",
   "tidyverse/ggplot2",
-  "thomasp85/patchwork",
-  "jefworks/liger"
+  "thomasp85/patchwork"
 )
 
 for (github_repo in github_repos) {

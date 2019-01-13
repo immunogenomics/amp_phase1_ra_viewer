@@ -1,6 +1,6 @@
-# ampviewer for AMP Phase I RA 
-# author: Kamil Slowikowski and Fan Zhang
-# date: 2018-07-16
+# Data viewer for AMP Phase I RA
+# creator: Kamil Slowikowski
+# contributors: Fan Zhang, Joseph Mears
 # 
 # https://github.com/timelyportfolio/d3treeR/issues/19#issuecomment-268110274
 try({dev.off()})
@@ -74,12 +74,6 @@ ui <- fluidPage(
 
 # Server ----------------------------------------------------------------------
 
-which_numeric_cols <- function(dat) {
-  which(sapply(seq(ncol(dat)), function(i) {
-    is.numeric(dat[,i])
-  }))
-}
-
 server <- function(input, output, session) {
   
   # Debug
@@ -94,7 +88,6 @@ server <- function(input, output, session) {
   # )
 
   output$tnse_marker_plot <- renderText({
-    print(input$cell_type)
     marker <- one_gene_symbol_default
     this_gene <- as.character(dg$gene[input$dg_table_rows_selected])
     if (length(this_gene) > 0) {
@@ -103,24 +96,24 @@ server <- function(input, output, session) {
     stopifnot(marker %in% gene_symbols)
     gene_ix <- which(gene_symbols == marker)
     meta$marker <- as.numeric(log2cpm[gene_ix,])
-    stopifnot(input$cell_type %in% possible_cell_types_rna)
-    if (input$cell_type == "all") {
+    stopifnot(input$rnaseq_cell_type %in% possible_cell_types_rna)
+    if (input$rnaseq_cell_type == "all") {
       cell_ix <- seq(nrow(meta))
       tsne_x <- "T1_all"
       tsne_y <- "T2_all"
     } else {
-      cell_ix <- which(meta$cell_type == input$cell_type)
+      cell_ix <- which(meta$cell_type == input$rnaseq_cell_type)
       tsne_x <- "T1" 
       tsne_y <- "T2"
     }
     save_figure(
       cache = USE_CACHE,
       filename = glue(
-        "ampra1_scrnaseq_tsne_{celltype}_{marker}.png",
-        celltype = slug(input$cell_type), marker = marker
+        "ampra1_scrnaseq_tsne_{celltype}_{marker}.jpg",
+        celltype = slug(input$rnaseq_cell_type), marker = marker
       ),
       width = 14, height = 8, dpi = 100,
-      html_alt = sprintf("%s %s", input$cell_type, marker),
+      html_alt = sprintf("%s %s", input$rnaseq_cell_type, marker),
       ggplot_function = function() {
         plot_tsne(meta[cell_ix,], tsne_x, tsne_y, title = marker)
       }
@@ -128,7 +121,7 @@ server <- function(input, output, session) {
   })
   
   # output$marker_heatmap <- renderD3heatmap({
-  #   markers <- get(sprintf("markers_%s", input$cell_type))
+  #   markers <- get(sprintf("markers_%s", input$rnaseq_cell_type))
   #   d3heatmap(
   #     x               = -log10(markers),
   #     colors          = "Greys",
@@ -147,7 +140,7 @@ server <- function(input, output, session) {
     meta$marker <- as.numeric(log2cpm[gene_ix,])
     save_figure(
       cache = USE_CACHE,
-      filename = glue("ampra1_scrnaseq_bar_{marker}.png", marker = marker),
+      filename = glue("ampra1_scrnaseq_bar_{marker}.jpg", marker = marker),
       width = 6, height = 9, dpi = 100,
       html_alt = marker,
       ggplot_function = function() { plot_box(meta, marker) }
@@ -160,15 +153,22 @@ server <- function(input, output, session) {
     if (length(this_gene) > 0) {
       marker <- this_gene
     }
-    stopifnot(marker %in% gene_symbols)
-    b_meta$marker <- as.numeric(b_log2tpm[marker,])
-    save_figure(
-      cache = USE_CACHE,
-      filename = glue("ampra1_rnaseq_dots_{marker}.png", marker = marker),
-      width = 9, height = 8, dpi = 100,
-      html_alt = marker,
-      ggplot_function = function() { plot_bulk_dots(b_meta, marker) }
+    # stopifnot(marker %in% gene_symbols)
+    retval <- glue(
+      "<p class='alert alert-warning'><i>{gene}</i> is not present in the bulk RNA-seq data.</p>",
+      gene = marker
     )
+    if (marker %in% rownames(b_log2tpm)) {
+      b_meta$marker <- as.numeric(b_log2tpm[marker,])
+      retval <- save_figure(
+        cache = USE_CACHE,
+        filename = glue("ampra1_rnaseq_dots_{marker}.jpg", marker = marker),
+        width = 9, height = 8, dpi = 100,
+        html_alt = marker,
+        ggplot_function = function() { plot_bulk_dots(b_meta, marker) }
+      )
+    }
+    retval
   })
   
   # output$bulk_single_cca <- renderText({
@@ -296,7 +296,7 @@ server <- function(input, output, session) {
         autoWidth = FALSE
       )
     ) %>%
-      DT::formatSignif(columns = numeric_cols, digits = 2)
+      DT::formatSignif(columns = numeric_cols, digits = 3)
   }, server = TRUE)
   
   
@@ -309,24 +309,24 @@ server <- function(input, output, session) {
       marker <- this_protein
     }
     stopifnot(marker %in% protein_symbols)
-    # stopifnot(input$cell_type %in% possible_cell_types_cytof)
-    if (!input$cell_type %in% possible_cell_types_cytof) {
+    # stopifnot(input$cytof_cell_type %in% possible_cell_types_cytof)
+    if (!input$cytof_cell_type %in% possible_cell_types_cytof) {
       # textOutput("The mass cytometry data were analyzed per cell type.")
       return("<p class='alert alert-danger'><strong>Error:</strong> Please select one cell type, not 'All cells'.</p>")
     }
     cytof_all$marker <- as.numeric(cytof_all[, which(colnames(cytof_all) == marker)])
-    cell_ix <- which(cytof_all$cell_type == input$cell_type)
+    cell_ix <- which(cytof_all$cell_type == input$cytof_cell_type)
     tsne_x <- "SNE1" 
     tsne_y <- "SNE2"
       
     save_figure(
       cache = USE_CACHE,
       filename = glue(
-        "ampra1_cytof_tsne_{celltype}_{marker}.png",
-        celltype = slug(input$cell_type), marker = marker
+        "ampra1_cytof_tsne_{celltype}_{marker}.jpg",
+        celltype = slug(input$cytof_cell_type), marker = marker
       ),
       width = 14, height = 9, dpi = 100,
-      html_alt = sprintf("%s %s", input$cell_type, marker),
+      html_alt = sprintf("%s %s", input$cytof_cell_type, marker),
       ggplot_function = function() {
         plot_tsne_cytof(cytof_all[cell_ix,], tsne_x, tsne_y, title = marker)
       }
@@ -334,27 +334,27 @@ server <- function(input, output, session) {
   })
   
   output$cytof_table <- DT::renderDataTable({
-    numeric_cols <- colnames(cytof_summarize)[which_numeric_cols(cytof_summarize)]
+    numeric_cols <- names(which(sapply(cytof_summarize, is.numeric)))
     # Javascript-enabled table.
     DT::datatable(
-      data = cytof_summarize,
-      colnames = c("Protein","Mass cytometry cluster", "% nonzero"),
-      selection = "single",
-      rownames = FALSE,
-      filter = list(position = "top", plain = TRUE),
-      style = "default",
+      data       = cytof_summarize,
+      colnames   = c("Cell Type", "Cluster", "Protein", "Percent Non-zero"),
+      selection  = "single",
+      rownames   = FALSE,
+      filter     = list(position = "top", plain = TRUE),
+      style      = "default",
       extensions = "Scroller",
-      options = list(
+      options    = list(
         # columnDefs has bugs https://github.com/rstudio/DT/issues/311
         # columnDefs = list(list(targets = c(1), searchable = TRUE)),
         deferRender = TRUE,
-        scrollY = 350, # Height in pixels
-        scroller = TRUE,
-        lengthMenu = FALSE,
-        autoWidth = FALSE
+        scrollY     = 350, # Height in pixels
+        scroller    = TRUE,
+        lengthMenu  = FALSE,
+        autoWidth   = FALSE
       )
     ) %>%
-      DT::formatSignif(columns = numeric_cols, digits = 2)
+      DT::formatSignif(columns = numeric_cols, digits = 3)
   }, server = TRUE)
   
   

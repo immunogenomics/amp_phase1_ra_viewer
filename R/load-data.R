@@ -22,7 +22,8 @@ rownames(dg) <- seq(nrow(dg))
 dg$wilcox_pvalue <- round(-log10(dg$wilcox_pvalue))
 dg <- dg[order(dg$wilcox_pvalue, decreasing = TRUE),]
 dg <- dg[, -which(colnames(dg) == "wilcox_pvalue")]
-dg$pct_nonzero <- paste(round(100 * (dg$pct_nonzero), 1), "%", sep="")
+# dg$pct_nonzero <- paste(round(100 * dg$pct_nonzero, 1), "%", sep="")
+dg$pct_nonzero <- 100 * dg$pct_nonzero
 
 # object_size(dg)
 # 12.2 MB
@@ -595,8 +596,15 @@ colnames(cytof_all)[which(colnames(cytof_all) == "markers")] <- "cluster"
 rownames(cytof_all) <- seq(nrow(cytof_all))
 
 one_protein_symbol_default <- "CD90"
+
+cytof_summarize <- cytof_all %>%
+  dplyr::select(-sampleID, -site, -SNE1, -SNE2, -status.tissue, -type, -status) %>%
+  data.table::melt(id.vars = c("cell_type", "cluster"), variable.name = "protein") %>%
+  dplyr::group_by(cell_type, cluster, protein) %>%
+  dplyr::summarize(pct_nonzero = 100 * sum(value > 0) / length(value))
+
 # Read the calculated statistics for protein markers
-cytof_summarize <- readRDS("data/cytof_summarize.rds")
+# cytof_summarize <- readRDS("data/cytof_summarize.rds")
 
 possible_cell_types_cytof <- c(
   "B cell"     = "B cell",

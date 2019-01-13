@@ -1,8 +1,9 @@
 plot_bulk_dots <- function(dat, marker = "") {
   ps <- sapply(unique(dat$cell_type), function(i) {
-    kruskal.test(formula = marker ~ inflamed, data = subset(dat, cell_type == i))$p.value
+    pval <- kruskal.test(formula = marker ~ inflamed, data = subset(dat, cell_type == i))$p.value
+    # sprintf("p = %s", format.pval(pv = pval, digits = 2))
+    sprintf("p = %s", signif(pval, digits = 1))
   })
-  ps <- sprintf("p = %s", format.pval(ps, 1))
   ps[2] <- sprintf("Kruskal-Wallis, %s", ps[2])
   dat_p <- data.frame(
     cell_type = factor(
@@ -78,6 +79,8 @@ plot_bulk_dots <- function(dat, marker = "") {
   )
 }
 # marker <- "THY1"
+# marker <- "C10orf105"
+# marker <- "MT-RNR2"
 # b_meta$marker <- as.numeric(b_log2tpm[marker,])
 # plot_bulk_dots(b_meta, marker)
 

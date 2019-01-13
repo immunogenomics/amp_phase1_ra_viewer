@@ -9,8 +9,8 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
   if (nrow(dat) < 5000) {
     point_size <- 2.5
   }
-  fill_values <- quantile_breaks(dat$marker, n = 9)
-  fill_values <- fill_values / max(fill_values)
+  # fill_values <- quantile_breaks(dat$marker, n = 9)
+  # fill_values <- fill_values / max(fill_values)
   fill_palette <- RColorBrewer::brewer.pal(9, "Greens")
   theme_tsne_1 <- theme_bw(base_size = 25) + theme(
     legend.position = "bottom",
@@ -32,7 +32,14 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
   )
   p1 <- ggplot() +
     geom_point(
-      data    = dat[order(dat$marker),],
+      data    = subset(dat, marker <= 0),
+      mapping = aes_string(x = tsne_x, y = tsne_y),
+      size    = point_size,
+      shape   = 19,
+      color   = "grey95"
+    ) +
+    geom_point(
+      data    = subset(dat[order(dat$marker),], marker > 0),
       mapping = aes_string(x = tsne_x, y = tsne_y, fill = "marker"),
       size    = point_size,
       shape   = 21,
@@ -42,8 +49,8 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
       # Linear scale
       # colours = fill_palette,
       # Quantile scale
-      colours = colorRampPalette(fill_palette)(length(fill_values)),
-      values  = fill_values,
+      colours = colorRampPalette(fill_palette)(9),
+      # values  = fill_values,
       breaks  = scales::pretty_breaks(n = 4),
       name    = bquote("Log"[2]~"(CPM+1)  ")
     ) +
@@ -51,7 +58,7 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
       fill  = guide_colorbar(
         ticks.linewidth = 1,
         ticks.colour = "black",
-        barwidth = 7,
+        barwidth = 12,
         barheight = 1.7
       ),
       alpha = "none"

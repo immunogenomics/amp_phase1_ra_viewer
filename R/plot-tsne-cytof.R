@@ -12,8 +12,10 @@ plot_tsne_cytof <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
   if (nrow(dat) < 5000) {
     point_size <- 1.5
   }
-  fill_values <- quantile_breaks(dat$marker, n = 9)
-  fill_values <- fill_values / max(fill_values)
+  # fill_values <- quantile_breaks(as.numeric(as.matrix(cytof_all[,1:35])), n = 9)
+  # cytof_range <- range(as.numeric(as.matrix(cytof_all[,1:35])))
+  # fill_values <- quantile_breaks(dat$marker, n = 9)
+  # fill_values <- fill_values / max(fill_values)
   fill_palette <- RColorBrewer::brewer.pal(9, "Greens")
   theme_tsne_1 <- theme_bw(base_size = 25) + theme(
     legend.position = "bottom",
@@ -35,19 +37,26 @@ plot_tsne_cytof <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
   )
   p1 <- ggplot() +
     geom_point(
-      # data    = dat[order(dat$marker),],
-      data = dat,
+      data    = subset(dat, marker <= 0),
+      mapping = aes_string(x = tsne_x, y = tsne_y),
+      size    = point_size,
+      shape   = 19,
+      color   = "grey95"
+    ) +
+    geom_point(
+      data    = subset(dat[order(dat$marker),], marker > 0),
       mapping = aes_string(x = tsne_x, y = tsne_y, fill = "marker"),
       size    = point_size,
       shape   = 21,
       stroke  = 0.1
     ) +
     scale_fill_gradientn(
+      # limits = cytof_range,
       # Linear scale
       # colours = fill_palette,
       # Quantile scale
-      colours = colorRampPalette(fill_palette)(length(fill_values)),
-      values  = fill_values,
+      colours = colorRampPalette(fill_palette)(9),
+      # values  = fill_values,
       breaks  = scales::pretty_breaks(n = 4),
       name    = "Normalized\nIntensity"
     ) +
@@ -56,7 +65,7 @@ plot_tsne_cytof <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
       fill  = guide_colorbar(
         ticks.linewidth = 1,
         ticks.colour = "black",
-        barwidth = 8,
+        barwidth = 12,
         barheight = 1.7
         # frame.colour = "black"
       ),
@@ -98,6 +107,7 @@ plot_tsne_cytof <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
 }
 
 # marker <- "CD90"
+# marker <- "CD45"
 # cytof_all$marker <- as.numeric(cytof_all[, which(colnames(cytof_all) == marker)])
 # cell_ix <- which(cytof_all$cell_type == "Fibroblast")
 # plot_tsne_cytof(cytof_all[cell_ix,], "SNE1", "SNE2", title = marker)

@@ -3,7 +3,8 @@ save_figure <- function(
   html_style = "height: 100%; width: 100%; object-fit: contain",
   html_alt = NULL,
   ggplot_function = NULL,
-  cache = TRUE
+  cache = TRUE,
+  optimize = FALSE
 ) {
   out_dir <- "www/figures"
   dir.create(out_dir, showWarnings = FALSE)
@@ -17,7 +18,9 @@ save_figure <- function(
       filename = filename, plot = p,
       width = width, height = height, dpi = dpi
     )
-    optimize_png(filename)
+    if (optimize) {
+      optimize_png(filename)
+    }
   }
   filename_hash <- digest::digest(file = filename, algo = "sha1")
   glue(
