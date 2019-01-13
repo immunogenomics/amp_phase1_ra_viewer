@@ -35,7 +35,8 @@ cran_packages <- c(
   "shiny",
   "shinydashboard",
   "stringr",
-  "pbapply"
+  "pbapply",
+  "Hmisc"
 )
 
 # Load packages, and install them if they are not installed.
