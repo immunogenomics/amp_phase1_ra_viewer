@@ -51,7 +51,7 @@ ui <- fluidPage(
   ),
 
   navbarPageWithText(
-    "AMP Phase I",
+    "AMP RA Phase I",
     source(file.path("R", "ui-tab-about.R"), local = TRUE)$value,
     source(file.path("R", "ui-tab-ra.R"), local = TRUE)$value,
     text = uiOutput("navbar_right")

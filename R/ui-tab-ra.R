@@ -2,12 +2,12 @@ tabPanel(
   title = "Data",
   value = "data",
   
-  h2("Clusters in single-cell RNA-seq and mass cytometry data"),
+  h2("Single-cell RNA-seq, bulk RNA-seq, and mass cytometry data"),
   
-  tabsetPanel(selected = "Single-cell RNA-seq",
+  tabsetPanel(selected = "RNA-seq",
     
     tabPanel(
-      "Single-cell RNA-seq",
+      "RNA-seq",
         
         # Show a plot of the generated distribution
         fluidPage(
