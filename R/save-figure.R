@@ -2,13 +2,12 @@ save_figure <- function(
   filename = NULL, width = 6, height = 5, dpi = 100,
   html_style = "height: 100%; width: 100%; object-fit: contain",
   html_alt = NULL,
-  ggplot_function = NULL
+  ggplot_function = NULL,
+  cache = TRUE
 ) {
   out_dir <- "www/figures"
   dir.create(out_dir, showWarnings = FALSE)
   filename <- file.path(out_dir, filename)
-  # Set to FALSE to disable caching figures.
-  cache <- TRUE
   if (!cache || !file.exists(filename) || file_test("-nt", "app.R", filename)) {
     if (is.null(ggplot_function)) {
       stop("ggplot_function is NULL")
@@ -30,4 +29,8 @@ save_figure <- function(
     ),
     alt = html_alt
   )
+}
+
+delete_figures <- function() {
+  system("rm -rf www/figures/*")
 }

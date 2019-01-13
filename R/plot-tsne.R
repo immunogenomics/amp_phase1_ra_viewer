@@ -1,12 +1,3 @@
-#' Get the quantile breaks in a numeric vector.
-#' @param x A numeric vector.
-#' @param n The number of breaks.
-#' @return A vector with unique breaks.
-quantile_breaks <- function(x, n = 10) {
-  breaks <- quantile(x, probs = seq(0, 1, length.out = n))
-  breaks[!duplicated(breaks)]
-}
-
 #' Create 2 tSNE plots side by side.
 #' The left plot is colored by marker.
 #' The right plot is colored by cluster.
@@ -45,7 +36,7 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
       mapping = aes_string(x = tsne_x, y = tsne_y, fill = "marker"),
       size    = point_size,
       shape   = 21,
-      stroke  = 0.15
+      stroke  = 0.1
     ) +
     scale_fill_gradientn(
       # Linear scale
@@ -57,7 +48,12 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
       name    = bquote("Log"[2]~"(CPM+1)  ")
     ) +
     guides(
-      fill  = guide_colorbar(barwidth = 7, barheight = 0.7),
+      fill  = guide_colorbar(
+        ticks.linewidth = 1,
+        ticks.colour = "black",
+        barwidth = 7,
+        barheight = 1.7
+      ),
       alpha = "none"
     ) +
     labs(x = NULL, y = NULL, title = substitute(italic(x), list(x = title))) +
@@ -72,20 +68,25 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
       mapping = aes_string(x = tsne_x, y = tsne_y, fill = "cluster"),
       size    = point_size,
       shape   = 21,
-      stroke  = 0.12
+      stroke  = 0.1
     ) +
     # scale_fill_brewer(type = "qual", palette = "Set3", name = "Cluster") +
     scale_fill_manual(values = meta_colors$cluster, name = "Cluster") +
-    guides(fill = guide_legend(nrow = 6, override.aes = list(size = 3))) +
+    guides(
+      fill = guide_legend(
+        nrow = 6,
+        override.aes = list(size = 6)
+      )
+    ) +
     labs(x = NULL, y = NULL, title = "Clusters") +
     # ggtitle("Identified clusters") +
     theme_tsne_2
   
   bottom_text <- sprintf(
-    "%s cells, %s (%s%%) nonzero cells",
-    nrow(dat),
-    n_nonzero,
-    signif(100 * n_nonzero / nrow(dat), 3)
+    "%s cells: %s (%s%%) non-zero",
+    comma(nrow(dat)),
+    comma(n_nonzero),
+    signif(100 * n_nonzero / nrow(dat), 2)
   )
   
   p1 + p2 + plot_annotation(
@@ -96,3 +97,10 @@ plot_tsne <- function(dat, tsne_x = "T1", tsne_y = "T2", title = NULL) {
   )
 }
 
+# marker <- "THY1"
+# gene_ix <- which(gene_symbols == marker)
+# meta$marker <- as.numeric(log2cpm[gene_ix,])
+# cell_ix <- seq(nrow(meta))
+# tsne_x <- "T1_all"
+# tsne_y <- "T2_all"
+# plot_tsne(meta[cell_ix,], tsne_x, tsne_y, title = marker)
