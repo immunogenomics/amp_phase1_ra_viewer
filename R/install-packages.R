@@ -12,6 +12,7 @@ installed_packages <- rownames(installed.packages())
 # library(d3heatmap)
 
 cran_packages <- c(
+  "BiocManager",
   "DT",
   "Matrix",
   #"ff",
@@ -61,13 +62,16 @@ for (github_repo in github_repos) {
 
 # biocLite("qusage")
 
-source("https://bioconductor.org/biocLite.R")
+# source("https://bioconductor.org/biocLite.R")
 bioc_packages <- c(
   "HDF5Array"
 )
 for (bioc_package in bioc_packages) {
   if (!bioc_package %in% installed_packages) {
-    biocLite(bioc_package, suppressUpdates = TRUE, suppressAutoUpdate = TRUE)
+    # biocLite(bioc_package, suppressUpdates = TRUE, suppressAutoUpdate = TRUE)
+    BiocManager::install(
+      bioc_package, update = TRUE, ask = FALSE
+    )
   }
 }
 

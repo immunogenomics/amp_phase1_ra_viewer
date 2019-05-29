@@ -39,7 +39,8 @@ navbarPageWithText <- function(title, ..., id = NULL, text) {
   navbar
 }
   
-ui <- fluidPage(
+ui <- function(request) {
+fluidPage(
 
   tags$head(
     includeHTML("google-analytics.html"),
@@ -57,6 +58,8 @@ ui <- fluidPage(
     text = uiOutput("navbar_right")
   ),
   
+  #bookmarkButton(),
+  
   HTML(
     "<footer class='myfooter page-footer'>
     <div class='text-center'>
@@ -69,6 +72,7 @@ ui <- fluidPage(
   )
 
 )
+}
 
 #
 
@@ -361,6 +365,13 @@ server <- function(input, output, session) {
 }
 
 # Launch the app --------------------------------------------------------------
+
+# Bookmarks would be great, but:
+#
+# The data table records all of the rows as "input" for some reason, so the
+# URL encoded values have 100s or 1000s of rows from the table.
+#
+# enableBookmarking(store = "url")
 
 shinyApp(ui = ui, server = server)
 
