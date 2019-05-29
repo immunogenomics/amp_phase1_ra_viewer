@@ -15,7 +15,7 @@ An app for viewing single-cell RNA-seq and mass cytometry data in synovial tissu
 
 Fan Zhang, Kevin Wei, Kamil Slowikowski, Chamith Y. Fonseka, Deepak A. Rao, Stephen Kelly, Susan M. Goodman, Darren Tabechian, Laura B. Hughes, Karen Salomon-Escoto, Gerald F. M. Watts, William Apruzzese, David J. Lieb, David L. Boyle, Arthur M. Mandelin II, Accelerating Medicines Partnership: RA Phase 1, AMP RA/SLE, Brendan F. Boyce, Edward DiCarlo, Ellen M. Gravallese, Peter K. Gregersen, Larry Moreland, Gary S. Firestein, Nir Hacohen, Chad Nusbaum, James A. Lederer, Harris Perlman, Costantino Pitzalis, Andrew Filer, V. Michael Holers, Vivian P. Bykerk, Laura T. Donlin, Jennifer H. Anolik, Michael B. Brenner, Soumya Raychaudhuri
 
-*bioRxiv* 2018. https://doi.org/10.1101/351130
+*Nature Immunology* 2019. https://doi.org/10.1038/s41590-019-0378-1
 
 ## :floppy_disk: Get the data
 

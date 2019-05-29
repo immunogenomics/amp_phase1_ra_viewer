@@ -23,10 +23,10 @@ Please cite our paper if you use this data in your work:
 </p>
 
 <div class='citation'>
-<h4><a href='https://doi.org/10.1101/351130'>Defining Inflammatory Cell States in Rheumatoid Arthritis Joint Synovial Tissues by Integrating Single-cell Transcriptomics and Mass Cytometry</a></h4>
+<h4><a href='https://doi.org/10.1038/s41590-019-0378-1'>Defining Inflammatory Cell States in Rheumatoid Arthritis Joint Synovial Tissues by Integrating Single-cell Transcriptomics and Mass Cytometry</a></h4>
 <p class='citation-authors'>Fan Zhang, Kevin Wei, Kamil Slowikowski, Chamith Y. Fonseka, Deepak A. Rao, Stephen Kelly, Susan M. Goodman, Darren Tabechian, Laura B. Hughes, Karen Salomon-Escoto, Gerald F. M. Watts, William Apruzzese, David J. Lieb, David L. Boyle, Arthur M. Mandelin II, Accelerating Medicines Partnership: RA Phase 1, AMP RA/SLE, Brendan F. Boyce, Edward DiCarlo, Ellen M. Gravallese, Peter K. Gregersen, Larry Moreland, Gary S. Firestein, Nir Hacohen, Chad Nusbaum, James A. Lederer, Harris Perlman, Costantino Pitzalis, Andrew Filer, V. Michael Holers, Vivian P. Bykerk, Laura T. Donlin, Jennifer H. Anolik, Michael B. Brenner, Soumya Raychaudhuri
 </p>
-<p>DOI: <a href='https://doi.org/10.1101/351130'>10.1101/351130</a></p>
+<p>DOI: <a href='https://doi.org/10.1038/s41590-019-0378-1'>10.1038/s41590-019-0378-1</a></p>
 <h4>Overview of synovial tissue workflow</h4>
 <img src='synovial_pipeline.png' style='width:100%;'>
 </div>
