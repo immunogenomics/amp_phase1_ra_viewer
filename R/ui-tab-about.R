@@ -35,9 +35,7 @@ Please cite our paper if you use this data in your work:
 <p>Download the complete data from ImmPort:</p>
 <ul>
 <li><a href='http://www.immport.org/immport-open/public/study/study/displayStudyDetail/SDY998'>SDY998:
-AMP Rheumatoid Arthritis Arthroplasty Phase 1</a></li>
-<li><a href='http://www.immport.org/immport-open/public/study/study/displayStudyDetail/SDY999'>SDY999:
-AMP Rheumatoid Arthritis Synovial Phase 1</a></li>
+AMP Rheumatoid Arthritis Phase 1</a></li>
 </ul>
 
 <h1>Get the code</h1>

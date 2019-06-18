@@ -23,9 +23,7 @@ Download the data from ImmPort:
 
 <ul>
 <li><a href="http://www.immport.org/immport-open/public/study/study/displayStudyDetail/SDY998">SDY998:
-AMP Rheumatoid Arthritis Arthroplasty Phase 1</a></li>
-<li><a href="http://www.immport.org/immport-open/public/study/study/displayStudyDetail/SDY999">SDY999:
-AMP Rheumatoid Arthritis Synovial Phase 1</a></li>
+AMP Rheumatoid Arthritis Phase 1</a></li>
 </ul>
 
 ## :octocat: Get the code
